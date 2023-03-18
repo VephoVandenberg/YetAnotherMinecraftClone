@@ -5,7 +5,7 @@
 #include "../engine/window/window.h"
 #include "../engine/renderer/quad_renderer.h"
 
-namespace GAME_NAMESPACE
+namespace GameNamespace
 {
 	using namespace Engine;
 
@@ -24,6 +24,7 @@ namespace GAME_NAMESPACE
 
 	private:
 		void init();
+		void initShaders();
 
 		bool m_isRunning;
 

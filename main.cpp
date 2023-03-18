@@ -1,12 +1,15 @@
 
 #include "src/game_base/application.h"
 
-using namespace GAME_NAMESPACE;
+using namespace GameNamespace;
 
 /*
-Agenda
- - Draw a quad
+* Agenda
+* - Camera
+* - Draw a cube
+* - Textures
 */
+
 
 int main(int argc, char** argv)
 {

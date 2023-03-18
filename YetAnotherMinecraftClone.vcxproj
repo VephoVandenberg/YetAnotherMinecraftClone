@@ -162,6 +162,7 @@
     <ClCompile Include="dependencies\GLAD\src\glad.c" />
     <ClCompile Include="src\engine\renderer\quad_renderer.cpp" />
     <ClCompile Include="src\engine\renderer\renderer.cpp" />
+    <ClCompile Include="src\engine\shader\shader.cpp" />
     <ClCompile Include="src\game_base\application.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\engine\window\window.cpp" />
@@ -169,11 +170,14 @@
   <ItemGroup>
     <ClInclude Include="src\engine\renderer\quad_renderer.h" />
     <ClInclude Include="src\engine\renderer\renderer.h" />
+    <ClInclude Include="src\engine\shader\shader.h" />
     <ClInclude Include="src\game_base\application.h" />
     <ClInclude Include="src\engine\window\window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
+    <None Include="shaders\base_shader.frag" />
+    <None Include="shaders\base_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,7 @@
 
 #include "../engine/resource_manager/resource_manager.h"
 #include "../engine/shader/shader_list.h"
+#include "../engine/texture/texture_list.h"
 
 #include "application.h"
 
@@ -13,6 +14,7 @@ Application::Application()
 {
 	init();
 	initShaders();
+	initTextures();
 }
 
 void Application::init()
@@ -23,10 +25,26 @@ void Application::init()
 
 void Application::initShaders()
 {
-	for (auto& value : g_shaderPaths)
+	for (auto& sValue : g_shaderPaths)
 	{
+		auto& sName = sValue.first;
+		auto& vPath = sValue.second.first;
+		auto& fPath = sValue.second.second;
+
 		ResourceManager::getInstance()
-			.setShader(value.first, value.second.first, value.second.second);
+			.setShader(sName, vPath, fPath);
+	}
+}
+
+void Application::initTextures()
+{
+	for (auto& tValue : g_texturePaths)
+	{
+		auto& tName = tValue.first;
+		auto& tPath = tValue.second;
+
+		ResourceManager::getInstance()
+			.setTexture(tName, tPath);
 	}
 }
 
@@ -34,10 +52,13 @@ void Application::run()
 {
 	while (m_isRunning)
 	{
-		ResourceManager::getInstance().getShader(g_base_shader);
 		m_window->clear();
 
-		m_renderer->render();
+		m_renderer->render(
+			ResourceManager::getInstance()
+				.getShader(ShaderNames::g_base_shader),
+			ResourceManager::getInstance()
+				.getTexture(TextureNames::g_grass));
 		
 		m_window->update();
 	}

@@ -5,6 +5,11 @@
 
 namespace Engine
 {
+	struct Keyboard
+	{
+		bool keys[1024];
+	};
+
 	class Window
 	{
 	public:

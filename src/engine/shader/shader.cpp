@@ -48,8 +48,6 @@ Shader::Shader(const char* vPath, const char* fPath)
 	int success;
 	char infoLog[512];
 
-	std::cout << "BLA" << std::endl;
-
 	vertexID = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexID, 1, &vCode, nullptr);
 	glCompileShader(vertexID);

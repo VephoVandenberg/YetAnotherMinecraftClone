@@ -5,6 +5,7 @@
 namespace Engine
 {
 	class Shader;
+	class Texture;
 
 	class ResourceManager
 	{
@@ -13,7 +14,9 @@ namespace Engine
 		static ResourceManager& getInstance();
 
 		static Shader& getShader(const char* sName);
-		static void setShader(const char* sName, const char* vFile, const char* fFile);
+		static void setShader(const char* sName, const char* vPath, const char* fPath);
+		static Texture& getTexture(const char* tName);
+		static void setTexture(const char* sName, const char* tPath);
 
 		ResourceManager(const ResourceManager&) = delete;
 		ResourceManager& operator=(const ResourceManager&) = delete;
@@ -23,6 +26,7 @@ namespace Engine
 		static ResourceManager* s_manager;
 
 		static std::map<const char*, Shader> s_shaders;
+		static std::map<const char*, Texture> s_textures;
 
 		ResourceManager() = default;
 		~ResourceManager() = default;

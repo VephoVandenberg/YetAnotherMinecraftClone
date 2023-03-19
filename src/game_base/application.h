@@ -25,6 +25,7 @@ namespace GameNamespace
 	private:
 		void init();
 		void initShaders();
+		void initTextures();
 
 		bool m_isRunning;
 

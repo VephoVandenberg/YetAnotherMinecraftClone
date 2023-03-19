@@ -14,13 +14,15 @@ namespace Engine
 		unsigned int IBO;
 	};
 
+	class Shader;
+	class Texture;
 	class QuadRenderer
 	{
 	public:
 		QuadRenderer();
 		~QuadRenderer() = default;
 
-		void render();
+		void render(Shader& shader, Texture& texture);
 
 		QuadRenderer(const QuadRenderer&) = delete;
 		QuadRenderer& operator=(const QuadRenderer&) = delete;

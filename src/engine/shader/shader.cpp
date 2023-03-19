@@ -5,6 +5,8 @@
 
 #include <glad/glad.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "shader.h"
 
 using namespace Engine;
@@ -95,4 +97,25 @@ Shader::~Shader()
 void Shader::use() const
 {
 	glUseProgram(ID);
+}
+
+void Shader::setMat4vf(const char* uName, glm::mat4 matrix)
+{
+	use();
+	glUniformMatrix4fv(glGetUniformLocation(ID, uName), 1, false, glm::value_ptr(matrix));
+}
+
+void Shader::setFloat(const char* uName, float value)
+{
+	glUniform1f(glGetUniformLocation(ID, uName), value);
+}
+
+void Shader::setInt(const char* uName, int value)
+{
+	glUniform1d(glGetUniformLocation(ID, uName), value);
+}
+
+void Shader::setVec3vf(const char* uName, const glm::vec3 vector)
+{
+	glUniform3fv(glGetUniformLocation(ID, uName), 1, glm::value_ptr(vector));
 }

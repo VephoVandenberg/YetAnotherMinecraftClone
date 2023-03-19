@@ -5,6 +5,10 @@ layout (location = 1) in vec2 inTexCoords;
 
 out vec2 fragTexCoords;
 
+uniform mat4 u_model;
+uniform mat4 u_view;
+uniform mat4 u_projection;
+
 void main()
 {
 	gl_Position = vec4(aPos, 1.0f);

@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\game_base\player.cpp" />
     <ClCompile Include="src\engine\camera\camera.cpp" />
     <ClCompile Include="dependencies\GLAD\src\glad.c" />
     <ClCompile Include="src\engine\resource_manager\resource_manager.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\engine\texture\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\game_base\player.h" />
     <ClInclude Include="src\engine\camera\camera.h" />
     <ClInclude Include="src\engine\resource_manager\resource_manager.h" />
     <ClInclude Include="src\engine\renderer\quad_renderer.h" />

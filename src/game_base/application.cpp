@@ -53,7 +53,7 @@ void Application::run()
 	while (m_isRunning)
 	{
 		m_window->clear();
-
+		
 		m_renderer->render(
 			ResourceManager::getInstance()
 				.getShader(ShaderNames::g_base_shader),

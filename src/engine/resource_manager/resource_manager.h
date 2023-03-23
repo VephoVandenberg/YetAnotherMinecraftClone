@@ -13,10 +13,10 @@ namespace Engine
 		
 		static ResourceManager& getInstance();
 
-		static Shader& getShader(const char* sName);
-		static void setShader(const char* sName, const char* vPath, const char* fPath);
-		static Texture& getTexture(const char* tName);
-		static void setTexture(const char* sName, const char* tPath);
+		Shader& getShader(const char* sName);
+		void setShader(const char* sName, const char* vPath, const char* fPath);
+		Texture& getTexture(const char* tName);
+		void setTexture(const char* sName, const char* tPath);
 
 		ResourceManager(const ResourceManager&) = delete;
 		ResourceManager& operator=(const ResourceManager&) = delete;

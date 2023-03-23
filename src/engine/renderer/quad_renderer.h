@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace Engine
 {
 	namespace GameModule
@@ -22,7 +24,7 @@ namespace Engine
 		QuadRenderer();
 		~QuadRenderer() = default;
 
-		void render(Shader& shader, Texture& texture);
+		void render(Shader& shader, Texture& texture, glm::mat4 view);
 
 		QuadRenderer(const QuadRenderer&) = delete;
 		QuadRenderer& operator=(const QuadRenderer&) = delete;

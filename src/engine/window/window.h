@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <glad/glad.h>
 #include <glfw3.h>
 
@@ -10,15 +12,27 @@ namespace Engine
 		bool keys[1024];
 	};
 
+	struct Event;
+
+	struct CallbackData
+	{
+		using EventFn = std::function<void(Event&)>;
+		EventFn m_func;
+	};
+
 	class Window
 	{
 	public:
-		Window();
+		Window(CallbackData data);
 		~Window();
 
 		void clear();
 		void update();
 
+		inline float getWidth() const { return m_width; }
+		inline float getHeight() const { return m_height; }
+		
+		Window() = delete;
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
 		Window(Window&&) = delete;
@@ -27,7 +41,12 @@ namespace Engine
 	private:
 		void init();
 
+		float m_width;
+		float m_height;
+
 		GLFWwindow* m_window;
+
+		CallbackData m_data;
 	};
 }
 

@@ -44,9 +44,10 @@ void QuadRenderer::init()
 	glEnableVertexAttribArray(1);
 }
 
-void QuadRenderer::render(Shader& shader, Texture& texture)
+void QuadRenderer::render(Shader& shader, Texture& texture, glm::mat4 view)
 {
 	shader.use();
+	shader.setMat4vf("u_view", view);
 	texture.bind();
 	glBindVertexArray(m_buffer.VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

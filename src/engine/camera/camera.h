@@ -4,12 +4,17 @@
 
 namespace Engine
 {
+	struct KeyboardEvent;
+
 	class Camera
 	{
 	public:
-		Camera();
+		Camera(); 
 
-		void update();
+		void update(float dt);
+		void handleInput(KeyboardEvent event);
+
+		inline glm::mat4 getCameraView() const { return m_cameraView; }
 
 		~Camera() = default;
 
@@ -20,5 +25,7 @@ namespace Engine
 
 	private:
 		glm::vec3 m_pos;
+		glm::vec3 m_velocity;
+		glm::mat4 m_cameraView;
 	};
 }

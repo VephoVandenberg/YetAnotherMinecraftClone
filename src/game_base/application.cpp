@@ -29,7 +29,7 @@ void Application::init()
 
 	m_window = std::unique_ptr<Window>(new Window(data));
 	m_renderer = std::unique_ptr<QuadRenderer>(new QuadRenderer);
-	m_player = std::unique_ptr<Player>(new Player());
+	m_player = std::unique_ptr<Player>(new Player(m_window->getWidth(), m_window->getHeight()));
 }
 
 void Application::handleEvents(Event& event)

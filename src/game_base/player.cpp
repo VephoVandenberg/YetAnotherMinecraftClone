@@ -4,7 +4,8 @@
 
 using namespace GameNamespace;
 
-Player::Player()
+Player::Player(float width, float height)
+	: m_camera(width, height)
 {
 
 }
@@ -19,6 +20,12 @@ void Player::handleInput(Event& event)
 		auto keyEvent = dynamic_cast<KeyboardEvent&>(event);
 		m_camera.handleInput(keyEvent);
 	}break;
+
+	case EventType::MouseMove:
+	{
+		auto mouseMove = dynamic_cast<MouseMoveEvent&>(event);
+		m_camera.handleInput(mouseMove);
+	}
 	}
 }
 

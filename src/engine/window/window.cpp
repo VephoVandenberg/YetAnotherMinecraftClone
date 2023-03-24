@@ -28,6 +28,7 @@ void Window::init()
 	m_window = glfwCreateWindow(m_width, m_height, "YetAnotherMinecraftClone", nullptr, nullptr);
 	glfwMakeContextCurrent(m_window);
 	glfwSetWindowUserPointer(m_window, &m_data);
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -38,7 +39,7 @@ void Window::init()
 	glfwSetKeyCallback(
 		m_window,
 		[](GLFWwindow* window, int key, int scancode, int action, int mods) {
-			auto* data = static_cast<CallbackData*>(glfwGetWindowUserPointer(window));
+			auto* data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
 
 			KeyboardEvent event;
 			event.m_action = action;
@@ -47,11 +48,24 @@ void Window::init()
 			data->m_func(event);
 		});
 
+	glfwSetCursorPosCallback(
+		m_window,
+		[](GLFWwindow* window, double xPos, double yPos) {
+			auto* const data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
+
+			MouseMoveEvent event;
+			event.x = xPos;
+			event.y = yPos;
+
+			data->m_func(event);
+		});
+
+
 	glfwSetWindowCloseCallback(
 		m_window,
 		[](GLFWwindow* window) {
-			auto* data = static_cast<CallbackData*>(glfwGetWindowUserPointer(window));
-			
+			auto* const data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
+
 			CloseEvent event;
 
 			data->m_func(event);

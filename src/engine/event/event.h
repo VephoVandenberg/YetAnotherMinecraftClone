@@ -29,6 +29,18 @@ namespace Engine
 		~KeyboardEvent() = default;
 	};
 
+	struct MouseMoveEvent : public Event
+	{
+		int x;
+		int y;
+
+		MouseMoveEvent()
+		{
+			m_type = EventType::MouseMove;
+		}
+		~MouseMoveEvent() = default;
+	};
+
 	struct CloseEvent : public Event
 	{
 		CloseEvent()
@@ -37,4 +49,5 @@ namespace Engine
 		}
 		~CloseEvent() = default;
 	};
+
 }

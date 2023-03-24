@@ -11,7 +11,7 @@ namespace GameNamespace
 	class Player
 	{
 	public:
-		Player();
+		Player(float width, float height);
 
 		void update(float dt);
 		void handleInput(Event& event);

@@ -28,7 +28,7 @@ void Application::init()
 	data.m_func = std::bind(&Application::handleEvents, this, std::placeholders::_1);
 
 	m_window = std::unique_ptr<Window>(new Window(data));
-	m_renderer = std::unique_ptr<QuadRenderer>(new QuadRenderer);
+	m_renderer = std::unique_ptr<Renderer>(new Renderer);
 	m_player = std::unique_ptr<Player>(new Player(m_window->getWidth(), m_window->getHeight()));
 }
 

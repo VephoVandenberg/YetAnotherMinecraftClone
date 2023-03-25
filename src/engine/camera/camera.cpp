@@ -31,7 +31,7 @@ Camera::Camera(float width, float height)
 }
 
 void Camera::update(float dt)
-{	
+{
 	glm::vec3 velocity = glm::vec3(0.0f);
 
 	if (m_moveType & (unsigned int)MoveType::Front)

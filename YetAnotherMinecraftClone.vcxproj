@@ -163,7 +163,6 @@
     <ClCompile Include="src\engine\camera\camera.cpp" />
     <ClCompile Include="dependencies\GLAD\src\glad.c" />
     <ClCompile Include="src\engine\resource_manager\resource_manager.cpp" />
-    <ClCompile Include="src\engine\renderer\quad_renderer.cpp" />
     <ClCompile Include="src\engine\renderer\renderer.cpp" />
     <ClCompile Include="src\engine\shader\shader.cpp" />
     <ClCompile Include="src\engine\texture\image_loader\stb_image_loader.cpp" />
@@ -178,7 +177,6 @@
     <ClInclude Include="src\game_base\player.h" />
     <ClInclude Include="src\engine\camera\camera.h" />
     <ClInclude Include="src\engine\resource_manager\resource_manager.h" />
-    <ClInclude Include="src\engine\renderer\quad_renderer.h" />
     <ClInclude Include="src\engine\renderer\renderer.h" />
     <ClInclude Include="src\engine\shader\shader.h" />
     <ClInclude Include="src\engine\shader\shader_list.h" />

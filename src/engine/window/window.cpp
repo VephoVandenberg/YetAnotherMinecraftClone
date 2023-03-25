@@ -35,6 +35,7 @@ void Window::init()
 		std::cout << "ERROR::GLAD_FAILED_TO_LOAD" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	glEnable(GL_DEPTH_TEST);
 
 	glfwSetKeyCallback(
 		m_window,
@@ -76,7 +77,7 @@ void Window::init()
 void Window::clear()
 {
 	glClearColor(0.0f, 0.0f, 0.8f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::update()

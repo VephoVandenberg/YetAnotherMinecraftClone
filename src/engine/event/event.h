@@ -11,10 +11,7 @@ namespace Engine
 
 	struct Event
 	{
-		EventType m_type;
-
-		Event() = default;
-		virtual ~Event() = default;
+		virtual inline EventType getType() const = 0;
 	};
 
 	struct KeyboardEvent : public Event
@@ -22,11 +19,7 @@ namespace Engine
 		int m_key;
 		int m_action;
 
-		KeyboardEvent()
-		{
-			m_type = EventType::Keyboard;
-		}
-		~KeyboardEvent() = default;
+		inline EventType getType() const override{ return EventType::Keyboard; }
 	};
 
 	struct MouseMoveEvent : public Event
@@ -34,20 +27,12 @@ namespace Engine
 		int x;
 		int y;
 
-		MouseMoveEvent()
-		{
-			m_type = EventType::MouseMove;
-		}
-		~MouseMoveEvent() = default;
+		inline EventType getType() const override { return EventType::MouseMove; }
 	};
 
 	struct CloseEvent : public Event
 	{
-		CloseEvent()
-		{
-			m_type = EventType::Close;
-		}
-		~CloseEvent() = default;
+		inline EventType getType() const override { return EventType::Close; }
 	};
 
 }

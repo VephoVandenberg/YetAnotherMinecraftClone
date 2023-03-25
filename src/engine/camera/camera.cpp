@@ -12,17 +12,17 @@ constexpr glm::vec3 g_caemraPos = glm::vec3(0.0f, 0.0f, 1.0f);
 constexpr glm::vec3 g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 constexpr glm::vec3 g_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-constexpr float g_cameraSpeedCoeff = 2.0f;
+constexpr float g_cameraSpeedCoeff = 2.5f;
 
 Camera::Camera(float width, float height)
 	: m_pos(0.0f, 0.0f, 3.0f)
 	, m_cameraFront(g_cameraFront)
-	, m_velocity(0.0f)
 	, m_firstMove(true)
 	, m_lastX(width / 2.0f)
 	, m_lastY(height / 2.0f)
 	, m_yaw(-90.0f)
 	, m_pitch(0.0f)
+	, m_moveType(0)
 {
 	m_cameraView = glm::lookAt(
 		m_pos,
@@ -31,8 +31,30 @@ Camera::Camera(float width, float height)
 }
 
 void Camera::update(float dt)
-{
-	m_pos += m_velocity * dt;
+{	
+	glm::vec3 velocity = glm::vec3(0.0f);
+
+	if (m_moveType & (unsigned int)MoveType::Front)
+	{
+		velocity += m_cameraFront * g_cameraSpeedCoeff;
+	}
+
+	if (m_moveType & (unsigned int)MoveType::Back)
+	{
+		velocity -= m_cameraFront * g_cameraSpeedCoeff;
+	}
+
+	if (m_moveType & (unsigned int)MoveType::Left)
+	{
+		velocity -= glm::cross(m_cameraFront, g_cameraUp) * g_cameraSpeedCoeff;
+	}
+
+	if (m_moveType & (unsigned int)MoveType::Right)
+	{
+		velocity += glm::cross(m_cameraFront, g_cameraUp) * g_cameraSpeedCoeff;
+	}
+
+	m_pos += velocity * dt;
 
 	m_cameraView = glm::lookAt(
 		m_pos,
@@ -42,39 +64,52 @@ void Camera::update(float dt)
 
 void Camera::handleInput(KeyboardEvent event)
 {
-	if (event.m_action == GLFW_PRESS || event.m_action == GLFW_REPEAT && glm::length(m_velocity) < 4)
+	if (event.m_key == GLFW_KEY_W)
 	{
-		switch (event.m_key)
+		if (event.m_action == GLFW_PRESS || event.m_action == GLFW_REPEAT)
 		{
-		case GLFW_KEY_W:
-		{
-			m_velocity += m_cameraFront;
-		}break;
-
-		case GLFW_KEY_S:
-		{
-			m_velocity += -m_cameraFront;
-		}break;
-
-		case GLFW_KEY_A:
-		{
-			m_velocity += -glm::normalize(glm::cross(m_cameraFront, g_cameraUp));
-		}break;
-
-		case GLFW_KEY_D:
-		{
-			m_velocity += glm::normalize(glm::cross(m_cameraFront, g_cameraUp));
-		}break;
-		
-		default:
-			break;
+			m_moveType = m_moveType | (unsigned int)MoveType::Front;
 		}
-
-		m_velocity = glm::normalize(m_velocity) * g_cameraSpeedCoeff;
+		else
+		{
+			m_moveType = m_moveType & ~((unsigned int)MoveType::Front);
+		}
 	}
-	else
+
+	if (event.m_key == GLFW_KEY_S)
 	{
-		m_velocity = {0.0f, 0.0f, 0.0f};
+		if (event.m_action == GLFW_PRESS || event.m_action == GLFW_REPEAT)
+		{
+			m_moveType = m_moveType | (unsigned int)MoveType::Back;
+		}
+		else
+		{
+			m_moveType = m_moveType & ~((unsigned int)MoveType::Back);
+		}
+	}
+
+	if (event.m_key == GLFW_KEY_A)
+	{
+		if (event.m_action == GLFW_PRESS || event.m_action == GLFW_REPEAT)
+		{
+			m_moveType = m_moveType | (unsigned int)MoveType::Left;
+		}
+		else
+		{
+			m_moveType = m_moveType & ~((unsigned int)MoveType::Left);
+		}
+	}
+
+	if (event.m_key == GLFW_KEY_D)
+	{
+		if (event.m_action == GLFW_PRESS || event.m_action == GLFW_REPEAT)
+		{
+			m_moveType = m_moveType | (unsigned int)MoveType::Right;
+		}
+		else
+		{
+			m_moveType = m_moveType & ~((unsigned int)MoveType::Right);
+		}
 	}
 }
 
@@ -88,7 +123,7 @@ void Camera::handleInput(MouseMoveEvent event)
 	}
 
 	float xOffset = event.x - m_lastX;
-	float yOffset = -event.y + m_lastY;
+	float yOffset = m_lastY - event.y;
 	m_lastX = event.x;
 	m_lastY = event.y;
 

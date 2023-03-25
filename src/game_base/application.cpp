@@ -34,13 +34,16 @@ void Application::init()
 
 void Application::handleEvents(Event& event)
 {
-	if (event.m_type == EventType::Close)
+	switch (event.getType())
+	{
+	case EventType::Close:
 	{
 		m_isRunning = false;
-	}
-	else
-	{
+	}break;
+
+	default:
 		m_player->handleInput(event);
+		break;
 	}
 }
 
@@ -77,25 +80,23 @@ void Application::initTextures()
 
 void Application::run()
 {
-	float previousFrame = 0.0f;
-	float currentFrame = 0.0f;
 	while (m_isRunning)
 	{
-		float dt = currentFrame - previousFrame;
-		previousFrame = currentFrame;
-		currentFrame = glfwGetTime();
+		float currentFrame = glfwGetTime();
+		m_deltaFrame = currentFrame - m_previousFrame;
+		m_previousFrame = currentFrame;
 
 		m_window->clear();
-		
-		m_player->update(dt);
+
+		m_player->update(m_deltaFrame);
 
 		m_renderer->render(
 			ResourceManager::getInstance()
-				.getShader(ShaderNames::g_base_shader),
+			.getShader(ShaderNames::g_base_shader),
 			ResourceManager::getInstance()
-				.getTexture(TextureNames::g_grass),
+			.getTexture(TextureNames::g_grass),
 			m_player->getCameraView());
-		
+
 		m_window->update();
 	}
 }

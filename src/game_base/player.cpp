@@ -2,6 +2,7 @@
 
 #include "player.h"
 
+using namespace Engine;
 using namespace GameNamespace;
 
 Player::Player(float width, float height)
@@ -12,8 +13,7 @@ Player::Player(float width, float height)
 
 void Player::handleInput(Event& event)
 {
-
-	switch (event.m_type)
+	switch (event.getType())
 	{
 	case EventType::Keyboard:
 	{

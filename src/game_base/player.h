@@ -4,17 +4,13 @@
 
 namespace GameNamespace
 {
-	using namespace Engine;
-
-	class Engine::Event;
-
 	class Player
 	{
 	public:
 		Player(float width, float height);
 
 		void update(float dt);
-		void handleInput(Event& event);
+		void handleInput(Engine::Event& event);
 		
 		inline glm::mat4 getCameraView() const { return m_camera.getCameraView(); }
 
@@ -26,6 +22,6 @@ namespace GameNamespace
 		Player& operator=(Player&&) = delete;
 
 	private:
-		Camera m_camera;
+		Engine::Camera m_camera;
 	};
 }

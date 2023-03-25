@@ -5,8 +5,6 @@ using namespace GameNamespace;
 
 /*
 * Agenda
-* - Mouse input
-* - change keyboard handling
 * - Draw a cube
 */
 

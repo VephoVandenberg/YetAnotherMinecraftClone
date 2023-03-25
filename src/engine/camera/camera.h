@@ -7,6 +7,17 @@ namespace Engine
 	struct KeyboardEvent;
 	struct MouseMoveEvent;
 
+#define BIT(x) 1 << x
+
+	enum class MoveType
+	{
+		None  = 0,
+		Front = BIT(0),
+		Back  = BIT(1),
+		Left  = BIT(2),
+		Right = BIT(4),
+	};
+
 	class Camera
 	{
 	public:
@@ -28,7 +39,6 @@ namespace Engine
 	private:
 		glm::vec3 m_pos;
 		glm::vec3 m_cameraFront;
-		glm::vec3 m_velocity;
 		glm::mat4 m_cameraView;
 
 		bool m_firstMove;
@@ -38,5 +48,7 @@ namespace Engine
 
 		float m_yaw = -90.0f;
 		float m_pitch;
+
+		unsigned int m_moveType;
 	};
 }

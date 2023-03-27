@@ -22,7 +22,7 @@ namespace Engine
 		Renderer();
 		~Renderer() = default;
 
-		void render(Shader& shader, Texture& texture, glm::mat4 view);
+		void render(glm::vec3 pos, Shader& shader, Texture& texture, glm::mat4 view);
 
 		Renderer(const Renderer&) = delete;
 		Renderer(Renderer&&) = delete;

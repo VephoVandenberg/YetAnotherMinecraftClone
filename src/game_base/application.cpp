@@ -20,6 +20,7 @@ Application::Application()
 	init();
 	initShaders();
 	initTextures();
+	initBlocks();
 }
 
 void Application::init()
@@ -78,6 +79,28 @@ void Application::initTextures()
 	}
 }
 
+void Application::initBlocks()
+{
+	unsigned int xRange = 10;
+	unsigned int yRange = 10;
+	unsigned int zRange = 15;
+
+	for (unsigned int x = 0; x < xRange; x++)
+	{
+		for (unsigned int y = 0; y < yRange; y++)
+		{
+			for (unsigned int z = 0; z < zRange; z++)
+			{
+				glm::vec3 pos = {
+					x, y, z
+				};
+				m_blocks.emplace_back(
+					Block(pos, ResourceManager::getInstance().getTexture(TextureNames::g_grass)));
+			}
+		}
+	}
+}
+
 void Application::run()
 {
 	while (m_isRunning)
@@ -90,12 +113,14 @@ void Application::run()
 
 		m_player->update(m_deltaFrame);
 
-		m_renderer->render(
-			ResourceManager::getInstance()
-			.getShader(ShaderNames::g_base_shader),
-			ResourceManager::getInstance()
-			.getTexture(TextureNames::g_grass),
-			m_player->getCameraView());
+		for (auto& block : m_blocks)
+		{
+			block.render(
+				*m_renderer, 
+				ResourceManager::getInstance().
+					getShader(ShaderNames::g_base_shader), 
+				m_player->getCameraView());
+		}
 
 		m_window->update();
 	}

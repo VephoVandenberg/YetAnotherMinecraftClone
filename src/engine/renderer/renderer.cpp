@@ -1,3 +1,5 @@
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <glad/glad.h>
 
 #include "../shader/shader.h"
@@ -52,32 +54,31 @@ void Renderer::init()
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // 21
 		 0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // 22
 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f  // 23
-
 	};
 
 	unsigned int indicies[] = {
 		// front
 		0, 1, 2,
-		1, 2, 3,
+		1, 3, 2,
 
 		// back
-		4, 5, 6,
+		4, 6, 5,
 		5, 6, 7,
 
 		// top
 		8, 9, 10,
-		9, 10, 11,
+		9, 11, 10,
 		
 		// bottom
-		12, 13, 14,
+		12, 14, 13,
 		13, 14, 15,
 
 		// left
 		16, 17, 18,
-		17, 18, 19,
+		17, 19, 18,
 
 		// right
-		20, 21, 22,
+		20, 22, 21,
 		21, 22, 23
 	};
 
@@ -99,10 +100,15 @@ void Renderer::init()
 	glEnableVertexAttribArray(1);
 }
 
-void Renderer::render(Shader& shader, Texture& texture, glm::mat4 view)
+void Renderer::render(glm::vec3 pos, Shader& shader, Texture& texture, glm::mat4 view)
 {
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, pos);
+
 	shader.use();
+	glCullFace(GL_CULL_FACE);
 	shader.setMat4vf("u_view", view);
+	shader.setMat4vf("u_model", model);
 	texture.bind();
 	glBindVertexArray(m_buffer.VAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);

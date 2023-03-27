@@ -1,17 +1,20 @@
 #pragma once
 
 #include <memory>
-#include <deque>
+#include <vector>
 
 #include "../engine/window/window.h"
 #include "../engine/renderer/renderer.h"
 #include "../engine/event/event.h"
+
+#include "../game_mudules/block/block.h"
 
 #include "player.h"
 
 namespace GameNamespace
 {
 	using namespace Engine;
+	using namespace GameModules;
 
 	class Application
 	{
@@ -31,13 +34,14 @@ namespace GameNamespace
 		void handleEvents(Event& event);
 		void initShaders();
 		void initTextures();
+		void initBlocks();
 
 		float m_deltaFrame;
 		float m_previousFrame;
 
 		bool m_isRunning;
 
-		std::deque<Event*> m_eventQueue;
+		std::vector<Block> m_blocks;
 
 		std::unique_ptr<Window> m_window;
 		std::unique_ptr<Renderer> m_renderer;

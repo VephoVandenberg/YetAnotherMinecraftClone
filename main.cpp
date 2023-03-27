@@ -5,7 +5,11 @@ using namespace GameNamespace;
 
 /*
 * Agenda
-* - Draw a cube
+* Later
+* - draw many cubes
+* - Chunks
+* - Don't draw things that can't be seen, take in consideration tile maps
+* - Atlas wrapper
 */
 
 

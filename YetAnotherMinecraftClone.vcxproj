@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\mesh\mesh.cpp" />
     <ClCompile Include="src\game_mudules\block\block.cpp" />
     <ClCompile Include="src\game_base\player.cpp" />
     <ClCompile Include="src\engine\camera\camera.cpp" />
@@ -173,6 +174,8 @@
     <ClCompile Include="src\engine\texture\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\mesh\data.h" />
+    <ClInclude Include="src\engine\mesh\mesh.h" />
     <ClInclude Include="src\game_mudules\block\block.h" />
     <ClInclude Include="src\engine\event\event.h" />
     <ClInclude Include="src\engine\shader\uniform_list.h" />

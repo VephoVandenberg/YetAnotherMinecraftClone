@@ -4,8 +4,9 @@
 #include <vector>
 
 #include "../engine/window/window.h"
-#include "../engine/renderer/renderer.h"
+// #include "../engine/renderer/renderer.h"
 #include "../engine/event/event.h"
+#include "../engine/mesh/mesh.h"
 
 #include "../game_mudules/block/block.h"
 
@@ -35,6 +36,7 @@ namespace GameNamespace
 		void initShaders();
 		void initTextures();
 		void initBlocks();
+		void initMeshes();
 
 		float m_deltaFrame;
 		float m_previousFrame;
@@ -42,9 +44,10 @@ namespace GameNamespace
 		bool m_isRunning;
 
 		std::vector<Block> m_blocks;
+		std::vector<Mesh> m_meshes;
 
 		std::unique_ptr<Window> m_window;
-		std::unique_ptr<Renderer> m_renderer;
+		// std::unique_ptr<Renderer> m_renderer;
 
 		std::unique_ptr<Player> m_player;	
 	};

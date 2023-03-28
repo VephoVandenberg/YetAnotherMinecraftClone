@@ -53,7 +53,8 @@ void Renderer::init()
 		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // 20
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // 21
 		 0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // 22
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f  // 23
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // 23
+
 	};
 
 	unsigned int indicies[] = {
@@ -79,7 +80,7 @@ void Renderer::init()
 
 		// right
 		20, 22, 21,
-		21, 22, 23
+		21, 22, 23,
 	};
 
 	glCreateVertexArrays(1, &m_buffer.VAO);
@@ -111,5 +112,5 @@ void Renderer::render(glm::vec3 pos, Shader& shader, Texture& texture, glm::mat4
 	shader.setMat4vf("u_model", model);
 	texture.bind();
 	glBindVertexArray(m_buffer.VAO);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, 72, GL_UNSIGNED_INT, nullptr);
 }

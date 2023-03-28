@@ -1,4 +1,3 @@
-
 #include "src/game_base/application.h"
 
 using namespace GameNamespace;
@@ -6,7 +5,7 @@ using namespace GameNamespace;
 /*
 * Agenda
 * Later
-* - draw many cubes
+* - Hello mesh
 * - Chunks
 * - Don't draw things that can't be seen, take in consideration tile maps
 * - Atlas wrapper

@@ -24,7 +24,7 @@ namespace GameModules
 
 		// void render(Renderer& renderer, Shader& shader, glm::mat4 view);
 
-		inline std::vector<Data::Vertex> getVertices() const { return m_vertices; }
+		inline const std::vector<Data::Vertex>& getVertices() const { return m_vertices; }
 
 		~Block() = default;
 		Block(Block&&) = default;

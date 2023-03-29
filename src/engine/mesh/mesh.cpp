@@ -26,8 +26,8 @@ void Mesh::init()
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer.VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer.IBO);
 
-	glBufferData(GL_ARRAY_BUFFER, m_vertices.size(), m_vertices.data(), GL_DYNAMIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicies.size(), m_indicies.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), m_vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicies.size() * sizeof(unsigned int), m_indicies.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(0));
 	glEnableVertexAttribArray(0);
@@ -40,7 +40,9 @@ void Mesh::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)
 {
 	shader.use();
 	shader.setMat4vf("u_view", cameraView);
-	glDrawElements(GL_TRIANGLES, m_indicies.size(), GL_UNSIGNED_INT, m_indicies.data());
+	texture.bind();
+	glBindVertexArray(m_buffer.VAO);
+	glDrawElements(GL_TRIANGLES, m_indicies.size(), GL_UNSIGNED_INT, nullptr);
 }
 
 void Mesh::updateData(std::vector<Vertex> verticies, std::vector<unsigned int> indicies)

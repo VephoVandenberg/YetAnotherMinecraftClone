@@ -14,6 +14,8 @@
 using namespace Engine;
 using namespace GameNamespace;
 
+constexpr glm::vec3 g_chunkSize = glm::vec3(20.0f, 20.0f, 20.0f);
+
 Application::Application()
 	: m_isRunning(true)
 {
@@ -82,15 +84,12 @@ void Application::initTextures()
 
 void Application::initBlocks()
 {
-	unsigned int xRange = 10;
-	unsigned int yRange = 10;
-	unsigned int zRange = 15;
 
-	for (unsigned int x = 0; x < xRange; x++)
+	for (int x = 0; x < g_chunkSize.x; x++)
 	{
-		for (unsigned int y = 0; y < yRange; y++)
+		for (int y = 0; y < g_chunkSize.y; y++)
 		{
-			for (unsigned int z = 0; z < zRange; z++)
+			for (int z = 0; z > -g_chunkSize.z; z--)
 			{
 				glm::vec3 pos = {
 					x, y, z
@@ -109,61 +108,110 @@ void Application::initMeshes()
 	std::vector<Data::Vertex> vertices;
 	std::vector<unsigned int> indicies;
 
-	for (unsigned int i = 0; i < m_blocks.size(); i++)
-	{
-		// front
+	auto addFront = [](std::vector<unsigned int>& indicies, unsigned int i) {
 		indicies.push_back(24 * i + 0);
 		indicies.push_back(24 * i + 1);
 		indicies.push_back(24 * i + 2);
 		indicies.push_back(24 * i + 1);
 		indicies.push_back(24 * i + 3);
 		indicies.push_back(24 * i + 2);
+	};
 
-		// back
+	auto addBack = [](std::vector<unsigned int>& indicies, unsigned int i) {
 		indicies.push_back(24 * i + 4);
 		indicies.push_back(24 * i + 6);
 		indicies.push_back(24 * i + 5);
 		indicies.push_back(24 * i + 5);
 		indicies.push_back(24 * i + 6);
 		indicies.push_back(24 * i + 7);
+	};
 
-		// top
+	auto addTop = [](std::vector<unsigned int>& indicies, unsigned int i) {
 		indicies.push_back(24 * i + 8);
 		indicies.push_back(24 * i + 9);
 		indicies.push_back(24 * i + 10);
 		indicies.push_back(24 * i + 9);
 		indicies.push_back(24 * i + 11);
 		indicies.push_back(24 * i + 10);
+	};
 
-		// bottom
+	auto addBottom = [](std::vector<unsigned int>& indicies, unsigned int i) {
 		indicies.push_back(24 * i + 12);
 		indicies.push_back(24 * i + 14);
 		indicies.push_back(24 * i + 13);
 		indicies.push_back(24 * i + 13);
 		indicies.push_back(24 * i + 14);
 		indicies.push_back(24 * i + 15);
+	};
 
-		// left
+	auto addLeft = [](std::vector<unsigned int>& indicies, unsigned int i) {
 		indicies.push_back(24 * i + 16);
 		indicies.push_back(24 * i + 17);
 		indicies.push_back(24 * i + 18);
 		indicies.push_back(24 * i + 17);
 		indicies.push_back(24 * i + 19);
 		indicies.push_back(24 * i + 18);
+	};
 
-		// right
+	auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
 		indicies.push_back(24 * i + 20);
 		indicies.push_back(24 * i + 22);
 		indicies.push_back(24 * i + 21);
 		indicies.push_back(24 * i + 21);
 		indicies.push_back(24 * i + 22);
 		indicies.push_back(24 * i + 23);
+	};
 
-		for (unsigned int vIndex = 0; vIndex < m_blocks[i].getVertices().size(); vIndex++)
+	
+	int i = 0;
+	for (int x = 0; x < g_chunkSize.x; x++)
+	{
+		for (int y = 0; y < g_chunkSize.y; y++)
 		{
-			vertices.push_back(m_blocks[i].getVertices()[vIndex]);
+			for (int z = 0; z < g_chunkSize.z; z++)
+			{
+				bool isFrontFree = (z == 0);
+				bool isBackFree = (z == g_chunkSize.z - 1);
+				bool isTopFree = (y == g_chunkSize.y - 1);
+				bool isBottomFree = (y == 0);
+				bool isLeftFree = (x == 0);
+				bool isRightFree = (x == g_chunkSize.x - 1);
+
+				if (isFrontFree)
+				{
+					addFront(indicies, i);
+				}
+				if (isBackFree)
+				{
+					addBack(indicies, i);
+				}
+				if (isTopFree)
+				{
+					addTop(indicies, i);
+				}
+				if (isBottomFree)
+				{
+					addBottom(indicies, i);
+				}
+				if (isLeftFree)
+				{
+					addLeft(indicies, i);
+				}
+				if (isRightFree)
+				{
+					addRight(indicies, i);
+				}
+
+				for (unsigned vIndex = 0; vIndex < m_blocks[i].getVertices().size(); vIndex++)
+				{
+					vertices.push_back(m_blocks[i].getVertices()[vIndex]);
+				}
+
+				i++;
+			}
 		}
 	}
+
 	m_meshes.emplace_back(Mesh(vertices, indicies));
 }
 

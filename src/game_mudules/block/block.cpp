@@ -1,4 +1,4 @@
-#include "../../engine/renderer/renderer.h"
+#include "../../engine/resource_manager/resource_manager.h"
 
 #include "block.h"
 
@@ -8,9 +8,9 @@ using namespace GameModules;
 
 constexpr unsigned int g_numberOfFaces = 36;
 
-Block::Block(glm::vec3 pos, Texture& texture)
+Block::Block(glm::vec3 pos, BlockType type)
 	: m_pos(pos)
-	, m_texture(texture)
+	, m_type(type)
 {
 	// front
 	m_vertices.push_back({ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f) });
@@ -47,11 +47,18 @@ Block::Block(glm::vec3 pos, Texture& texture)
 	m_vertices.push_back({ m_pos + glm::vec3(0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f) });
 	m_vertices.push_back({ m_pos + glm::vec3(0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f) });
 	m_vertices.push_back({ m_pos + glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f) });
-}
 
-/*
-void Block::render(Renderer& renderer, Shader& shader, glm::mat4 view)
-{
-	renderer.render(m_pos, shader, m_texture, view);
+
+	switch (m_type)
+	{
+	case BlockType::Grass:
+	case BlockType::Dirt:
+	case BlockType::Stone:
+	{
+		m_texture = std::move(ResourceManager::getInstance().getTexture("grass"));
+	}break;
+
+	case BlockType::Air:
+		break;
+	}
 }
-*/

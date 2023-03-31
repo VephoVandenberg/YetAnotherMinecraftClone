@@ -1,5 +1,7 @@
 #include <map>
 
+#include <iostream>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../engine/resource_manager/resource_manager.h"
@@ -14,7 +16,7 @@
 using namespace Engine;
 using namespace GameNamespace;
 
-constexpr glm::vec3 g_chunkSize = glm::vec3(20.0f, 20.0f, 20.0f);
+constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 16.0f, 16.0f);
 
 Application::Application()
 	: m_isRunning(true)
@@ -32,7 +34,6 @@ void Application::init()
 	data.m_func = std::bind(&Application::handleEvents, this, std::placeholders::_1);
 
 	m_window = std::unique_ptr<Window>(new Window(data));
-	// m_renderer = std::unique_ptr<Renderer>(new Renderer);
 	m_player = std::unique_ptr<Player>(new Player(m_window->getWidth(), m_window->getHeight()));
 }
 
@@ -84,18 +85,23 @@ void Application::initTextures()
 
 void Application::initBlocks()
 {
-
-	for (int x = 0; x < g_chunkSize.x; x++)
+	for (int z = 0; z < g_chunkSize.z; z++)
 	{
 		for (int y = 0; y < g_chunkSize.y; y++)
 		{
-			for (int z = 0; z > -g_chunkSize.z; z--)
+			for (int x = 0; x < g_chunkSize.x; x++)
 			{
-				glm::vec3 pos = {
-					x, y, z
-				};
+				glm::vec3 pos = { x, y, z };
+
+				auto type = (y > g_chunkSize.y/2.0f) ? BlockType::Air : BlockType::Grass;
+
+				if (type == BlockType::Air && x == 0)
+				{
+
+				}
+
 				m_blocks.emplace_back(
-					Block(pos, ResourceManager::getInstance().getTexture(TextureNames::g_grass)));
+					Block(pos, type));
 			}
 		}
 	}
@@ -103,8 +109,6 @@ void Application::initBlocks()
 
 void Application::initMeshes()
 {
-	unsigned int numberOfMesh = 1;
-
 	std::vector<Data::Vertex> vertices;
 	std::vector<unsigned int> indicies;
 
@@ -161,22 +165,62 @@ void Application::initMeshes()
 		indicies.push_back(24 * i + 22);
 		indicies.push_back(24 * i + 23);
 	};
-
 	
 	int i = 0;
-	for (int x = 0; x < g_chunkSize.x; x++)
+	for (int z = 0; z < g_chunkSize.z; z++)
 	{
 		for (int y = 0; y < g_chunkSize.y; y++)
 		{
-			for (int z = 0; z < g_chunkSize.z; z++)
+			for (int x = 0; x < g_chunkSize.x; x++)
 			{
-				bool isFrontFree = (z == 0);
-				bool isBackFree = (z == g_chunkSize.z - 1);
-				bool isTopFree = (y == g_chunkSize.y - 1);
-				bool isBottomFree = (y == 0);
-				bool isLeftFree = (x == 0);
-				bool isRightFree = (x == g_chunkSize.x - 1);
+				unsigned int currentBlock = z * g_chunkSize.x * g_chunkSize.y + y * g_chunkSize.y + x;
 
+				if (m_blocks[currentBlock].getType() == BlockType::Air)
+				{
+					continue;
+				}
+
+				int frontBlock  = (z + 1) * g_chunkSize.x * g_chunkSize.y + y * g_chunkSize.y + x;
+				int backBlock   = (z - 1) * g_chunkSize.x * g_chunkSize.y + y * g_chunkSize.y + x;
+				int topBlock    = z * g_chunkSize.x * g_chunkSize.y + (y + 1) * g_chunkSize.y + x;
+				int bottomBlock = z * g_chunkSize.x * g_chunkSize.y + (y - 1) * g_chunkSize.y + x;
+				int rightBlock  = z * g_chunkSize.x * g_chunkSize.y + y * g_chunkSize.y + (x + 1);
+				int leftBlock   = z * g_chunkSize.x * g_chunkSize.y + y * g_chunkSize.y + (x - 1);
+
+				bool isFrontFree  = (z == g_chunkSize.z - 1);
+				bool isBackFree   = (z == 0);
+				bool isTopFree    = (y == g_chunkSize.y - 1);
+				bool isBottomFree = (y == 0);
+				bool isRightFree  = (x == g_chunkSize.x - 1);
+				bool isLeftFree   = (x == 0);
+				
+				// Check for air blocks
+				if (!isFrontFree)
+				{
+					isFrontFree = m_blocks[frontBlock].getType() == BlockType::Air;
+				}
+				if (!isBackFree)
+				{
+					isBackFree = m_blocks[backBlock].getType() == BlockType::Air;
+				}
+				if (!isTopFree)
+				{
+					isTopFree = m_blocks[topBlock].getType() == BlockType::Air;
+				}
+				if (!isBottomFree)
+				{
+					isBottomFree = m_blocks[bottomBlock].getType() == BlockType::Air;
+				}
+				if (!isLeftFree)
+				{
+					isLeftFree = m_blocks[leftBlock].getType() == BlockType::Air;
+				}
+				if (!isRightFree)
+				{
+					isRightFree = m_blocks[rightBlock].getType() == BlockType::Air;
+				}
+				
+				// If overall results are free
 				if (isFrontFree)
 				{
 					addFront(indicies, i);
@@ -201,13 +245,15 @@ void Application::initMeshes()
 				{
 					addRight(indicies, i);
 				}
-
-				for (unsigned vIndex = 0; vIndex < m_blocks[i].getVertices().size(); vIndex++)
-				{
-					vertices.push_back(m_blocks[i].getVertices()[vIndex]);
-				}
-
+				
 				i++;
+
+				for (unsigned vIndex = 0;
+					vIndex < m_blocks[currentBlock].getVertices().size();
+					vIndex++)
+				{
+					vertices.emplace_back(m_blocks[currentBlock].getVertices()[vIndex]);
+				}
 			}
 		}
 	}
@@ -227,25 +273,6 @@ void Application::run()
 
 		m_player->update(m_deltaFrame);
 
-		/*
-		for (auto& block : m_blocks)
-		{
-			block.render(
-				*m_renderer,
-				ResourceManager::getInstance().
-					getShader(ShaderNames::g_base_shader),
-				m_player->getCameraView());
-		}
-		*/
-
-		/*
-		m_renderer->render(glm::vec3(0.0f),
-			ResourceManager::getInstance().
-			getShader(ShaderNames::g_base_shader),
-			ResourceManager::getInstance().
-			getTexture(TextureNames::g_grass),
-			m_player->getCameraView());
-			*/
 		m_meshes[0].draw(
 			ResourceManager::getInstance().
 			getShader(ShaderNames::g_base_shader),

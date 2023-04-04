@@ -7,7 +7,8 @@
 #include "../engine/event/event.h"
 #include "../engine/mesh/mesh.h"
 
-#include "../game_mudules/block/block.h"
+#include "../game_modules/block/block.h"
+#include "../game_modules/chunk/chunk.h"
 
 #include "player.h"
 
@@ -34,17 +35,14 @@ namespace GameNamespace
 		void handleEvents(Event& event);
 		void initShaders();
 		void initTextures();
-		void initBlocks();
-		void initMeshes();
+		void initChunks();
 
 		float m_deltaFrame;
 		float m_previousFrame;
 
 		bool m_isRunning;
 
-		std::vector<Block> m_blocks;
-		std::vector<BlockType> m_blockTypes;
-		std::vector<Mesh> m_meshes;
+		std::vector<Chunk> m_chunks;
 
 		std::unique_ptr<Window> m_window;
 

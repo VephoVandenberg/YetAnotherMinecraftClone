@@ -45,13 +45,13 @@
     <ClCompile Include="src\game_base\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game_mudules\block\block.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine\mesh\mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game_mudules\chunk\chunk.cpp">
+    <ClCompile Include="src\game_modules\block\block.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game_modules\chunk\chunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,16 +89,16 @@
     <ClInclude Include="src\engine\shader\uniform_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game_mudules\block\block.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\engine\mesh\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine\mesh\data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game_mudules\chunk\chunk.h">
+    <ClInclude Include="src\game_modules\block\block.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_modules\chunk\chunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

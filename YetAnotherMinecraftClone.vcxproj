@@ -160,7 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\engine\mesh\mesh.cpp" />
-    <ClCompile Include="src\game_mudules\block\block.cpp" />
+    <ClCompile Include="src\game_modules\block\block.cpp" />
     <ClCompile Include="src\game_base\player.cpp" />
     <ClCompile Include="src\engine\camera\camera.cpp" />
     <ClCompile Include="dependencies\GLAD\src\glad.c" />
@@ -171,12 +171,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\engine\window\window.cpp" />
     <ClCompile Include="src\engine\texture\texture.cpp" />
-    <ClCompile Include="src\game_mudules\chunk\chunk.cpp" />
+    <ClCompile Include="src\game_modules\chunk\chunk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\mesh\data.h" />
     <ClInclude Include="src\engine\mesh\mesh.h" />
-    <ClInclude Include="src\game_mudules\block\block.h" />
+    <ClInclude Include="src\game_modules\block\block.h" />
     <ClInclude Include="src\engine\event\event.h" />
     <ClInclude Include="src\engine\shader\uniform_list.h" />
     <ClInclude Include="src\game_base\player.h" />
@@ -188,7 +188,7 @@
     <ClInclude Include="src\game_base\application.h" />
     <ClInclude Include="src\engine\window\window.h" />
     <ClInclude Include="src\engine\texture\texture.h" />
-    <ClInclude Include="src\game_mudules\chunk\chunk.h" />
+    <ClInclude Include="src\game_modules\chunk\chunk.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

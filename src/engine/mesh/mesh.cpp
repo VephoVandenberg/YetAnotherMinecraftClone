@@ -38,6 +38,7 @@ void Mesh::init()
 
 void Mesh::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)
 {
+	glBindVertexArray(m_buffer.VAO);
 	shader.use();
 	shader.setMat4vf("u_view", cameraView);
 	texture.bind();

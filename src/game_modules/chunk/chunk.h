@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -15,7 +16,6 @@ namespace Engine
 namespace GameModules
 {
 	using namespace Engine;
-
 	class Block;
 
 	class Chunk
@@ -23,8 +23,11 @@ namespace GameModules
 	public:
 		Chunk(glm::vec3 pos);
 
-		void update();
+		void setMesh();
 		void draw(Shader& shader, Texture& texture, glm::mat4 cameraView);
+		void updateToNeighbourChunk(Chunk& chunk);
+
+		inline glm::vec3 getSize() const { return m_size; }
 		
 		Chunk() = default;
 		~Chunk() = default;
@@ -37,14 +40,36 @@ namespace GameModules
 	private:
 		void initBlocks();
 		void setChunkFaces();
+		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
+		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
+		bool checkAir(unsigned int index);
 
 		glm::vec3 m_size;
 		glm::vec3 m_pos;
 
 		Mesh m_mesh;
-		std::vector<Block> m_blocks;
 
-		std::vector<unsigned int> m_indicies;
-		std::vector<Vertex> m_vertices;
+		struct BlockRenderData
+		{
+			Block block;
+
+			bool front;
+			bool back;
+			bool top;
+			bool bottom;
+			bool right;
+			bool left;
+
+			BlockRenderData(Block&& b)
+				: block(std::move(b))
+				, front(false)
+				, back(false)
+				, top(false)
+				, bottom(false)
+				, right(false)
+				, left(false)
+			{}
+		};
+		std::vector<BlockRenderData> m_blocks;
 	};
 }

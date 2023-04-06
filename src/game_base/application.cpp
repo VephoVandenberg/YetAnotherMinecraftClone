@@ -84,7 +84,18 @@ void Application::initTextures()
 
 void Application::initChunks()
 {
-	m_chunks.emplace_back(Chunk(glm::vec3(0.0f)));
+	for (unsigned int i = 0; i < 10; i++)
+	{
+		m_chunks.emplace_back(Chunk(glm::vec3(i*16.0f, 1.0f, 0.0f)));
+	}
+
+	for (unsigned int i = 1; i < 9; i++)
+	{
+		m_chunks[i].updateToNeighbourChunk(m_chunks[i + 1]);
+		m_chunks[i + 1].updateToNeighbourChunk(m_chunks[i]);
+		m_chunks[i].setMesh();
+	}
+	m_chunks[m_chunks.size() - 1].setMesh();
 }
 
 void Application::run()
@@ -99,10 +110,13 @@ void Application::run()
 
 		m_player->update(m_deltaFrame);
 
-		m_chunks[0].draw(
-			ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
-			ResourceManager::getInstance().getTexture(TextureNames::g_grass),
-			m_player->getCameraView());
+		for (auto& chunk : m_chunks)
+		{
+			chunk.draw(
+				ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
+				ResourceManager::getInstance().getTexture(TextureNames::g_grass),
+				m_player->getCameraView());
+		}
 
 		m_window->update();
 	}

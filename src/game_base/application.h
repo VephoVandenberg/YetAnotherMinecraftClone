@@ -36,6 +36,7 @@ namespace GameNamespace
 		void initShaders();
 		void initTextures();
 		void initChunks();
+		void updateMeshes();
 
 		float m_deltaFrame;
 		float m_previousFrame;

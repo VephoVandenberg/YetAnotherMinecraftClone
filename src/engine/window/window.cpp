@@ -36,7 +36,7 @@ void Window::init()
 		exit(EXIT_FAILURE);
 	}
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	// glEnable(GL_CULL_FACE);
 
 	glfwSetKeyCallback(
 		m_window,

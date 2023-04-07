@@ -112,14 +112,14 @@ bool Chunk::checkAir(unsigned int index)
 
 void Chunk::setChunkFaces()
 {
-	for (int z = 0; z < g_chunkSize.z; z++)
+	for (int z = 0; z < m_size.z; z++)
 	{
-		for (int y = 0; y < g_chunkSize.y; y++)
+		for (int y = 0; y < m_size.y; y++)
 		{
-			for (int x = 0; x < g_chunkSize.x; x++)
+			for (int x = 0; x < m_size.x; x++)
 			{
 				unsigned int currBlockIndex = 
-					z * g_chunkSize.y * g_chunkSize.x + y * g_chunkSize.x + x;
+					z * m_size.y * m_size.x + y * m_size.x + x;
 
 				auto& currentBlock = m_blocks[currBlockIndex];
 				
@@ -128,18 +128,18 @@ void Chunk::setChunkFaces()
 					continue; 
 				}
 
-				unsigned int frontBlock  = FRONT_FACE(x, y, z, g_chunkSize);
-				unsigned int backBlock	 = BACK_FACE(x, y, z, g_chunkSize);
-				unsigned int topBlock	 = TOP_FACE(x, y, z, g_chunkSize);
-				unsigned int bottomBlock = BOTTOM_FACE(x, y, z, g_chunkSize);
-				unsigned int rightBlock	 = RIGHT_FACE(x, y, z, g_chunkSize);
-				unsigned int leftBlock	 = LEFT_FACE(x, y, z, g_chunkSize);
+				unsigned int frontBlock  = FRONT_FACE(x, y, z, m_size);
+				unsigned int backBlock	 = BACK_FACE(x, y, z, m_size);
+				unsigned int topBlock	 = TOP_FACE(x, y, z, m_size);
+				unsigned int bottomBlock = BOTTOM_FACE(x, y, z, m_size);
+				unsigned int rightBlock	 = RIGHT_FACE(x, y, z, m_size);
+				unsigned int leftBlock	 = LEFT_FACE(x, y, z, m_size);
 
-				bool isFrontFree  = checkAir(frontBlock)	|| (z == g_chunkSize.z - 1);
+				bool isFrontFree  = checkAir(frontBlock)	|| (z == m_size.z - 1);
 				bool isBackFree   = checkAir(backBlock)		|| (z == 0);
-				bool isTopFree	  = checkAir(topBlock)		|| (y == g_chunkSize.y - 1);
+				bool isTopFree	  = checkAir(topBlock)		|| (y == m_size.y - 1);
 				bool isBottomFree = checkAir(bottomBlock)	|| (y == 0) ;
-				bool isRightFree  = checkAir(rightBlock)	|| (x == g_chunkSize.x - 1);
+				bool isRightFree  = checkAir(rightBlock)	|| (x == m_size.x - 1);
 				bool isLeftFree   = checkAir(leftBlock)		|| (x == 0);
 
 				if (isFrontFree)	{ currentBlock.front	= true; }
@@ -155,28 +155,25 @@ void Chunk::setChunkFaces()
 
 void Chunk::updateToNeighbourChunk(Chunk& chunk)
 {
-	float dx = m_pos.x - chunk.m_pos.x;
-	float dz = m_pos.z - chunk.m_pos.z;
-
-	if (dx > 0.0f)
-	{
-		unsigned int currentX = m_size.x - 1;
-		unsigned int neighbourX = 0;
-		traverseChunkFaceX(chunk, currentX, neighbourX);
-	}
-	else if (dx < 0.0f)
+	if (m_pos.x > chunk.m_pos.x)
 	{
 		unsigned int currentX = 0;
 		unsigned int neighbourX = chunk.m_size.x - 1;
 		traverseChunkFaceX(chunk, currentX, neighbourX);
 	}
-	else if (dz > 0.0f)
+	else if (m_pos.x < chunk.m_pos.x)
+	{
+		unsigned int currentX = chunk.m_size.x - 1;
+		unsigned int neighbourX = 0;
+		traverseChunkFaceX(chunk, currentX, neighbourX);
+	}
+	else if (m_pos.z > chunk.m_pos.z)
 	{
 		unsigned int currentZ = m_size.z - 1;
 		unsigned int neighbourZ = 0;
 		traverseChunkFaceZ(chunk, currentZ, neighbourZ);
 	}
-	else if (dz < 0.0f)
+	else if (m_pos.z < chunk.m_pos.z)
 	{
 		unsigned int currentZ = 0;
 		unsigned int neighbourZ = chunk.m_size.z - 1;
@@ -190,8 +187,8 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 	{
 		for (unsigned int y = 0; y < m_size.y; y++)
 		{
-			unsigned int currentBlock	= z * m_size.x * m_size.y + y * g_chunkSize.x + currentX;
-			unsigned int neighbourBlock = z * m_size.x * m_size.y + y * g_chunkSize.x + neighbourX;
+			unsigned int currentBlock	= z * m_size.x * m_size.y + y * m_size.x + currentX;
+			unsigned int neighbourBlock = z * m_size.x * m_size.y + y * m_size.x + neighbourX;
 
 			auto& currentChunkBlock = m_blocks[currentBlock];
 			auto& neighbourChunkBlock = chunk.m_blocks[neighbourBlock];
@@ -199,15 +196,15 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 			if (currentChunkBlock.block.getType() != BlockType::Air &&
 				neighbourChunkBlock.block.getType() != BlockType::Air)
 			{
-				if (currentX > neighbourX)
-				{
-					currentChunkBlock.right = false;
-					neighbourChunkBlock.left = false;
-				}
-				else
+				if (m_pos.x > chunk.m_pos.x)
 				{
 					currentChunkBlock.left = false;
 					neighbourChunkBlock.right = false;
+				}
+				else
+				{
+					currentChunkBlock.right = false;
+					neighbourChunkBlock.left = false;
 				}
 			}
 		}

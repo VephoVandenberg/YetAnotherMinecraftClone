@@ -5,9 +5,8 @@ using namespace GameNamespace;
 /*
 * Agenda
 * Later
-* - Hello mesh
-* - Chunks
-* - Don't draw things that can't be seen, take in consideration tile maps
+* - Meshes work strange still
+* - Investigate order of drawing faces
 * - Atlas wrapper
 */
 

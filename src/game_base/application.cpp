@@ -84,18 +84,20 @@ void Application::initTextures()
 
 void Application::initChunks()
 {
-	for (unsigned int i = 0; i < 10; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		m_chunks.emplace_back(Chunk(glm::vec3(i*16.0f, 1.0f, 0.0f)));
 	}
 
-	for (unsigned int i = 1; i < 9; i++)
+	for (unsigned int i = 0; i < m_chunks.size() - 1; i++)
 	{
 		m_chunks[i].updateToNeighbourChunk(m_chunks[i + 1]);
-		m_chunks[i + 1].updateToNeighbourChunk(m_chunks[i]);
+	}
+	
+	for (unsigned int i = 0; i < m_chunks.size(); i++)
+	{
 		m_chunks[i].setMesh();
 	}
-	m_chunks[m_chunks.size() - 1].setMesh();
 }
 
 void Application::run()

@@ -4,10 +4,16 @@ using namespace GameNamespace;
 
 /*
 * Agenda
+* - Texture cubes
 * Later
-* - Meshes work strange still
+* - Texture arrays
+* - noise
+* - terrain generation
+* - add more blocks 
+* - layers in the chunk
+* 
+* Super Later
 * - Investigate order of drawing faces
-* - Atlas wrapper
 */
 
 

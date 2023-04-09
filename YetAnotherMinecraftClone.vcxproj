@@ -172,10 +172,12 @@
     <ClCompile Include="src\engine\window\window.cpp" />
     <ClCompile Include="src\engine\texture\texture.cpp" />
     <ClCompile Include="src\game_modules\chunk\chunk.cpp" />
+    <ClCompile Include="src\engine\texture\texture_cube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\mesh\data.h" />
     <ClInclude Include="src\engine\mesh\mesh.h" />
+    <ClInclude Include="src\engine\texture\texture_cube_list.h" />
     <ClInclude Include="src\game_modules\block\block.h" />
     <ClInclude Include="src\engine\event\event.h" />
     <ClInclude Include="src\engine\shader\uniform_list.h" />
@@ -189,6 +191,7 @@
     <ClInclude Include="src\engine\window\window.h" />
     <ClInclude Include="src\engine\texture\texture.h" />
     <ClInclude Include="src\game_modules\chunk\chunk.h" />
+    <ClInclude Include="src\engine\texture\texture_cube.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

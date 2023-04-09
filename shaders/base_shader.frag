@@ -1,10 +1,10 @@
 #version 330 core
 
-in vec2 fragTexCoords;
+in vec3 fragTexCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D uTexture;
+uniform samplerCube uTexture;
 
 void main()
 {

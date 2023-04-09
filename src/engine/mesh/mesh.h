@@ -18,6 +18,7 @@ namespace Engine
 
 	class Shader;
 	class Texture;
+	class TextureCube;
 
 	using namespace Data;
 
@@ -27,6 +28,7 @@ namespace Engine
 		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indicies);
 
 		void draw(Shader& shader, Texture& texture, glm::mat4 cameraView);
+		void draw(Shader& shader, TextureCube& texture, glm::mat4 cameraView);
 		void updateData(std::vector<Vertex> vertices, std::vector<unsigned int> indicies);
 		void appendData(std::vector<Vertex> vertices, std::vector<unsigned int> indicies);
 

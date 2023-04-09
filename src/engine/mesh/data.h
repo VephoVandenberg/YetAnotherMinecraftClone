@@ -7,6 +7,6 @@ namespace Engine::Data
 	struct Vertex
 	{
 		glm::vec3 position;
-		glm::vec2 textureCoords;
+		glm::vec3 textureCoords;
 	};
 }

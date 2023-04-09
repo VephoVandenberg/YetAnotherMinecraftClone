@@ -11,6 +11,7 @@ namespace Engine
 {
 	class Shader;
 	class Texture;
+	class TextureCube;
 }
 
 namespace GameModules
@@ -24,7 +25,7 @@ namespace GameModules
 		Chunk(glm::vec3 pos);
 
 		void setMesh();
-		void draw(Shader& shader, Texture& texture, glm::mat4 cameraView);
+		void draw(Shader& shader, TextureCube& texture, glm::mat4 cameraView);
 		void updateToNeighbourChunk(Chunk& chunk);
 
 		inline glm::vec3 getSize() const { return m_size; }

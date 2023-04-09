@@ -35,6 +35,7 @@ namespace GameNamespace
 		void handleEvents(Event& event);
 		void initShaders();
 		void initTextures();
+		void initTextureCubes();
 		void initChunks();
 		void updateMeshes();
 

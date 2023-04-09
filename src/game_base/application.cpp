@@ -9,6 +9,7 @@
 #include "../engine/shader/shader_list.h"
 #include "../engine/shader/uniform_list.h"
 #include "../engine/texture/texture_list.h"
+#include "../engine/texture/texture_cube_list.h"
 #include "../engine/event/event.h"
 
 #include "application.h"
@@ -24,6 +25,7 @@ Application::Application()
 	init();
 	initShaders();
 	initTextures();
+	initTextureCubes();
 	initChunks();
 }
 
@@ -82,6 +84,18 @@ void Application::initTextures()
 	}
 }
 
+void Application::initTextureCubes()
+{
+	for (auto& tValue : g_textureCubePaths)
+	{
+		auto& tName = tValue.first;
+		auto& fPaths = tValue.second;
+
+		ResourceManager::getInstance()
+			.setTextureCube(tName, fPaths);
+	}
+}
+
 void Application::initChunks()
 {
 	for (unsigned int i = 0; i < 4; i++)
@@ -116,9 +130,10 @@ void Application::run()
 		{
 			chunk.draw(
 				ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
-				ResourceManager::getInstance().getTexture(TextureNames::g_grass),
+				ResourceManager::getInstance().getTextureCube(TextureCubeNames::g_dirt),
 				m_player->getCameraView());
 		}
+	
 
 		m_window->update();
 	}

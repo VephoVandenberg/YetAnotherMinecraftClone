@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../../engine/texture/texture.h"
+#include "../../engine/texture/texture_cube.h"
 #include "../../engine/mesh/data.h"
 
 namespace Engine
@@ -46,7 +46,7 @@ namespace GameModules
 	private:
 		glm::vec3 m_pos;
 		BlockType m_type;
-		Texture m_texture;
+		TextureCube m_texture;
 
 		std::vector<Vertex> m_vertices;
 	};

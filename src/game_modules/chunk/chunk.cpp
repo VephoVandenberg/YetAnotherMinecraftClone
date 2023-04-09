@@ -91,12 +91,12 @@ void Chunk::initBlocks()
 	}
 }
 
-#define FRONT_FACE(x, y, z, size)	(z + 1) * g_chunkSize.y * g_chunkSize.x + y * g_chunkSize.x + x
-#define BACK_FACE(x, y, z, size)	(z - 1) * g_chunkSize.y * g_chunkSize.x + y * g_chunkSize.x + x
-#define TOP_FACE(x, y, z, size)		z * g_chunkSize.y * g_chunkSize.x + (y + 1) * g_chunkSize.x + x
-#define BOTTOM_FACE(x, y, z, size)	z * g_chunkSize.y * g_chunkSize.x + (y - 1) * g_chunkSize.x + x
-#define RIGHT_FACE(x, y, z, size)	z * g_chunkSize.y * g_chunkSize.x + y * g_chunkSize.x + (x + 1)
-#define LEFT_FACE(x, y, z, sie)		z * g_chunkSize.y * g_chunkSize.x + y * g_chunkSize.x + (x - 1)
+#define FRONT_FACE(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
+#define BACK_FACE(x, y, z, size)	(z - 1) * size.y * size.x + y * size.x + x
+#define TOP_FACE(x, y, z, size)		z * size.y * size.x + (y + 1) * size.x + x
+#define BOTTOM_FACE(x, y, z, size)	z * size.y * size.x + (y - 1) * size.x + x
+#define RIGHT_FACE(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
+#define LEFT_FACE(x, y, z, size)		z * size.y * size.x + y * size.x + (x - 1)
 
 bool Chunk::checkAir(unsigned int index)
 {
@@ -169,14 +169,14 @@ void Chunk::updateToNeighbourChunk(Chunk& chunk)
 	}
 	else if (m_pos.z > chunk.m_pos.z)
 	{
-		unsigned int currentZ = m_size.z - 1;
-		unsigned int neighbourZ = 0;
+		unsigned int currentZ = 0;
+		unsigned int neighbourZ = chunk.m_size.z - 1;
 		traverseChunkFaceZ(chunk, currentZ, neighbourZ);
 	}
 	else if (m_pos.z < chunk.m_pos.z)
 	{
-		unsigned int currentZ = 0;
-		unsigned int neighbourZ = chunk.m_size.z - 1;
+		unsigned int currentZ = m_size.z - 1;
+		unsigned int neighbourZ = 0;
 		traverseChunkFaceZ(chunk, currentZ, neighbourZ);
 	}
 }
@@ -196,7 +196,7 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 			if (currentChunkBlock.block.getType() != BlockType::Air &&
 				neighbourChunkBlock.block.getType() != BlockType::Air)
 			{
-				if (m_pos.x > chunk.m_pos.x)
+				if (currentX < neighbourX)
 				{
 					currentChunkBlock.left = false;
 					neighbourChunkBlock.right = false;
@@ -281,7 +281,7 @@ void Chunk::setMesh()
 	m_mesh = Mesh(vertices, indicies);
 }
 
-void Chunk::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)
+void Chunk::draw(Shader& shader, TextureCube& texture, glm::mat4 cameraView)
 {
 	m_mesh.draw(shader, texture, cameraView);
 }

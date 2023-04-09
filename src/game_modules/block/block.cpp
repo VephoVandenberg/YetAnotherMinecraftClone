@@ -14,40 +14,40 @@ Block::Block(glm::vec3 pos, BlockType type)
 {	
 	m_vertices = {
 		// front
-		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f) },
-		{ m_pos + glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f) },
-		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 1.0f) },
-		{ m_pos + glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f) },
+		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), {-0.5f, -0.5f,  0.5f} },
+		{ m_pos + glm::vec3(0.5f, -0.5f,  0.5f), { 0.5f, -0.5f,  0.5f} },
+		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), {-0.5f,  0.5f,  0.5f} },
+		{ m_pos + glm::vec3(0.5f,  0.5f,  0.5f), { 0.5f,  0.5f,  0.5f} },
 		
 		// back
-		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f) },
-		{ m_pos + glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 0.0f) },
-		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f) },
-		{ m_pos + glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f) },
+		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), { -0.5f, -0.5f, -0.5f} },
+		{ m_pos + glm::vec3(0.5f, -0.5f, -0.5f), {  0.5f, -0.5f, -0.5f} },
+		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), { -0.5f,  0.5f, -0.5f} },
+		{ m_pos + glm::vec3(0.5f,  0.5f, -0.5f), {  0.5f,  0.5f, -0.5f} },
 		
 		// top
-		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(0.0f, 0.0f) },
-		{ m_pos + glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 0.0f) },
-		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f) },
-		{ m_pos + glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec2(1.0f, 1.0f) },
+		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-0.5f,  0.5f,  0.5f) },
+		{ m_pos + glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3( 0.5f,  0.5f,  0.5f) },
+		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-0.5f,  0.5f, -0.5f) },
+		{ m_pos + glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3( 0.5f,  0.5f, -0.5f) },
 																		
 		// bottom
-		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(0.0f, 0.0f) },
-		{ m_pos + glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f) },
-		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 1.0f) },
-		{ m_pos + glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec2(1.0f, 1.0f) },
+		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-0.5f, -0.5f,  0.5f) },
+		{ m_pos + glm::vec3(0.5f,  -0.5f,  0.5f), glm::vec3( 0.5f, -0.5f,  0.5f) },
+		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f) },
+		{ m_pos + glm::vec3(0.5f,  -0.5f, -0.5f), glm::vec3( 0.5f, -0.5f, -0.5f) },
 		
 		// left
-		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f) },
-		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f) },
-		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f) },
-		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f) },
+		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-0.5f, -0.5f, -0.5f) },
+		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-0.5f, -0.5f,  0.5f) },
+		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-0.5f,  0.5f, -0.5f) },
+		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-0.5f,  0.5f,  0.5f) },
 		
 		// right
-		{ m_pos + glm::vec3(0.5f, -0.5f, -0.5f), glm::vec2(0.0f, 0.0f) },
-		{ m_pos + glm::vec3(0.5f, -0.5f,  0.5f), glm::vec2(1.0f, 0.0f) },
-		{ m_pos + glm::vec3(0.5f,  0.5f, -0.5f), glm::vec2(0.0f, 1.0f) },
-		{ m_pos + glm::vec3(0.5f,  0.5f,  0.5f), glm::vec2(1.0f, 1.0f) }
+		{ m_pos + glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.5f, -0.5f, -0.5f)  },
+		{ m_pos + glm::vec3(0.5f, -0.5f,  0.5f), glm::vec3(0.5f, -0.5f,  0.5f)  },
+		{ m_pos + glm::vec3(0.5f,  0.5f, -0.5f), glm::vec3(0.5f,  0.5f, -0.5f)  },
+		{ m_pos + glm::vec3(0.5f,  0.5f,  0.5f), glm::vec3(0.5f,  0.5f,  0.5f)  }
 	};
 
 	switch (m_type)
@@ -56,7 +56,7 @@ Block::Block(glm::vec3 pos, BlockType type)
 	case BlockType::Dirt:
 	case BlockType::Stone:
 	{
-		m_texture = std::move(ResourceManager::getInstance().getTexture("grass"));
+		m_texture = std::move(ResourceManager::getInstance().getTextureCube("dirt"));
 	}break;
 
 	case BlockType::Air:

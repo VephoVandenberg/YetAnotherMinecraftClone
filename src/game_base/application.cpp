@@ -6,6 +6,7 @@
 
 #include "../engine/resource_manager/resource_manager.h"
 #include "../engine/shader/shader.h"
+#include "../engine/texture/texture.h"
 #include "../engine/shader/shader_list.h"
 #include "../engine/shader/uniform_list.h"
 #include "../engine/texture/texture_list.h"
@@ -26,6 +27,7 @@ Application::Application()
 	initShaders();
 	initTextures();
 	initTextureCubes();
+	initAtlas();
 	initChunks();
 }
 
@@ -98,9 +100,15 @@ void Application::initTextureCubes()
 
 void Application::initChunks()
 {
-	for (unsigned int i = 0; i < 4; i++)
+	glm::vec2 atlasSize = {
+		ResourceManager::getInstance()
+			.getTexture("atlas").getWidth(),
+		ResourceManager::getInstance()
+			.getTexture("atlas").getHeight()};
+
+	for (unsigned int i = 0; i < 5; i++)
 	{
-		m_chunks.emplace_back(Chunk(glm::vec3(i*16.0f, 1.0f, 0.0f)));
+		m_chunks.emplace_back(Chunk(glm::vec3(i*16.0f, 1.0f, 0.0f), atlasSize));
 	}
 
 	for (unsigned int i = 0; i < m_chunks.size() - 1; i++)
@@ -112,6 +120,12 @@ void Application::initChunks()
 	{
 		m_chunks[i].setMesh();
 	}
+}
+
+void Application::initAtlas()
+{
+	ResourceManager::getInstance()
+		.setTexture("atlas", "textures/atlas_textures/texture_pack.png");
 }
 
 void Application::run()
@@ -130,7 +144,7 @@ void Application::run()
 		{
 			chunk.draw(
 				ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
-				ResourceManager::getInstance().getTextureCube(TextureCubeNames::g_dirt),
+				ResourceManager::getInstance().getTexture("atlas"),
 				m_player->getCameraView());
 		}
 	

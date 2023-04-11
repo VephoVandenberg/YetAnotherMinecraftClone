@@ -4,7 +4,6 @@
 
 #include <glm/glm.hpp>
 
-#include "../../engine/texture/texture_cube.h"
 #include "../../engine/mesh/data.h"
 
 namespace Engine
@@ -18,7 +17,7 @@ namespace GameModules
 	enum class BlockType
 	{
 		Air = 0,
-		Grass,
+		GrassDirt,
 		Stone,
 		Dirt
 	};
@@ -29,7 +28,7 @@ namespace GameModules
 	class Block
 	{
 	public:
-		Block(glm::vec3 pos, BlockType type);
+		Block(glm::vec3 pos, BlockType type, glm::vec2 atlasSie);
 
 		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
 		inline BlockType getType() const { return m_type; }
@@ -46,7 +45,6 @@ namespace GameModules
 	private:
 		glm::vec3 m_pos;
 		BlockType m_type;
-		TextureCube m_texture;
 
 		std::vector<Vertex> m_vertices;
 	};

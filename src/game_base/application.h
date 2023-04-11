@@ -36,6 +36,7 @@ namespace GameNamespace
 		void initShaders();
 		void initTextures();
 		void initTextureCubes();
+		void initAtlas();
 		void initChunks();
 		void updateMeshes();
 

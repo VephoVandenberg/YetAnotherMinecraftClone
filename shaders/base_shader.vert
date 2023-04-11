@@ -1,9 +1,9 @@
-#version 330 core
+#version 400 core
 
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aTexCoords;
+layout (location = 1) in vec2 aTexCoords;
 
-out vec3 fragTexCoords;
+out vec2 fragTexCoords;
 
 uniform mat4 u_view;
 uniform mat4 u_projection;

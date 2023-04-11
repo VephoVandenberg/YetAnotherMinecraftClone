@@ -4,16 +4,16 @@ using namespace GameNamespace;
 
 /*
 * Agenda
-* - Texture cubes
 * Later
 * - Texture arrays
+* - Raycast && cube removal
 * - noise
 * - terrain generation
 * - add more blocks 
 * - layers in the chunk
-* 
 * Super Later
 * - Investigate order of drawing faces
+* - Investigate the way cubemaps are drawn
 */
 
 

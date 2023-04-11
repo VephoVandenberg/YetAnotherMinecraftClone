@@ -65,15 +65,15 @@ auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
 	indicies.push_back(24 * i + 23);
 };
 
-Chunk::Chunk(glm::vec3 pos)
+Chunk::Chunk(glm::vec3 pos, glm::vec2 atlasSize)
 	: m_size(g_chunkSize)
 	, m_pos(pos)
 {
-	initBlocks();
+	initBlocks(atlasSize);
 	setChunkFaces();
 }
 
-void Chunk::initBlocks()
+void Chunk::initBlocks(glm::vec2 atlasSize)
 {
 	// Block initialization must be changed
 	for (int z = 0; z < g_chunkSize.z; z++)
@@ -83,9 +83,10 @@ void Chunk::initBlocks()
 			for (int x = 0; x < g_chunkSize.x; x++)
 			{
 				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
-				BlockType type = (y < 10 ? BlockType::Grass : BlockType::Air);
+				BlockType type = (y < 20 ? BlockType::Dirt : BlockType::Air);
+				type = (y == 20 ? BlockType::GrassDirt :type);
 
-				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
+				m_blocks.emplace_back(BlockRenderData(Block(pos, type, atlasSize)));
 			}
 		}
 	}
@@ -96,7 +97,7 @@ void Chunk::initBlocks()
 #define TOP_FACE(x, y, z, size)		z * size.y * size.x + (y + 1) * size.x + x
 #define BOTTOM_FACE(x, y, z, size)	z * size.y * size.x + (y - 1) * size.x + x
 #define RIGHT_FACE(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
-#define LEFT_FACE(x, y, z, size)		z * size.y * size.x + y * size.x + (x - 1)
+#define LEFT_FACE(x, y, z, size)	z * size.y * size.x + y * size.x + (x - 1)
 
 bool Chunk::checkAir(unsigned int index)
 {
@@ -187,8 +188,10 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 	{
 		for (unsigned int y = 0; y < m_size.y; y++)
 		{
-			unsigned int currentBlock	= z * m_size.x * m_size.y + y * m_size.x + currentX;
-			unsigned int neighbourBlock = z * m_size.x * m_size.y + y * m_size.x + neighbourX;
+			unsigned int currentBlock	
+				= z * m_size.x * m_size.y + y * m_size.x + currentX;
+			unsigned int neighbourBlock 
+				= z * m_size.x * m_size.y + y * m_size.x + neighbourX;
 
 			auto& currentChunkBlock = m_blocks[currentBlock];
 			auto& neighbourChunkBlock = chunk.m_blocks[neighbourBlock];
@@ -217,8 +220,10 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-			unsigned int currentBlock	= currentZ	 * m_size.x * m_size.y + y * g_chunkSize.x + x;
-			unsigned int neighbourBlock = neighbourZ * m_size.x * m_size.y + y * g_chunkSize.x + x;
+			unsigned int currentBlock	
+				= currentZ	 * m_size.x * m_size.y + y * g_chunkSize.x + x;
+			unsigned int neighbourBlock 
+				= neighbourZ * m_size.x * m_size.y + y * g_chunkSize.x + x;
 
 			if (m_blocks[currentBlock].block.getType()	!= BlockType::Air &&
 				m_blocks[neighbourBlock].block.getType() != BlockType::Air)
@@ -281,7 +286,7 @@ void Chunk::setMesh()
 	m_mesh = Mesh(vertices, indicies);
 }
 
-void Chunk::draw(Shader& shader, TextureCube& texture, glm::mat4 cameraView)
+void Chunk::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)
 {
 	m_mesh.draw(shader, texture, cameraView);
 }

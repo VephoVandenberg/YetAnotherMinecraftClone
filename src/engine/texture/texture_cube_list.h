@@ -8,6 +8,7 @@ namespace Engine
 {
 	namespace TextureCubeNames
 	{
+		const char* g_dirt_grass = "dirt_grass";
 		const char* g_dirt = "dirt";
 	}
 
@@ -21,7 +22,19 @@ namespace Engine
 				"textures/cubes/grass_dirt/dirt.png",		// -y
 				"textures/cubes/grass_dirt/dirt_grass.png",	// +z
 				"textures/cubes/grass_dirt/dirt_grass.png"	// -z
+			},
+		},
+		{
+			/*
+			TextureCubeNames::g_dirt, {
+				"textures/cubes/grass_dirt/dirt.png",
+				"textures/cubes/grass_dirt/dirt.png",
+				"textures/cubes/grass_dirt/dirt.png",
+				"textures/cubes/grass_dirt/dirt.png",
+				"textures/cubes/grass_dirt/dirt.png",
+				"textures/cubes/grass_dirt/dirt.png"
 			}
+			*/
 		}
 	};
 

@@ -10,7 +10,7 @@
 namespace Engine
 {
 	class Shader;
-	class Texture;
+	class TextureArray;
 }
 
 namespace GameModules
@@ -21,10 +21,10 @@ namespace GameModules
 	class Chunk
 	{
 	public:
-		Chunk(glm::vec3 pos, glm::vec2 atlasSize);
+		Chunk(glm::vec3 pos);
 
 		void setMesh();
-		void draw(Shader& shader, Texture& texture, glm::mat4 cameraView);
+		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
 		void updateToNeighbourChunk(Chunk& chunk);
 
 		inline glm::vec3 getSize() const { return m_size; }
@@ -38,7 +38,7 @@ namespace GameModules
 		Chunk& operator=(const Chunk&) = delete;	
 
 	private:
-		void initBlocks(glm::vec2 atlasSize);
+		void initBlocks();
 		void setChunkFaces();
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);

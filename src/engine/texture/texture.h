@@ -11,9 +11,6 @@ namespace Engine
 
 		void bind();
 
-		int getWidth() const { return m_width; }
-		int getHeight() const { return m_height; }
-
 		Texture() = default;
 		Texture(Texture&&) = default;
 		Texture& operator=(Texture&&) = default;

@@ -3,15 +3,22 @@
 #include "../shader/shader.h"
 #include "../texture/texture.h"
 #include "../texture/texture_cube.h"
+#include "../texture/texture_array.h"
 
 #include "resource_manager.h"
 
 using namespace Engine;
 
 ResourceManager* ResourceManager::s_manager = nullptr;
+TextureArray ResourceManager::s_texArray;
 std::map<const char*, Shader> ResourceManager::s_shaders;
 std::map<const char*, Texture> ResourceManager::s_textures;
 std::map<const char*, TextureCube> ResourceManager::s_textureCubes;
+
+void ResourceManager::free()
+{
+	delete s_manager;
+}
 
 ResourceManager& ResourceManager::getInstance()
 {
@@ -69,4 +76,14 @@ TextureCube& ResourceManager::getTextureCube(const char* tName)
 void ResourceManager::setTextureCube(const char* tName, std::vector<std::string> facePaths)
 {
 	s_textureCubes[tName] = TextureCube(facePaths);
+}
+
+TextureArray& ResourceManager::getTextureArray()
+{
+	return s_texArray;
+}
+
+void ResourceManager::setTextureArray(std::vector<std::string> tPaths)
+{
+	s_texArray = std::move(TextureArray(tPaths, 64, 64));
 }

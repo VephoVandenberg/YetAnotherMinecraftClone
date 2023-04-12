@@ -23,7 +23,7 @@ Texture::Texture(const char* tPath)
 	{
 		if (std::string(tPath).find("png") != -1)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		}
 		else
 		{

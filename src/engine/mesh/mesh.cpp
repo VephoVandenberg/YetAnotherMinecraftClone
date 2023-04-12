@@ -5,6 +5,7 @@
 #include "../shader/shader.h"
 #include "../texture/texture.h"
 #include "../texture/texture_cube.h"
+#include "../texture/texture_array.h"
 
 #include "mesh.h"
 
@@ -35,7 +36,7 @@ void Mesh::init()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(0));
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 
 		sizeof(Vertex), (void*)(offsetof(Vertex, textureCoords)));
 	glEnableVertexAttribArray(1);
 }
@@ -49,17 +50,26 @@ void Mesh::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)
 	glBindVertexArray(m_buffer.VAO);
 	glDrawElements(GL_TRIANGLES, m_indicies.size(), GL_UNSIGNED_INT, nullptr);
 }
-/*
-void Mesh::draw(Shader& shader, TextureCube& texture, glm::mat4 cameraView)
+
+void Mesh::draw(Shader& shader, TextureCube& textureCube, glm::mat4 cameraView)
 {
 	glBindVertexArray(m_buffer.VAO);
 	shader.use();
 	shader.setMat4vf("u_view", cameraView);
-	texture.bind();
+	textureCube.bind();
 	glBindVertexArray(m_buffer.VAO);
 	glDrawElements(GL_TRIANGLES, m_indicies.size(), GL_UNSIGNED_INT, nullptr);
 }
-*/
+
+void Mesh::draw(Shader& shader, TextureArray& textureArray, glm::mat4 cameraView)
+{
+	glBindVertexArray(m_buffer.VAO);
+	shader.use();
+	shader.setMat4vf("u_view", cameraView);
+	textureArray.bind();
+	glBindVertexArray(m_buffer.VAO);
+	glDrawElements(GL_TRIANGLES, m_indicies.size(), GL_UNSIGNED_INT, nullptr);
+}
 
 void Mesh::updateData(std::vector<Vertex> verticies, std::vector<unsigned int> indicies)
 {

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <map>
+#include <vector>
+#include <string>
 
 namespace Engine
 {
@@ -10,7 +12,14 @@ namespace Engine
 	}
 
 	const std::map<const char*, const char*> g_texturePaths= {
-		{TextureNames::g_grass, "textures/grass.png"}
+		
 	};
 
+	static const std::vector<std::string> s_texturePaths = {
+		"textures/cubes/grass_dirt/dirt_grass.png",
+		"textures/cubes/grass_dirt/dirt.png",
+		"textures/cubes/grass_dirt/grass.png",
+
+		"textures/cubes/stone/stone.png"
+	};
 }

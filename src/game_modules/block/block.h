@@ -28,7 +28,7 @@ namespace GameModules
 	class Block
 	{
 	public:
-		Block(glm::vec3 pos, BlockType type, glm::vec2 atlasSie);
+		Block(glm::vec3 pos, BlockType type);
 
 		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
 		inline BlockType getType() const { return m_type; }

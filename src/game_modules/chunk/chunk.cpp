@@ -65,15 +65,15 @@ auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
 	indicies.push_back(24 * i + 23);
 };
 
-Chunk::Chunk(glm::vec3 pos, glm::vec2 atlasSize)
+Chunk::Chunk(glm::vec3 pos)
 	: m_size(g_chunkSize)
 	, m_pos(pos)
 {
-	initBlocks(atlasSize);
+	initBlocks();
 	setChunkFaces();
 }
 
-void Chunk::initBlocks(glm::vec2 atlasSize)
+void Chunk::initBlocks()
 {
 	// Block initialization must be changed
 	for (int z = 0; z < g_chunkSize.z; z++)
@@ -86,7 +86,7 @@ void Chunk::initBlocks(glm::vec2 atlasSize)
 				BlockType type = (y < 20 ? BlockType::Dirt : BlockType::Air);
 				type = (y == 20 ? BlockType::GrassDirt :type);
 
-				m_blocks.emplace_back(BlockRenderData(Block(pos, type, atlasSize)));
+				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
 			}
 		}
 	}
@@ -286,7 +286,7 @@ void Chunk::setMesh()
 	m_mesh = Mesh(vertices, indicies);
 }
 
-void Chunk::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)
+void Chunk::draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView)
 {
 	m_mesh.draw(shader, texture, cameraView);
 }

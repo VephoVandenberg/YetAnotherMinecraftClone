@@ -62,6 +62,18 @@ void Window::init()
 			data->m_func(event);
 		});
 
+	glfwSetMouseButtonCallback(
+		m_window,
+		[](GLFWwindow* window, int button, int action, int mods) {
+			auto* const data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
+
+			MouseClickEvent event;
+			event.m_button = button;
+			event.m_action = action;
+
+			data->m_func(event);
+		});
+
 
 	glfwSetWindowCloseCallback(
 		m_window,

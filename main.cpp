@@ -1,13 +1,13 @@
-#include "src/game_base/application.h"
+#include "src/game_base/app/application.h"
 
 using namespace GameNamespace;
 
 /*
 * Agenda
-* Later
-* - Texture arrays
 * - Raycast && cube removal
+* Later
 * - noise
+* - imGUI
 * - terrain generation
 * - add more blocks 
 * - layers in the chunk

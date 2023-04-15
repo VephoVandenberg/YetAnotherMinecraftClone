@@ -159,15 +159,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\ray\ray.cpp" />
     <ClCompile Include="src\engine\mesh\mesh.cpp" />
     <ClCompile Include="src\game_modules\block\block.cpp" />
-    <ClCompile Include="src\game_base\player.cpp" />
+    <ClCompile Include="src\game_base\player\player.cpp" />
     <ClCompile Include="src\engine\camera\camera.cpp" />
     <ClCompile Include="dependencies\GLAD\src\glad.c" />
     <ClCompile Include="src\engine\resource_manager\resource_manager.cpp" />
     <ClCompile Include="src\engine\shader\shader.cpp" />
     <ClCompile Include="src\engine\texture\image_loader\stb_image_loader.cpp" />
-    <ClCompile Include="src\game_base\application.cpp" />
+    <ClCompile Include="src\game_base\app\application.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\engine\window\window.cpp" />
     <ClCompile Include="src\engine\texture\texture.cpp" />
@@ -176,19 +177,20 @@
     <ClCompile Include="src\engine\texture\texture_array.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\ray\ray.h" />
     <ClInclude Include="src\engine\mesh\data.h" />
     <ClInclude Include="src\engine\mesh\mesh.h" />
     <ClInclude Include="src\engine\texture\texture_cube_list.h" />
     <ClInclude Include="src\game_modules\block\block.h" />
     <ClInclude Include="src\engine\event\event.h" />
     <ClInclude Include="src\engine\shader\uniform_list.h" />
-    <ClInclude Include="src\game_base\player.h" />
+    <ClInclude Include="src\game_base\player\player.h" />
     <ClInclude Include="src\engine\camera\camera.h" />
     <ClInclude Include="src\engine\resource_manager\resource_manager.h" />
     <ClInclude Include="src\engine\shader\shader.h" />
     <ClInclude Include="src\engine\shader\shader_list.h" />
     <ClInclude Include="src\engine\texture\texture_list.h" />
-    <ClInclude Include="src\game_base\application.h" />
+    <ClInclude Include="src\game_base\app\application.h" />
     <ClInclude Include="src\engine\window\window.h" />
     <ClInclude Include="src\engine\texture\texture.h" />
     <ClInclude Include="src\game_modules\chunk\chunk.h" />

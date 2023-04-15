@@ -28,6 +28,7 @@ namespace Engine
 		void handleInput(MouseMoveEvent event);
 
 		inline glm::mat4 getCameraView() const { return m_cameraView; }
+		inline glm::vec3 getFropnt() const { return m_cameraFront; }
 
 		~Camera() = default;
 

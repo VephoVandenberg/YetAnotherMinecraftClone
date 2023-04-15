@@ -6,6 +6,7 @@ namespace Engine
 	{
 		Keyboard,
 		MouseMove,
+		MouseClick,
 		Close
 	};
 
@@ -28,6 +29,14 @@ namespace Engine
 		int y;
 
 		inline EventType getType() const override { return EventType::MouseMove; }
+	};
+
+	struct MouseClickEvent : public Event
+	{
+		int m_action;
+		int m_button;
+
+		inline EventType getType() const override { return EventType::MouseClick; }
 	};
 
 	struct CloseEvent : public Event

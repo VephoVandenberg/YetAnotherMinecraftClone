@@ -37,8 +37,10 @@ namespace GameNamespace
 		void initTextureCubes();
 		void initTextureArray();
 		void initChunks();
+		void checkChunksNeighbours();
 
 		void updateChunks();
+		void updateChunkMeshes();
 
 		void handleEvents(Event& event);
 

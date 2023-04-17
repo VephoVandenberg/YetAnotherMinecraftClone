@@ -2,6 +2,7 @@
 
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
+#include "../../engine/ray/ray.h"
 
 #include "../block/block.h"
 
@@ -76,11 +77,11 @@ Chunk::Chunk(glm::vec3 pos)
 void Chunk::initBlocks()
 {
 	// Block initialization must be changed
-	for (int z = 0; z < g_chunkSize.z; z++)
+	for (unsigned int z = 0; z < g_chunkSize.z; z++)
 	{
-		for (int y = 0; y < g_chunkSize.y; y++)
+		for (unsigned int y = 0; y < g_chunkSize.y; y++)
 		{
-			for (int x = 0; x < g_chunkSize.x; x++)
+			for (unsigned int x = 0; x < g_chunkSize.x; x++)
 			{
 				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
 				BlockType type = (y < 20 ? BlockType::Dirt : BlockType::Air);
@@ -113,11 +114,11 @@ bool Chunk::checkAir(unsigned int index)
 
 void Chunk::setChunkFaces()
 {
-	for (int z = 0; z < m_size.z; z++)
+	for (unsigned int z = 0; z < m_size.z; z++)
 	{
-		for (int y = 0; y < m_size.y; y++)
+		for (unsigned int y = 0; y < m_size.y; y++)
 		{
-			for (int x = 0; x < m_size.x; x++)
+			for (unsigned int x = 0; x < m_size.x; x++)
 			{
 				unsigned int currBlockIndex = 
 					z * m_size.y * m_size.x + y * m_size.x + x;
@@ -221,9 +222,9 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
 			unsigned int currentBlock	
-				= currentZ	 * m_size.x * m_size.y + y * g_chunkSize.x + x;
+				= currentZ	 * m_size.x * m_size.y + y * m_size.x + x;
 			unsigned int neighbourBlock 
-				= neighbourZ * m_size.x * m_size.y + y * g_chunkSize.x + x;
+				= neighbourZ * m_size.x * m_size.y + y * m_size.x + x;
 
 			if (m_blocks[currentBlock].block.getType()	!= BlockType::Air &&
 				m_blocks[neighbourBlock].block.getType() != BlockType::Air)
@@ -248,6 +249,57 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 			}
 		}
 	}
+}
+
+bool Chunk::processRayCast(Ray& ray)
+{
+	glm::vec3 rayEndPoint = ray.getDirection() + ray.getPosition();
+
+	bool inChunk =
+		rayEndPoint.x >= m_pos.x && rayEndPoint.x <= m_pos.x + m_size.x &&
+		rayEndPoint.y >= m_pos.y && rayEndPoint.y <= m_pos.y + m_size.y &&
+		rayEndPoint.z >= m_pos.z && rayEndPoint.z <= m_pos.z + m_size.z;
+
+	if (inChunk)
+	{
+		for (unsigned int z = 0; z < m_size.z; z++)
+		{
+			for (unsigned int y = 0; y < m_size.y; y++)
+			{
+				for (unsigned int x = 0; x < m_size.x; x++)
+				{
+					unsigned int currentBlock = z * m_size.x * m_size.y + y * m_size.x + x;
+
+					bool canBeUpdated =
+						m_blocks[currentBlock].front || m_blocks[currentBlock].back ||
+						m_blocks[currentBlock].top || m_blocks[currentBlock].bottom ||
+						m_blocks[currentBlock].right || m_blocks[currentBlock].left;
+
+					if (!canBeUpdated)
+					{
+						continue;
+					}
+
+					auto blockPos = m_blocks[currentBlock].block.getPos();
+
+					bool rayHitsBlock =
+						rayEndPoint.x >= blockPos.x && rayEndPoint.x <= blockPos.x + m_size.x &&
+						rayEndPoint.y >= blockPos.y && rayEndPoint.y <= blockPos.y + m_size.y &&
+						rayEndPoint.z >= blockPos.z && rayEndPoint.z <= blockPos.z + m_size.z;
+
+					if (rayHitsBlock)
+					{
+						m_blocks[currentBlock] =
+							BlockRenderData(Block(m_blocks[currentBlock].block.getPos(), BlockType::Air));
+						return true;
+					}
+
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 void Chunk::setMesh()

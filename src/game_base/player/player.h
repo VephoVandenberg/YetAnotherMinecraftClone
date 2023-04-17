@@ -4,7 +4,6 @@
 
 namespace Engine
 {
-	// class Chunk;
 	class Event;
 }
 
@@ -19,6 +18,8 @@ namespace GameNamespace
 		void handleInput(Engine::Event& event);
 		
 		inline glm::mat4 getCameraView() const { return m_camera.getCameraView(); }
+		inline glm::vec3 getCameraFront() const { return m_camera.getCameraFront(); }
+		inline glm::vec3 getPlayerPosition() const { return m_camera.getCameraPosition(); }
 		inline bool getLeftButtonStatus() const { return m_leftButtonClicked; }
 
 		~Player() = default;

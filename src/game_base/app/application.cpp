@@ -7,6 +7,7 @@
 #include "../../engine/resource_manager/resource_manager.h"
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
+#include "../../engine/ray/ray.h"
 #include "../../engine/texture/texture_array.h"
 #include "../../engine/shader/shader_list.h"
 #include "../../engine/shader/uniform_list.h"
@@ -19,7 +20,8 @@
 using namespace Engine;
 using namespace GameNamespace;
 
-constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 16.0f, 16.0f);
+constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
+constexpr float g_rayMagnitude = 5.0f;
 
 Application::Application()
 	: m_isRunning(true)
@@ -111,12 +113,21 @@ void Application::initChunks()
 	{
 		m_chunks.emplace_back(Chunk(glm::vec3(i*16.0f, 1.0f, 0.0f)));
 	}
+	
+	checkChunksNeighbours();
+	updateChunkMeshes();
+}
 
+void Application::checkChunksNeighbours()
+{
 	for (unsigned int i = 0; i < m_chunks.size() - 1; i++)
 	{
 		m_chunks[i].updateToNeighbourChunk(m_chunks[i + 1]);
 	}
-	
+}
+
+void Application::updateChunkMeshes()
+{
 	for (unsigned int i = 0; i < m_chunks.size(); i++)
 	{
 		m_chunks[i].setMesh();
@@ -144,12 +155,25 @@ void Application::updateChunks()
 {
 	for (auto& chunk : m_chunks)
 	{
+		if (m_player->getLeftButtonStatus())
+		{
+			Ray ray(
+				m_player->getPlayerPosition(),
+				m_player->getCameraFront(),
+				g_rayMagnitude);
+			
+			if (chunk.processRayCast(ray));
+			{
+				chunk.setChunkFaces();
+				checkChunksNeighbours();
+				updateChunkMeshes();
+			}
+		}
+
 		chunk.draw(
 			ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
 			ResourceManager::getInstance().getTextureArray(),
 			m_player->getCameraView());
-
-
 	}
 }
 

@@ -11,6 +11,7 @@ namespace Engine
 {
 	class Shader;
 	class TextureArray;
+	class Ray;
 }
 
 namespace GameModules
@@ -25,7 +26,9 @@ namespace GameModules
 
 		void setMesh();
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
+		void setChunkFaces();
 		void updateToNeighbourChunk(Chunk& chunk);
+		bool processRayCast(Ray& ray);
 
 		inline glm::vec3 getSize() const { return m_size; }
 		
@@ -39,7 +42,6 @@ namespace GameModules
 
 	private:
 		void initBlocks();
-		void setChunkFaces();
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		bool checkAir(unsigned int index);

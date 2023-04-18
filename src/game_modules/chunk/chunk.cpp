@@ -85,20 +85,26 @@ void Chunk::initBlocks()
 			{
 				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
 				BlockType type = (y < 20 ? BlockType::Dirt : BlockType::Air);
-				type = (y == 20 ? BlockType::GrassDirt :type);
+				type = (y == 20 ? BlockType::GrassDirt : type);
 
+#if USE_VECTOR
 				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
+#else
+#endif
 			}
 		}
 	}
 }
 
+#if USE_VECTOR
 #define FRONT_FACE(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
 #define BACK_FACE(x, y, z, size)	(z - 1) * size.y * size.x + y * size.x + x
 #define TOP_FACE(x, y, z, size)		z * size.y * size.x + (y + 1) * size.x + x
 #define BOTTOM_FACE(x, y, z, size)	z * size.y * size.x + (y - 1) * size.x + x
 #define RIGHT_FACE(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
 #define LEFT_FACE(x, y, z, size)	z * size.y * size.x + y * size.x + (x - 1)
+#else
+#endif
 
 bool Chunk::checkAir(unsigned int index)
 {
@@ -120,36 +126,36 @@ void Chunk::setChunkFaces()
 		{
 			for (unsigned int x = 0; x < m_size.x; x++)
 			{
-				unsigned int currBlockIndex = 
+				unsigned int currBlockIndex =
 					z * m_size.y * m_size.x + y * m_size.x + x;
 
 				auto& currentBlock = m_blocks[currBlockIndex];
-				
-				if (currentBlock.block.getType() == BlockType::Air) 
-				{ 
-					continue; 
+
+				if (currentBlock.block.getType() == BlockType::Air)
+				{
+					continue;
 				}
 
-				unsigned int frontBlock  = FRONT_FACE(x, y, z, m_size);
-				unsigned int backBlock	 = BACK_FACE(x, y, z, m_size);
-				unsigned int topBlock	 = TOP_FACE(x, y, z, m_size);
+				unsigned int frontBlock = FRONT_FACE(x, y, z, m_size);
+				unsigned int backBlock = BACK_FACE(x, y, z, m_size);
+				unsigned int topBlock = TOP_FACE(x, y, z, m_size);
 				unsigned int bottomBlock = BOTTOM_FACE(x, y, z, m_size);
-				unsigned int rightBlock	 = RIGHT_FACE(x, y, z, m_size);
-				unsigned int leftBlock	 = LEFT_FACE(x, y, z, m_size);
+				unsigned int rightBlock = RIGHT_FACE(x, y, z, m_size);
+				unsigned int leftBlock = LEFT_FACE(x, y, z, m_size);
 
-				bool isFrontFree  = checkAir(frontBlock)	|| (z == m_size.z - 1);
-				bool isBackFree   = checkAir(backBlock)		|| (z == 0);
-				bool isTopFree	  = checkAir(topBlock)		|| (y == m_size.y - 1);
-				bool isBottomFree = checkAir(bottomBlock)	|| (y == 0) ;
-				bool isRightFree  = checkAir(rightBlock)	|| (x == m_size.x - 1);
-				bool isLeftFree   = checkAir(leftBlock)		|| (x == 0);
+				bool isFrontFree = checkAir(frontBlock) || (z == m_size.z - 1);
+				bool isBackFree = checkAir(backBlock) || (z == 0);
+				bool isTopFree = checkAir(topBlock) || (y == m_size.y - 1);
+				bool isBottomFree = checkAir(bottomBlock) || (y == 0);
+				bool isRightFree = checkAir(rightBlock) || (x == m_size.x - 1);
+				bool isLeftFree = checkAir(leftBlock) || (x == 0);
 
-				if (isFrontFree)	{ currentBlock.front	= true; }
-				if (isBackFree)		{ currentBlock.back		= true; }
-				if (isTopFree)		{ currentBlock.top		= true; }
-				if (isBottomFree)	{ currentBlock.bottom	= true; }
-				if (isRightFree)	{ currentBlock.right	= true; }
-				if (isLeftFree)		{ currentBlock.left		= true; }
+				if (isFrontFree) { currentBlock.front = true; }
+				if (isBackFree) { currentBlock.back = true; }
+				if (isTopFree) { currentBlock.top = true; }
+				if (isBottomFree) { currentBlock.bottom = true; }
+				if (isRightFree) { currentBlock.right = true; }
+				if (isLeftFree) { currentBlock.left = true; }
 			}
 		}
 	}
@@ -189,9 +195,9 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 	{
 		for (unsigned int y = 0; y < m_size.y; y++)
 		{
-			unsigned int currentBlock	
+			unsigned int currentBlock
 				= z * m_size.x * m_size.y + y * m_size.x + currentX;
-			unsigned int neighbourBlock 
+			unsigned int neighbourBlock
 				= z * m_size.x * m_size.y + y * m_size.x + neighbourX;
 
 			auto& currentChunkBlock = m_blocks[currentBlock];
@@ -221,12 +227,12 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-			unsigned int currentBlock	
-				= currentZ	 * m_size.x * m_size.y + y * m_size.x + x;
-			unsigned int neighbourBlock 
+			unsigned int currentBlock
+				= currentZ * m_size.x * m_size.y + y * m_size.x + x;
+			unsigned int neighbourBlock
 				= neighbourZ * m_size.x * m_size.y + y * m_size.x + x;
 
-			if (m_blocks[currentBlock].block.getType()	!= BlockType::Air &&
+			if (m_blocks[currentBlock].block.getType() != BlockType::Air &&
 				m_blocks[neighbourBlock].block.getType() != BlockType::Air)
 			{
 				auto& currentChunkBlock = m_blocks[currentBlock];
@@ -260,6 +266,8 @@ bool Chunk::processRayCast(Ray& ray)
 		rayEndPoint.y >= m_pos.y && rayEndPoint.y <= m_pos.y + m_size.y &&
 		rayEndPoint.z >= m_pos.z && rayEndPoint.z <= m_pos.z + m_size.z;
 
+	bool blockRemoved = false;
+
 	if (inChunk)
 	{
 		for (unsigned int z = 0; z < m_size.z; z++)
@@ -268,7 +276,8 @@ bool Chunk::processRayCast(Ray& ray)
 			{
 				for (unsigned int x = 0; x < m_size.x; x++)
 				{
-					unsigned int currentBlock = z * m_size.x * m_size.y + y * m_size.x + x;
+					unsigned int currentBlock = 
+						z * m_size.x * m_size.y + y * m_size.x + x;
 
 					bool canBeUpdated =
 						m_blocks[currentBlock].front || m_blocks[currentBlock].back ||
@@ -279,18 +288,18 @@ bool Chunk::processRayCast(Ray& ray)
 					{
 						continue;
 					}
-
-					auto blockPos = m_blocks[currentBlock].block.getPos();
-
+					const auto& blockPos = m_blocks[currentBlock].block.getPos();
+					
 					bool rayHitsBlock =
-						rayEndPoint.x >= blockPos.x && rayEndPoint.x <= blockPos.x + m_size.x &&
-						rayEndPoint.y >= blockPos.y && rayEndPoint.y <= blockPos.y + m_size.y &&
-						rayEndPoint.z >= blockPos.z && rayEndPoint.z <= blockPos.z + m_size.z;
+						rayEndPoint.x >= blockPos.x && rayEndPoint.x <= blockPos.x + 1 &&
+						rayEndPoint.y >= blockPos.y && rayEndPoint.y <= blockPos.y + 1 &&
+						rayEndPoint.z >= blockPos.z && rayEndPoint.z <= blockPos.z + 1;
 
 					if (rayHitsBlock)
 					{
 						m_blocks[currentBlock] =
-							BlockRenderData(Block(m_blocks[currentBlock].block.getPos(), BlockType::Air));
+							std::move(BlockRenderData(
+								Block(m_blocks[currentBlock].block.getPos(), BlockType::Air)));
 						return true;
 					}
 
@@ -302,11 +311,8 @@ bool Chunk::processRayCast(Ray& ray)
 	return false;
 }
 
-void Chunk::setMesh()
+void Chunk::initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
 {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indicies;
-
 	unsigned int IBOData_index = 0;
 	for (auto& data : m_blocks)
 	{
@@ -320,12 +326,12 @@ void Chunk::setMesh()
 			continue;
 		}
 
-		if (data.front)		{ addFront(indicies, IBOData_index);	}
-		if (data.back)		{ addBack(indicies, IBOData_index);		}
-		if (data.top)		{ addTop(indicies, IBOData_index);		}
-		if (data.bottom)	{ addBottom(indicies, IBOData_index);	}
-		if (data.right)		{ addRight(indicies, IBOData_index);	}
-		if (data.left)		{ addLeft(indicies, IBOData_index);		}
+		if (data.front) { addFront(indices, IBOData_index); }
+		if (data.back) { addBack(indices, IBOData_index); }
+		if (data.top) { addTop(indices, IBOData_index); }
+		if (data.bottom) { addBottom(indices, IBOData_index); }
+		if (data.right) { addRight(indices, IBOData_index); }
+		if (data.left) { addLeft(indices, IBOData_index); }
 
 		vertices.insert(
 			vertices.end(),
@@ -335,7 +341,26 @@ void Chunk::setMesh()
 		IBOData_index++;
 	}
 
-	m_mesh = Mesh(vertices, indicies);
+}
+
+void Chunk::initMesh()
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+
+	initMeshData(vertices, indices);
+
+	m_mesh = Mesh(vertices, indices);
+}
+
+void Chunk::setMesh()
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+
+	initMeshData(vertices, indices);
+
+	m_mesh.updateData(vertices, indices);
 }
 
 void Chunk::draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView)

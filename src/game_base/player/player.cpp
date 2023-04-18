@@ -32,10 +32,14 @@ void Player::handleInput(Event& event)
 	case EventType::MouseClick:
 	{
 		auto& mouseClick = dynamic_cast<MouseClickEvent&>(event);
-		if (mouseClick.m_button == GLFW_MOUSE_BUTTON_1)
+
+		if (mouseClick.m_button == GLFW_MOUSE_BUTTON_1 && 
+			mouseClick.m_action == GLFW_PRESS)
 		{
-			m_leftButtonClicked = (mouseClick.m_action == GLFW_PRESS) ? true : false;
+			m_leftButtonClicked = true;
+			break;
 		}
+		m_leftButtonClicked = false;
 	}
 	}
 }

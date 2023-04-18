@@ -30,8 +30,12 @@ void Mesh::init()
 
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), 
 		m_vertices.data(), GL_DYNAMIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicies.size() * sizeof(unsigned int), 
-		m_indicies.data(), GL_DYNAMIC_DRAW);
+	// 6 becaus each face has 2 triangles, thus 6 vertices
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * m_vertices.size() * sizeof(unsigned int), 
+		nullptr, GL_DYNAMIC_DRAW);
+
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_indicies.size() * sizeof(unsigned int), 
+		m_indicies.data());
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(0));
 	glEnableVertexAttribArray(0);
@@ -77,16 +81,17 @@ void Mesh::updateData(std::vector<Vertex> verticies, std::vector<unsigned int> i
 	m_indicies = indicies;
 
 	glBindVertexArray(m_buffer.VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_buffer.IBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer.VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer.IBO);
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size(), m_vertices.data());
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_indicies.size(), m_indicies.data());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 
+		m_vertices.size() * sizeof(Vertex), m_vertices.data());
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, 
+		m_indicies.size() * sizeof(unsigned int), m_indicies.data());
 }
 
 void Mesh::appendData(std::vector<Vertex> verticies, std::vector<unsigned int> indicies)
 {
-	m_vertices.insert(m_vertices.end(), verticies.begin(), verticies.end());
 	m_indicies.insert(m_indicies.end(), indicies.begin(), indicies.end());
 
 	glBindVertexArray(m_buffer.VAO);

@@ -15,7 +15,7 @@ constexpr glm::vec3 g_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr float g_cameraSpeedCoeff = 7.5f;
 
 Camera::Camera(float width, float height)
-	: m_pos(0.0f, 0.0f, 3.0f)
+	: m_pos(15.0f, 25.0f, 15.0f)
 	, m_cameraFront(g_cameraFront)
 	, m_firstMove(true)
 	, m_lastX(width / 2.0f)

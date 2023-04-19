@@ -1,5 +1,3 @@
-#include <map>
-
 #include <iostream>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -34,7 +32,7 @@ Application::Application()
 	initChunks();
 }
 
-void Application::init()										  
+void Application::init()
 {
 	CallbackData data;
 	data.m_func = std::bind(&Application::handleEvents, this, std::placeholders::_1);
@@ -109,28 +107,50 @@ void Application::initTextureArray()
 
 void Application::initChunks()
 {
-	for (unsigned int i = 0; i < 5; i++)
+
+	for (unsigned int z = 0; z < 5; z++)
 	{
-		m_chunks.emplace_back(Chunk(glm::vec3(i*16.0f, 1.0f, 0.0f)));
+		for (unsigned int x = 0; x < 5; x++)
+		{
+			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			m_chunks[pos] = std::move(Chunk(pos));
+		}
 	}
-	
 	checkChunksNeighbours();
 	updateChunkMeshes();
 }
 
 void Application::checkChunksNeighbours()
 {
-	for (unsigned int i = 0; i < m_chunks.size() - 1; i++)
+	for (unsigned int z = 0; z < 5; z++)
 	{
-		m_chunks[i].updateToNeighbourChunk(m_chunks[i + 1]);
+		for (unsigned int x = 0; x < 5; x++)
+		{
+			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 posNX = { x * g_chunkSize.x + g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 posNZ = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z + g_chunkSize.z };
+
+			if (m_chunks.find(posNX) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			}
+			if (m_chunks.find(posNZ) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+			}
+		}
 	}
 }
 
 void Application::updateChunkMeshes()
 {
-	for (unsigned int i = 0; i < m_chunks.size(); i++)
+	for (unsigned int z = 0; z < 5; z++)
 	{
-		m_chunks[i].initMesh();
+		for (unsigned int x = 0; x < 5; x++)
+		{
+			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			m_chunks[pos].initMesh();
+		}
 	}
 }
 
@@ -145,35 +165,50 @@ void Application::run()
 		m_window->clear();
 
 		m_player->update(m_deltaFrame);
-		updateChunks();
+		drawChunks();
 
 		m_window->update();
 	}
 }
 
-void Application::updateChunks()
+void Application::drawChunks()
 {
-	for (unsigned int i = 0; i < m_chunks.size(); i++)
+	for (auto& chunk : m_chunks)
 	{
-		if (m_player->getLeftButtonStatus())
-		{
-			Ray ray(
-				m_player->getPlayerPosition(),
-				m_player->getCameraFront(),
-				g_rayMagnitude);
-		
-			if (m_chunks[i].processRayCast(ray))
-			{
-				m_chunks[i].setChunkFaces();
-				m_chunks[i].updateToNeighbourChunk(m_chunks[i + 1]);
-				m_chunks[i].setMesh();
-			}
-		}
-
-		m_chunks[i].draw(
+		chunk.second.draw(
 			ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
 			ResourceManager::getInstance().getTextureArray(),
 			m_player->getCameraView());
 	}
 }
 
+void Application::updateChunks()
+{
+
+	for (unsigned int z = 0; z < 5; z++)
+	{
+		for (unsigned int x = 0; x < 5; x++)
+		{
+			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+
+			if (m_player->getLeftButtonStatus())
+			{
+				Ray ray(
+					m_player->getPlayerPosition(),
+					m_player->getCameraFront(),
+					g_rayMagnitude);
+
+				bool rayStartInChunk =
+					ray.getPosition().x >= pos.x && ray.getPosition().x <= pos.x + g_chunkSize.x &&
+					ray.getPosition().z >= pos.z && ray.getPosition().z <= pos.z + g_chunkSize.z;
+				bool rayEndsInChunk = 
+					ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
+					ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
+
+				//
+				// Here should be code for raycast
+				//
+			}
+		}
+	}
+}

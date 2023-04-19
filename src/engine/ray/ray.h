@@ -11,6 +11,7 @@ namespace Engine
 
 		inline glm::vec3 getDirection() const { return m_direction; }
 		inline glm::vec3 getPosition() const { return m_pos; }
+		inline glm::vec3 getEndPoint() const { return m_endPoint; }
 
 		~Ray() = default;
 		Ray(Ray&&) = default;
@@ -23,5 +24,6 @@ namespace Engine
 	private:
 		glm::vec3 m_pos;
 		glm::vec3 m_direction;
+		glm::vec3 m_endPoint;
 	};
 }

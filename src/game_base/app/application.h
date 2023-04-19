@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 #include "../../engine/window/window.h"
 #include "../../engine/event/event.h"
@@ -39,6 +39,8 @@ namespace GameNamespace
 		void initChunks();
 		void checkChunksNeighbours();
 
+		void drawChunks();
+
 		void updateChunks();
 		void updateChunkMeshes();
 
@@ -49,7 +51,7 @@ namespace GameNamespace
 
 		bool m_isRunning;
 
-		std::vector<Chunk> m_chunks;
+		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
 
 		std::unique_ptr<Window> m_window;
 

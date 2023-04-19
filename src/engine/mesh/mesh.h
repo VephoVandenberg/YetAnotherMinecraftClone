@@ -26,7 +26,7 @@ namespace Engine
 	class Mesh
 	{
 	public:
-		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indicies);
+		Mesh(std::vector<Vertex> vertices, unsigned int VBOsize, std::vector<unsigned int> indicies, unsigned int IBOsize);
 
 		void draw(Shader& shader, Texture& texture, glm::mat4 cameraView);
 		void draw(Shader& shader, TextureCube& textureCube, glm::mat4 cameraView);
@@ -43,7 +43,7 @@ namespace Engine
 		Mesh& operator=(const Mesh&) = delete;
 
 	private:
-		void init();
+		void init(unsigned int VBOSize, unsigned int IBOSize);
 
 		std::vector<Vertex> m_vertices;
 		std::vector<unsigned int> m_indicies;

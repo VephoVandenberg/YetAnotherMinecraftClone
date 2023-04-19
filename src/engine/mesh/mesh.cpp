@@ -11,14 +11,14 @@
 
 using namespace Engine;
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indicies)
+Mesh::Mesh(std::vector<Vertex> vertices, unsigned int VBOSize, std::vector<unsigned int> indicies, unsigned int IBOSize)
 	: m_vertices(vertices)
 	, m_indicies(indicies)
 {
-	init();
+	init(VBOSize, IBOSize);
 }
 
-void Mesh::init()
+void Mesh::init(unsigned int VBOSize, unsigned int IBOSize)
 {
 	glCreateVertexArrays(1, &m_buffer.VAO);
 	glCreateBuffers(1, &m_buffer.VBO);
@@ -28,12 +28,12 @@ void Mesh::init()
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer.VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer.IBO);
 
-	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), 
-		m_vertices.data(), GL_DYNAMIC_DRAW);
-	// 6 becaus each face has 2 triangles, thus 6 vertices
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * m_vertices.size() * sizeof(unsigned int), 
+	glBufferData(GL_ARRAY_BUFFER, VBOSize * sizeof(Vertex),
+		nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IBOSize * sizeof(unsigned int), 
 		nullptr, GL_DYNAMIC_DRAW);
 
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size() * sizeof(Vertex), m_vertices.data());
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_indicies.size() * sizeof(unsigned int), 
 		m_indicies.data());
 

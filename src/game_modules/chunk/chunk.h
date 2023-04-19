@@ -23,6 +23,19 @@ namespace GameModules
 	using namespace Engine;
 	class Block;
 
+	struct KeyFuncs
+	{
+		size_t operator()(const glm::vec3& v) const
+		{
+			return std::hash<int>()(v.x) ^ std::hash<int>()(v.y);
+		}
+
+		bool operator()(const glm::vec3& a, const glm::vec3& b) const
+		{
+			return a.x == b.x && a.y == b.y;
+		}
+	};
+
 	class Chunk
 	{
 	public:

@@ -117,7 +117,7 @@ bool Chunk::checkAir(unsigned int index)
 		return m_blocks[index].block.getType() == BlockType::Air;
 	}
 }
-
+  
 void Chunk::setChunkFaces()
 {
 	for (unsigned int z = 0; z < m_size.z; z++)
@@ -257,55 +257,161 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 	}
 }
 
-bool Chunk::processRayCast(Ray& ray)
+bool Chunk::rayChunkIntersection(const Ray& ray, Block& block, glm::vec3& t0, glm::vec3& t1)
 {
-	glm::vec3 rayEndPoint = ray.getDirection() + ray.getPosition();
-
-	bool inChunk =
-		rayEndPoint.x >= m_pos.x && rayEndPoint.x <= m_pos.x + m_size.x &&
-		rayEndPoint.y >= m_pos.y && rayEndPoint.y <= m_pos.y + m_size.y &&
-		rayEndPoint.z >= m_pos.z && rayEndPoint.z <= m_pos.z + m_size.z;
-
-	bool blockRemoved = false;
-
-	if (inChunk)
+	const float invDirX = 1.0f / ray.getDirection().x;
+	if (invDirX >= 0.0f)
 	{
-		for (unsigned int z = 0; z < m_size.z; z++)
+		t0.x = (block.getPos().x - ray.getDirection().x) * invDirX;
+		t1.x = (block.getPos().x + 1.0f - ray.getDirection().x) * invDirX;
+	}
+	else
+	{
+		t1.x = (block.getPos().x - ray.getDirection().x) * invDirX;
+		t0.x = (block.getPos().x + 1.0f - ray.getDirection().x) * invDirX;
+	}
+
+	const float invDirY = 1.0f / ray.getDirection().y;
+	if (invDirY >= 0.0f)
+	{
+		t0.y = (block.getPos().y - ray.getDirection().y) * invDirY;
+		t1.y = (block.getPos().y + 1.0f - ray.getDirection().y) * invDirY;
+	}
+	else
+	{
+		t1.y = (block.getPos().y - ray.getDirection().y) * invDirY;
+		t0.y = (block.getPos().y + 1.0f - ray.getDirection().y) * invDirY;
+	}
+
+	if (t0.x > t1.y || t0.y > t1.x) { return false; }
+	if (t0.y > t0.x) { t0.x = t0.y; }
+	if (t1.y < t1.x) { t1.x = t1.y; }
+
+	const float invDirZ = 1.0f / ray.getDirection().z;
+	if (invDirZ >= 0.0f)
+	{
+		t0.z = (m_pos.z - ray.getDirection().z) * invDirZ;
+		t1.z = (m_pos.z + 1.0f - ray.getDirection().z) * invDirZ;
+	}
+	else
+	{
+		t1.z = (m_pos.z - ray.getDirection().z) * invDirZ;
+		t0.z = (m_pos.z + 1.0f - ray.getDirection().z) * invDirZ;
+	}
+
+	if (t0.x > t1.z || t0.z > t1.x) { return false; }
+	if (t0.z > t0.x) { t0.x = t0.z; }
+	if (t1.z < t1.x) { t1.x = t1.z; }
+
+	return true;
+}
+
+bool Chunk::processRayToRemoveBlock(Ray& ray)
+{
+	int currX_index = ray.getPosition().x - m_pos.x;
+	int endX_index	= ray.getEndPoint().x - m_pos.x;
+	int currY_index = ray.getPosition().y - m_pos.y;
+	int endY_index	= ray.getEndPoint().y - m_pos.y;
+	int currZ_index = ray.getPosition().z - m_pos.z;
+	int endZ_index	= ray.getEndPoint().z - m_pos.z;
+
+	glm::vec3 t0, t1;
+
+	unsigned int currIndex = currZ_index * m_size.x * m_size.y + currY_index * m_size.x + currX_index;
+	rayChunkIntersection(ray, m_blocks[currIndex].block, t0, t1);
+
+	int stepX;
+	float tDeltaX;
+	float tMaxX;
+	if (ray.getDirection().x > 0.0f)
+	{
+		stepX = 1;
+		tDeltaX = 1 / ray.getDirection().x;
+		tMaxX = t0.x + (m_pos.x + currX_index - ray.getPosition().x) / ray.getDirection().x;
+	}
+	else if (ray.getDirection().x < 0.0f)
+	{
+		stepX = -1;
+		tDeltaX = 1 / ray.getDirection().x;
+		tMaxX = t0.x + (m_pos.x + currX_index - 1 - ray.getPosition().x) / ray.getDirection().x;
+	}
+	else
+	{
+		stepX = 0;
+		tDeltaX = t1.x;
+		tMaxX = t1.x;
+	}
+
+	int stepY;
+	float tDeltaY;
+	float tMaxY;
+	if (ray.getDirection().y > 0.0f)
+	{
+		stepY = 1;
+		tDeltaY = 1 / ray.getDirection().y;
+		tMaxY = t0.x + (m_pos.y + currY_index - ray.getPosition().y) / ray.getDirection().y;
+	}
+	else if (ray.getDirection().y < 0.0f)
+	{
+		stepY = -1;
+		tDeltaY = 1 / ray.getDirection().y;
+		tMaxY = t0.x + (m_pos.y + currY_index - 1 - ray.getPosition().y) / ray.getDirection().y;
+	}
+	else
+	{
+		stepY = 0;
+		tDeltaY = t1.x;
+		tMaxY = t1.x;
+	}
+
+	int stepZ;
+	float tDeltaZ;
+	float tMaxZ;
+	if (ray.getDirection().z > 0.0f)
+	{
+		stepZ = 1;
+		tDeltaZ = 1 / ray.getDirection().z;
+		tMaxZ = t0.x + (m_pos.z + currZ_index - ray.getPosition().y) / ray.getDirection().z;
+	}
+	else if (ray.getDirection().z < 0.0f)
+	{
+		stepZ = -1;
+		tDeltaZ = 1 / ray.getDirection().z;
+		tMaxZ = t0.x + (m_pos.z + currZ_index - 1 - ray.getPosition().y) / ray.getDirection().z;
+	}
+	else
+	{
+		stepZ = 0;
+		tDeltaZ = t1.x;
+		tMaxZ = t1.x;
+	}
+
+	while (currX_index != endX_index || currY_index != endY_index || currZ_index != endZ_index)
+	{
+		if (m_blocks[currIndex].block.getType() != BlockType::Air)
 		{
-			for (unsigned int y = 0; y < m_size.y; y++)
-			{
-				for (unsigned int x = 0; x < m_size.x; x++)
-				{
-					unsigned int currentBlock = 
-						z * m_size.x * m_size.y + y * m_size.x + x;
-
-					bool canBeUpdated =
-						m_blocks[currentBlock].front || m_blocks[currentBlock].back ||
-						m_blocks[currentBlock].top || m_blocks[currentBlock].bottom ||
-						m_blocks[currentBlock].right || m_blocks[currentBlock].left;
-
-					if (!canBeUpdated)
-					{
-						continue;
-					}
-					const auto& blockPos = m_blocks[currentBlock].block.getPos();
-					
-					bool rayHitsBlock =
-						rayEndPoint.x >= blockPos.x && rayEndPoint.x <= blockPos.x + 1 &&
-						rayEndPoint.y >= blockPos.y && rayEndPoint.y <= blockPos.y + 1 &&
-						rayEndPoint.z >= blockPos.z && rayEndPoint.z <= blockPos.z + 1;
-
-					if (rayHitsBlock)
-					{
-						m_blocks[currentBlock] =
-							std::move(BlockRenderData(
-								Block(m_blocks[currentBlock].block.getPos(), BlockType::Air)));
-						return true;
-					}
-
-				}
-			}
+			m_blocks[currIndex] = BlockRenderData(Block(m_blocks[currIndex].block.getPos(), BlockType::Air));
+			return true;
 		}
+
+		if (tMaxX < tMaxY && tMaxX < tMaxZ)
+		{
+			currX_index += stepX;
+			tMaxX += tDeltaX;
+		}
+		else if (tMaxY < tMaxZ)
+		{
+			currY_index += stepY;
+			tMaxY += tDeltaY;
+		}
+		else
+		{
+			currZ_index += stepZ;
+			tMaxZ += tDeltaZ;
+		}
+
+		currIndex = currZ_index * m_size.x * m_size.y + currY_index * m_size.x + currX_index;
+
 	}
 
 	return false;

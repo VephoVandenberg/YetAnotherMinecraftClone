@@ -47,7 +47,7 @@ namespace GameModules
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
 		void setChunkFaces();
 		void updateToNeighbourChunk(Chunk& chunk);
-		bool processRayCast(Ray& ray);
+		bool processRayToRemoveBlock(Ray& ray);
 
 		inline glm::vec3 getSize() const { return m_size; }
 		
@@ -61,6 +61,7 @@ namespace GameModules
 
 	private:
 		void initBlocks();
+		bool rayChunkIntersection(const Ray& ray, Block& block, glm::vec3& tMin, glm::vec3& tMax);
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);

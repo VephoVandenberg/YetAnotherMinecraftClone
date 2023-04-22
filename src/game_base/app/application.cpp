@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../../engine/resource_manager/resource_manager.h"
@@ -165,6 +163,7 @@ void Application::run()
 		m_window->clear();
 
 		m_player->update(m_deltaFrame);
+		updateChunks();
 		drawChunks();
 
 		m_window->update();
@@ -184,7 +183,6 @@ void Application::drawChunks()
 
 void Application::updateChunks()
 {
-
 	for (unsigned int z = 0; z < 5; z++)
 	{
 		for (unsigned int x = 0; x < 5; x++)
@@ -205,10 +203,27 @@ void Application::updateChunks()
 					ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
 					ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
 
-				//
-				// Here should be code for raycast
-				//
+				glm::vec3 start = {
+					(int)ray.getPosition().x,
+					(int)ray.getPosition().y,
+					(int)ray.getPosition().z
+				};
+
+				glm::vec3 end = {
+					(int)ray.getEndPoint().x,
+					(int)ray.getEndPoint().y,
+					(int)ray.getEndPoint().z
+				};
+
+				if (rayStartInChunk)
+				{
+					if (m_chunks[pos].processRayToRemoveBlock(ray))
+					{
+						m_chunks[pos].setChunkFaces();
+						m_chunks[pos].setMesh();
+					}
+				}
 			}
 		}
-	}
+	} 
 }

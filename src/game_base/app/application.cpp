@@ -17,7 +17,7 @@ using namespace Engine;
 using namespace GameNamespace;
 
 constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
-constexpr float g_rayMagnitude = 3.0f;
+constexpr float g_rayMagnitude = 5.0f;
 
 Application::Application()
 	: m_isRunning(true)
@@ -187,10 +187,15 @@ void Application::updateChunks()
 	{
 		for (unsigned int x = 0; x < 5; x++)
 		{
-			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-
 			if (m_player->getLeftButtonStatus())
 			{
+				glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+
+				if (m_chunks.find(pos) == m_chunks.end())
+				{
+					continue;
+				}
+
 				Ray ray(
 					m_player->getPlayerPosition(),
 					m_player->getCameraFront(),
@@ -199,31 +204,51 @@ void Application::updateChunks()
 				bool rayStartInChunk =
 					ray.getPosition().x >= pos.x && ray.getPosition().x <= pos.x + g_chunkSize.x &&
 					ray.getPosition().z >= pos.z && ray.getPosition().z <= pos.z + g_chunkSize.z;
-				bool rayEndsInChunk = 
+				bool rayEndsInChunk =
 					ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
 					ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
-
-				glm::vec3 start = {
-					(int)ray.getPosition().x,
-					(int)ray.getPosition().y,
-					(int)ray.getPosition().z
-				};
-
-				glm::vec3 end = {
-					(int)ray.getEndPoint().x,
-					(int)ray.getEndPoint().y,
-					(int)ray.getEndPoint().z
-				};
 
 				if (rayStartInChunk)
 				{
 					if (m_chunks[pos].processRayToRemoveBlock(ray))
 					{
-						m_chunks[pos].setChunkFaces();
+						if (!rayEndsInChunk)
+						{
+							int a = 5;
+						}
+
+						glm::vec3 positiveX = { (x + 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+						glm::vec3 positiveZ = { x * g_chunkSize.x, 0.0f, (z + 1) * g_chunkSize.z };
+						glm::vec3 negativeX = { (x - 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+						glm::vec3 negativeZ = { x * g_chunkSize.x, 0.0f, (z - 1) * g_chunkSize.z };
+
+
+						if (m_chunks.find(positiveX) != m_chunks.end())
+						{
+							m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
+						}
+						if (m_chunks.find(negativeX) != m_chunks.end())
+						{
+							m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
+						}
+
+						if (m_chunks.find(positiveZ) != m_chunks.end())
+						{
+							m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
+						}
+						if (m_chunks.find(negativeZ) != m_chunks.end())
+						{
+							m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
+						}
+						m_chunks[positiveX].setMesh();
+						m_chunks[negativeX].setMesh();
+						m_chunks[positiveZ].setMesh();
+						m_chunks[negativeZ].setMesh();
 						m_chunks[pos].setMesh();
+
 					}
 				}
 			}
 		}
-	} 
+	}
 }

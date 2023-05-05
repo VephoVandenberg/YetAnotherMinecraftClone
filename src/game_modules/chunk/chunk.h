@@ -61,12 +61,13 @@ namespace GameModules
 
 	private:
 		void initBlocks();
-		bool rayChunkIntersection(const Ray& ray, Block& block, glm::vec3& tMin, glm::vec3& tMax);
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
+		void calcBlockBorderData(const Block& block, const Ray& ray, float& tMaxX, float& tMaxY, float& tMaxZ, int& stepX, int& stepY, int& stepZ);
 #if 1
 		bool checkAir(unsigned int index);
+		void checkSurroundedBlocks(int Z, int Y, int X);
 #else
 #endif
 		glm::vec3 m_size;

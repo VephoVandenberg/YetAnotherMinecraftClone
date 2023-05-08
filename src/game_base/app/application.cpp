@@ -17,7 +17,7 @@ using namespace Engine;
 using namespace GameNamespace;
 
 constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
-constexpr float g_rayMagnitude = 5.0f;
+constexpr float g_rayMagnitude = 7.0f;
 
 Application::Application()
 	: m_isRunning(true)
@@ -196,8 +196,14 @@ void Application::updateChunks()
 					continue;
 				}
 
+				glm::vec3 rayPos = {
+					m_player->getPlayerPosition().x + 0.5f,
+					m_player->getPlayerPosition().y,
+					m_player->getPlayerPosition().z + 0.5f
+				};
+
 				Ray ray(
-					m_player->getPlayerPosition(),
+					rayPos,
 					m_player->getCameraFront(),
 					g_rayMagnitude);
 
@@ -214,7 +220,7 @@ void Application::updateChunks()
 					{
 						if (!rayEndsInChunk)
 						{
-							int a = 5;
+							// Another chunk should be worked out
 						}
 
 						glm::vec3 positiveX = { (x + 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
@@ -245,7 +251,7 @@ void Application::updateChunks()
 						m_chunks[positiveZ].setMesh();
 						m_chunks[negativeZ].setMesh();
 						m_chunks[pos].setMesh();
-
+						return;
 					}
 				}
 			}

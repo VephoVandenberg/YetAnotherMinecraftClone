@@ -4,16 +4,17 @@ using namespace GameNamespace;
 
 /*
 * Agenda
-* - Raycast && cube removal
+* - investigate noise algorithms(Perlin noise to be certain)
 * Later
-* - noise
 * - imGUI
-* - terrain generation
+* - infinite terrain generation
 * - add more blocks 
 * - layers in the chunk
 * Super Later
 * - Investigate order of drawing faces
 * - Investigate the way cubemaps are drawn
+* - Investigate the number of meshes that are alocated for chunks
+* - Raycast and cube removal still don't work the way I would like it to work(VERY IMPORTANT)
 */
 
 

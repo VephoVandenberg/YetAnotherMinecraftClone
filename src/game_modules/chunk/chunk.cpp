@@ -76,6 +76,13 @@ Chunk::Chunk(glm::vec3 pos)
 
 void Chunk::initBlocks()
 {
+	// heights
+	std::vector<int> heights(m_size.x * m_size.z);
+	for (unsigned int i = 0; i < heights.size(); i++)
+	{
+		heights[i] = rand() % 5;
+	}
+
 	// Block initialization must be changed
 	for (unsigned int z = 0; z < g_chunkSize.z; z++)
 	{
@@ -84,8 +91,8 @@ void Chunk::initBlocks()
 			for (unsigned int x = 0; x < g_chunkSize.x; x++)
 			{
 				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
-				BlockType type = (y < 20 ? BlockType::Dirt : BlockType::Air);
-				type = (y == 20 ? BlockType::GrassDirt : type);
+				BlockType type = (y < 20 + heights[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
+				type = (y == 20 + heights[z * m_size.z + x] ? BlockType::GrassDirt : type);
 
 #if USE_VECTOR
 				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
@@ -230,7 +237,7 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 
 			auto& frontBlock = (currentZ < neighbourZ) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
 			auto& backBlock = (currentZ > neighbourZ) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
-			
+
 			if (frontBlock.block.getType() != BlockType::Air && backBlock.block.getType() != BlockType::Air)
 			{
 				frontBlock.back = false;
@@ -251,21 +258,17 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 void Chunk::calcBlockBorderData(const Block& block, const Ray& ray, float& tMaxX, float& tMaxY, float& tMaxZ, int& stepX, int& stepY, int& stepZ)
 {
 	float blockBorderX = block.getPos().x;
+	glm::vec3 dir = ray.getEndPoint() - ray.getPosition();
 	if (ray.getDirection().x > 0.0f)
 	{
 		stepX = 1;
 		blockBorderX += 1.0f;
-		tMaxX = (blockBorderX - ray.getPosition().x) / ray.getDirection().x;
+		tMaxX = (blockBorderX - ray.getPosition().x) / dir.x;
 	}
 	else  if (ray.getDirection().x < 0.0f)
 	{
 		stepX = -1;
-		tMaxX = (blockBorderX - ray.getPosition().x) / ray.getDirection().x;
-	}
-	else
-	{
-		stepX = 0;
-		tMaxX = 0.0f;
+		tMaxX = (blockBorderX - ray.getPosition().x) / dir.x;
 	}
 
 	float blockBorderY = block.getPos().y;
@@ -273,17 +276,12 @@ void Chunk::calcBlockBorderData(const Block& block, const Ray& ray, float& tMaxX
 	{
 		stepY = 1;
 		blockBorderY += 1.0f;
-		tMaxY = (blockBorderY - ray.getPosition().y) / ray.getDirection().y;
+		tMaxY = (blockBorderY - ray.getPosition().y) / dir.y;
 	}
 	else if (ray.getDirection().y < 0.0f)
 	{
 		stepY = -1;
-		tMaxY = (blockBorderY - ray.getPosition().y) / ray.getDirection().y;
-	}
-	else
-	{
-		stepY = 0;
-		tMaxY = 0.0f;
+		tMaxY = (blockBorderY - ray.getPosition().y) / dir.y;
 	}
 
 	float blockBorderZ = block.getPos().z;
@@ -291,17 +289,12 @@ void Chunk::calcBlockBorderData(const Block& block, const Ray& ray, float& tMaxX
 	{
 		stepZ = 1;
 		blockBorderZ += 1.0f;
-		tMaxZ = (blockBorderZ - ray.getPosition().z) / ray.getDirection().z;
+		tMaxZ = (blockBorderZ - ray.getPosition().z) / dir.z;
 	}
 	else if (ray.getDirection().z < 0.0f)
 	{
 		stepZ = -1;
-		tMaxZ = (blockBorderZ - ray.getPosition().z) / ray.getDirection().z;
-	}
-	else
-	{
-		stepZ = 0;
-		tMaxZ = 0.0f;
+		tMaxZ = (blockBorderZ - ray.getPosition().z) / dir.z;
 	}
 }
 
@@ -367,7 +360,7 @@ void Chunk::checkSurroundedBlocks(int z, int y, int x)
 	unsigned int top = TOP_BLOCK(x, y, z, m_size);
 	unsigned int bottom = BOTTOM_BLOCK(x, y, z, m_size);
 	unsigned int right = RIGHT_BLOCK(x, y, z, m_size);
-	unsigned int left  = LEFT_BLOCK(x, y, z, m_size);
+	unsigned int left = LEFT_BLOCK(x, y, z, m_size);
 	unsigned int front = FRONT_BLOCK(x, y, z, m_size);
 
 

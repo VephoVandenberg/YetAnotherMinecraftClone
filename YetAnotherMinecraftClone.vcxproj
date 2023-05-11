@@ -126,7 +126,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>USE_VECTOR;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_VECTOR_FOR_BLOCKS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Working\YetAnotherMinecraftClone\dependencies\GLAD\include;D:\Working\YetAnotherMinecraftClone\dependencies\GLFW\include;D:\Working\YetAnotherMinecraftClone\dependencies\glm;D:\Working\YetAnotherMinecraftClone\dependencies\GLFW\include;D:\Working\YetAnotherMinecraftClone\dependencies\GLAD\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>

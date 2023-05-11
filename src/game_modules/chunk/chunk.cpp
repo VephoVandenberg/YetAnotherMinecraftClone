@@ -1,4 +1,4 @@
-#include <unordered_map>
+#include <glm/gtc/random.hpp>
 
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
@@ -66,23 +66,90 @@ auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
 	indicies.push_back(24 * i + 23);
 };
 
-Chunk::Chunk(glm::vec3 pos)
+Chunk::Chunk(glm::vec3 pos, const std::vector<int>& heightMap)
 	: m_size(g_chunkSize)
 	, m_pos(pos)
+	, m_heightMap(heightMap)
 {
+	initGradientVectors();
+	initHeightMap();
 	initBlocks();
 	setChunkFaces();
 }
 
+void Chunk::initGradientVectors()
+{
+	m_gradients.reserve((m_size.x + 1) * (m_size.z + 1));
+	for (unsigned int z = 0; z < m_size.z + 1; z++)
+	{
+		for (unsigned int x = 0; x < m_size.x + 1; x++)
+		{
+			// Calculate gradient vectors
+			glm::vec2 gradient =
+				glm::normalize(
+					glm::vec2(
+						glm::linearRand(-1024, 1023),
+						glm::linearRand(-1024, 1023)));
+			m_gradients.push_back(gradient);
+		}
+	}
+}
+
+void Chunk::initHeightMap()
+{
+	auto interpolate = [](float a0, float a1, float w) {
+
+		return (a1- a0) * w  + a0;
+	};
+
+	for (unsigned int z = 0; z < m_size.z; z++)
+	{
+		for (unsigned int x = 0; x < m_size.x; x++)
+		{
+			unsigned int iTopL = z * m_size.z + x;
+			unsigned int iTopR = z * m_size.z + (x + 1);
+			unsigned int iBottomL = (z + 1) * m_size.z + x;
+			unsigned int iBottomR = (z + 1) * m_size.z + (x + 1);
+
+			glm::vec2 gTopL = m_gradients[iTopL];
+			glm::vec2 gTopR = m_gradients[iTopR];
+			glm::vec2 gBottomL = m_gradients[iBottomL];
+			glm::vec2 gBottomR = m_gradients[iBottomR];
+
+			// Calculate random point in grid cell
+			glm::vec2 randomPointInCube = {
+				x + static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+				z + static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
+			};
+
+			// Calculate directional vectors
+			glm::vec2 dTopL = randomPointInCube - glm::vec2(x, z);
+			glm::vec2 dTopR = randomPointInCube - glm::vec2(x + 1, z);
+			glm::vec2 dBottomL = randomPointInCube - glm::vec2(x, z + 1);
+			glm::vec2 dBottomR = randomPointInCube - glm::vec2(x + 1, z + 1);
+
+			// Calculate dot product
+			float dPrTopL = glm::dot(gTopL, dTopL);
+			float dPrTopR = glm::dot(gTopR, dTopR);
+			float dPrBottomL = glm::dot(gBottomL, dBottomL);
+			float dPrBottomR = glm::dot(gBottomR, dBottomR);
+
+			// Interpolate the height
+			float sx = (x + 1) - static_cast<float>(x);
+			float sz = (z + 1) - static_cast<float>(z);
+
+			float topIn	= interpolate(dPrTopL, dPrTopR, sx);
+			float bottomIn = interpolate(dPrBottomL, dPrBottomR, sx);
+
+			int value = 2 * interpolate(topIn, bottomIn, sz);
+
+			m_heightMap.push_back(value);
+		}
+	}
+}
+
 void Chunk::initBlocks()
 {
-	// heights
-	std::vector<int> heights(m_size.x * m_size.z);
-	for (unsigned int i = 0; i < heights.size(); i++)
-	{
-		heights[i] = rand() % 5;
-	}
-
 	// Block initialization must be changed
 	for (unsigned int z = 0; z < g_chunkSize.z; z++)
 	{
@@ -91,10 +158,10 @@ void Chunk::initBlocks()
 			for (unsigned int x = 0; x < g_chunkSize.x; x++)
 			{
 				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
-				BlockType type = (y < 20 + heights[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
-				type = (y == 20 + heights[z * m_size.z + x] ? BlockType::GrassDirt : type);
+				BlockType type = (y < 20 + m_heightMap[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
+				type = (y == 20 + m_heightMap[z * m_size.z + x] ? BlockType::GrassDirt : type);
 
-#if USE_VECTOR
+#if USE_VECTOR_FOR_BLOCKS
 				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
 #else
 #endif
@@ -105,7 +172,7 @@ void Chunk::initBlocks()
 
 #define FRONT_BLOCK(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
 #define BACK_BLOCK(x, y, z, size)	(z - 1) * size.y * size.x + y * size.x + x
-#define TOP_BLOCK(x, y, z, size)		z * size.y * size.x + (y + 1) * size.x + x
+#define TOP_BLOCK(x, y, z, size)	z * size.y * size.x + (y + 1) * size.x + x
 #define BOTTOM_BLOCK(x, y, z, size)	z * size.y * size.x + (y - 1) * size.x + x
 #define RIGHT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
 #define LEFT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x - 1)

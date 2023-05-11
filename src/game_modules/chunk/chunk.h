@@ -1,11 +1,10 @@
 #pragma once
 
-#if USE_VECTOR
+#if USE_VECTOR_FOR_BLOCKS
 #include <vector>
 #else
 #include <unordered_map>
 #endif
-
 
 #include <glm/glm.hpp>
 
@@ -39,9 +38,12 @@ namespace GameModules
 	class Chunk
 	{
 	public:
-		Chunk(glm::vec3 pos);
+		Chunk(glm::vec3 pos, const std::vector<int>& heightMap);
 
 		void initMesh();
+		void initGradientVectors();
+		void initHeightMap();
+		void initBlocks();
 		void setMesh();
 
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
@@ -60,11 +62,13 @@ namespace GameModules
 		Chunk& operator=(const Chunk&) = delete;	
 
 	private:
-		void initBlocks();
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
-		void calcBlockBorderData(const Block& block, const Ray& ray, float& tMaxX, float& tMaxY, float& tMaxZ, int& stepX, int& stepY, int& stepZ);
+		void calcBlockBorderData(
+			const Block& block, const Ray& ray,
+			float& tMaxX, float& tMaxY, float& tMaxZ,
+			int& stepX, int& stepY, int& stepZ);
 #if 1
 		bool checkAir(unsigned int index);
 		void checkSurroundedBlocks(int Z, int Y, int X);
@@ -97,10 +101,12 @@ namespace GameModules
 			{}
 		};
 
-#if USE_VECTOR
+#if USE_VECTOR_FOR_BLOCKS
 		std::vector<BlockRenderData> m_blocks;
 #else
 		std::unordered_map<glm::vec3, BlockRenderData> m_blocks;
 #endif
+		std::vector<glm::vec2> m_gradients;
+		std::vector<int> m_heightMap;
 	};
 }

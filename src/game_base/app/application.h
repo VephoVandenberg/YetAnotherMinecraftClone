@@ -39,6 +39,8 @@ namespace GameNamespace
 		void initChunks();
 		void checkChunksNeighbours();
 
+		std::vector<int> generateHeightMap(glm::vec3 pos);
+
 		void drawChunks();
 
 		void updateChunks();
@@ -52,9 +54,10 @@ namespace GameNamespace
 		bool m_isRunning;
 
 		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
+		std::unordered_map<glm::vec3, float, KeyFuncs> m_chunkCorners;
 
 		std::unique_ptr<Window> m_window;
 
-		std::unique_ptr<Player> m_player;	
+		std::unique_ptr<Player> m_player;
 	};
 }

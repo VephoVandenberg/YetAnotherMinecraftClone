@@ -1,5 +1,5 @@
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <iostream>
 #include "../../engine/resource_manager/resource_manager.h"
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
@@ -103,15 +103,20 @@ void Application::initTextureArray()
 		.setTextureArray(s_texturePaths);
 }
 
+std::vector<int> Application::generateHeightMap(glm::vec3 pos)
+{
+	std::vector<int> v;
+	return v;
+}
+
 void Application::initChunks()
 {
-
 	for (unsigned int z = 0; z < 5; z++)
 	{
 		for (unsigned int x = 0; x < 5; x++)
 		{
 			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-			m_chunks[pos] = std::move(Chunk(pos));
+			m_chunks[pos] = std::move(Chunk(pos, generateHeightMap(pos)));
 		}
 	}
 	checkChunksNeighbours();

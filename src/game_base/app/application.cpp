@@ -115,8 +115,23 @@ void Application::initChunks()
 	{
 		for (unsigned int x = 0; x < 5; x++)
 		{
-			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 pos =	{ x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 nPos = { x * g_chunkSize.x, 0.0f, (z + 1) * g_chunkSize.z };
+			glm::vec3 sPos = { x * g_chunkSize.x, 0.0f, (z - 1) * g_chunkSize.z };
+			glm::vec3 ePos = { (x + 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 wPos = { (x - 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+
 			m_chunks[pos] = std::move(Chunk(pos, generateHeightMap(pos)));
+			m_chunks[pos].initGradientVectors();
+			m_chunks[pos].initHeightMap();
+
+			if (m_chunks.find(nPos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[nPos]); }
+			if (m_chunks.find(sPos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[sPos]); }
+			if (m_chunks.find(ePos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[ePos]); }
+			if (m_chunks.find(wPos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[wPos]); }
+
+			m_chunks[pos].initBlocks();
+			m_chunks[pos].setChunkFaces();
 		}
 	}
 	checkChunksNeighbours();

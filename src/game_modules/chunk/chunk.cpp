@@ -1,5 +1,9 @@
 #include <glm/gtc/random.hpp>
 
+#ifdef DEBUG_PERLIN
+#include <iostream>
+#endif
+
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
 #include "../../engine/ray/ray.h"
@@ -11,6 +15,12 @@
 using namespace GameModules;
 
 constexpr glm::vec3 g_chunkSize = { 16.0f, 256.0f, 16.0f };
+constexpr static glm::vec2 g_gradients[] = {
+	{-1, -1},
+	{ 1, -1},
+	{-1,  1},
+	{ 1,  1}
+};
 
 auto addFront = [](std::vector<unsigned int>& indicies, unsigned int i) {
 	indicies.push_back(24 * i + 0);
@@ -71,25 +81,29 @@ Chunk::Chunk(glm::vec3 pos, const std::vector<int>& heightMap)
 	, m_pos(pos)
 	, m_heightMap(heightMap)
 {
-	initGradientVectors();
-	initHeightMap();
-	initBlocks();
-	setChunkFaces();
+	//initGradientVectors();
+	// Check for neighbourVectors
+	//initHeightMap();
+	//initBlocks();
+	//setChunkFaces();
+	// update neighbourFaces
 }
 
 void Chunk::initGradientVectors()
 {
-	m_gradients.reserve((m_size.x + 1) * (m_size.z + 1));
-	for (unsigned int z = 0; z < m_size.z + 1; z++)
+	m_gradients.reserve((m_size.x / 4 + 1) * (m_size.z / 4 + 1));
+	for (unsigned int z = 0; z < m_size.z / 4 + 1; z++)
 	{
-		for (unsigned int x = 0; x < m_size.x + 1; x++)
+		for (unsigned int x = 0; x < m_size.x / 4 + 1; x++)
 		{
 			// Calculate gradient vectors
-			glm::vec2 gradient =
-				glm::normalize(
-					glm::vec2(
-						glm::linearRand(-1024, 1023),
-						glm::linearRand(-1024, 1023)));
+			glm::vec2 randVec = {
+				glm::linearRand(-rand(), rand()),
+				glm::linearRand(-rand(), rand())
+			};
+			glm::vec2 pos = { m_pos.x + x, m_pos.z + z };
+			glm::vec2 gradient = glm::normalize(randVec - pos);
+
 			m_gradients.push_back(gradient);
 		}
 	}
@@ -97,54 +111,132 @@ void Chunk::initGradientVectors()
 
 void Chunk::initHeightMap()
 {
-	auto interpolate = [](float a0, float a1, float w) {
-
-		return (a1- a0) * w  + a0;
-	};
-
 	for (unsigned int z = 0; z < m_size.z; z++)
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-			unsigned int iTopL = z * m_size.z + x;
-			unsigned int iTopR = z * m_size.z + (x + 1);
-			unsigned int iBottomL = (z + 1) * m_size.z + x;
-			unsigned int iBottomR = (z + 1) * m_size.z + (x + 1);
-
-			glm::vec2 gTopL = m_gradients[iTopL];
-			glm::vec2 gTopR = m_gradients[iTopR];
-			glm::vec2 gBottomL = m_gradients[iBottomL];
-			glm::vec2 gBottomR = m_gradients[iBottomR];
-
-			// Calculate random point in grid cell
-			glm::vec2 randomPointInCube = {
-				x + static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-				z + static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
-			};
-
-			// Calculate directional vectors
-			glm::vec2 dTopL = randomPointInCube - glm::vec2(x, z);
-			glm::vec2 dTopR = randomPointInCube - glm::vec2(x + 1, z);
-			glm::vec2 dBottomL = randomPointInCube - glm::vec2(x, z + 1);
-			glm::vec2 dBottomR = randomPointInCube - glm::vec2(x + 1, z + 1);
-
-			// Calculate dot product
-			float dPrTopL = glm::dot(gTopL, dTopL);
-			float dPrTopR = glm::dot(gTopR, dTopR);
-			float dPrBottomL = glm::dot(gBottomL, dBottomL);
-			float dPrBottomR = glm::dot(gBottomR, dBottomR);
-
-			// Interpolate the height
-			float sx = (x + 1) - static_cast<float>(x);
-			float sz = (z + 1) - static_cast<float>(z);
-
-			float topIn	= interpolate(dPrTopL, dPrTopR, sx);
-			float bottomIn = interpolate(dPrBottomL, dPrBottomR, sx);
-
-			int value = 2 * interpolate(topIn, bottomIn, sz);
-
-			m_heightMap.push_back(value);
+			m_heightMap.push_back(perlin1(x, z));
 		}
+	}
+}
+
+int Chunk::perlin1(int x, int z)
+{
+	auto interpolate = [](float a0, float a1, float w) {
+		return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
+	};
+
+	auto fade = [](float t) {
+		return ((6 * t - 15) * t + 10) * t * t * t;
+	};
+
+	unsigned int bottomL = z / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4);
+	unsigned int bottomR = z / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4) + 1;
+	unsigned int topL = (z / (m_size.z / 4) + 1) * m_size.x / 4 + x / (m_size.x / 4);
+	unsigned int topR = (z / (m_size.z / 4) + 1) * m_size.x / 4 + x / (m_size.x / 4) + 1;
+
+	glm::vec2 randomPointInQuad = {
+		x + static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+		z + static_cast<float>(rand()) / static_cast<float>(RAND_MAX)
+	};
+
+	glm::vec2 dBottomL = randomPointInQuad - glm::vec2(x / (m_size.x / 4), z / (m_size.z / 4));
+	glm::vec2 dBottomR = randomPointInQuad - glm::vec2(x / (m_size.x / 4) + m_size.x / 4, z / (m_size.z / 4));
+	glm::vec2 dTopL = randomPointInQuad -	 glm::vec2(x / (m_size.x / 4), z / (m_size.z / 4) + m_size.z / 4);
+	glm::vec2 dTopR = randomPointInQuad -	 glm::vec2(x / (m_size.x / 4) + m_size.x / 4, z / (m_size.z / 4) + m_size.z / 4);
+
+	float dPrTopL = glm::dot(dTopL, m_gradients[topL]);
+	float dPrTopR = glm::dot(dTopR, m_gradients[topR]);
+	float dPrBottomL = glm::dot(dBottomL, m_gradients[bottomL]);
+	float dPrBottomR = glm::dot(dBottomR, m_gradients[bottomR]);
+
+	float sx = randomPointInQuad.x - static_cast<float>(x);
+	float sz = randomPointInQuad.y - static_cast<float>(z);
+
+	float value = interpolate(
+		interpolate(dPrTopL, dPrTopR, fade(sx)),
+		interpolate(dPrBottomL, dPrBottomR, fade(sx)),
+		fade(sz));
+
+#ifdef DEBUG_PERLIN
+	// std::cout << value << std::endl;
+#endif
+
+	return value / 4;
+}
+
+// That's JavidX9 code try to reuse it tomorrow
+int Chunk::perlin2(int nWidth, int nHeight, float* fSeed, int nOctaves, float fBias, float* fOutput)
+{
+	// Used 1D Perlin Noise
+	for (int x = 0; x < nWidth; x++)
+		for (int y = 0; y < nHeight; y++)
+		{
+			float fNoise = 0.0f;
+			float fScaleAcc = 0.0f;
+			float fScale = 1.0f;
+
+			for (int o = 0; o < nOctaves; o++)
+			{
+				int nPitch = nWidth >> o;
+				int nSampleX1 = (x / nPitch) * nPitch;
+				int nSampleY1 = (y / nPitch) * nPitch;
+
+				int nSampleX2 = (nSampleX1 + nPitch) % nWidth;
+				int nSampleY2 = (nSampleY1 + nPitch) % nWidth;
+
+				float fBlendX = (float)(x - nSampleX1) / (float)nPitch;
+				float fBlendY = (float)(y - nSampleY1) / (float)nPitch;
+
+				float fSampleT = (1.0f - fBlendX) * fSeed[nSampleY1 * nWidth + nSampleX1] + fBlendX * fSeed[nSampleY1 * nWidth + nSampleX2];
+				float fSampleB = (1.0f - fBlendX) * fSeed[nSampleY2 * nWidth + nSampleX1] + fBlendX * fSeed[nSampleY2 * nWidth + nSampleX2];
+
+				fScaleAcc += fScale;
+				fNoise += (fBlendY * (fSampleB - fSampleT) + fSampleT) * fScale;
+				fScale = fScale / fBias;
+			}
+
+			// Scale to seed range
+			fOutput[y * nWidth + x] = fNoise / fScaleAcc;
+		}
+	return 0;
+}
+
+void Chunk::updateGradientsToNieghbouChunk(const Chunk& chunk)
+{
+	if (m_pos.x > chunk.m_pos.x)
+	{
+		traverseChunkGradX(chunk, 0, chunk.m_size.x - 1);
+	}
+	else if (m_pos.x < chunk.m_pos.x)
+	{
+		traverseChunkGradX(chunk, chunk.m_size.x - 1, 0);
+	}
+	else if (m_pos.z > chunk.m_pos.z)
+	{
+		traverseChunkGradZ(chunk, 0, chunk.m_size.z - 1);
+	}
+	else if (m_pos.z < chunk.m_pos.z)
+	{
+		traverseChunkGradZ(chunk, chunk.m_size.z - 1, 0);
+	}
+}
+
+void Chunk::traverseChunkGradX(const Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX)
+{
+	for (unsigned int z = 0; z < m_size.z / 4 + 1; z++)
+	{
+		m_gradients[z / (m_size.z / 4) * m_size.x / 4 + currentX / (m_size.x / 4)] =
+			chunk.m_gradients[z / (m_size.z / 4) * m_size.x / 4 + neighbourX / (m_size.x / 4)];
+	}
+}
+
+void Chunk::traverseChunkGradZ(const Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ)
+{
+	for (unsigned int x = 0; x < m_size.x / 4 + 1; x++)
+	{
+		m_gradients[currentZ / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4)] =
+			chunk.m_gradients[neighbourZ / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4)];
 	}
 }
 
@@ -168,7 +260,7 @@ void Chunk::initBlocks()
 			}
 		}
 	}
-}
+	}
 
 #define FRONT_BLOCK(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
 #define BACK_BLOCK(x, y, z, size)	(z - 1) * size.y * size.x + y * size.x + x

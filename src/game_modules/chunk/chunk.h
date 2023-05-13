@@ -44,6 +44,7 @@ namespace GameModules
 		void initGradientVectors();
 		void initHeightMap();
 		void initBlocks();
+		void updateGradientsToNieghbouChunk(const Chunk& chunk);
 		void setMesh();
 
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
@@ -62,9 +63,13 @@ namespace GameModules
 		Chunk& operator=(const Chunk&) = delete;	
 
 	private:
+		int perlin1(int x, int y);
+		int perlin2(int nWidth, int nHeight, float* fSeed, int nOctaves, float fBias, float* fOutput);
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
+		void traverseChunkGradX(const Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
+		void traverseChunkGradZ(const Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		void calcBlockBorderData(
 			const Block& block, const Ray& ray,
 			float& tMaxX, float& tMaxY, float& tMaxZ,

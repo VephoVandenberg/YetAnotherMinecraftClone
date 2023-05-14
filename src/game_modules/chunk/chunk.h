@@ -52,6 +52,8 @@ namespace GameModules
 		void updateToNeighbourChunk(Chunk& chunk);
 		bool processRayToRemoveBlock(Ray& ray);
 
+		int perlin2(int nOctaves, float fBias);
+
 		inline glm::vec3 getSize() const { return m_size; }
 		
 		Chunk() = default;
@@ -64,7 +66,6 @@ namespace GameModules
 
 	private:
 		int perlin1(int x, int y);
-		int perlin2(int nWidth, int nHeight, float* fSeed, int nOctaves, float fBias, float* fOutput);
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);

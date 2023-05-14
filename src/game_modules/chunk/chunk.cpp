@@ -102,7 +102,7 @@ void Chunk::initGradientVectors()
 				glm::linearRand(-rand(), rand())
 			};
 			glm::vec2 pos = { m_pos.x + x, m_pos.z + z };
-			glm::vec2 gradient = glm::normalize(randVec - pos);
+			glm::vec2 gradient = glm::normalize(randVec);
 
 			m_gradients.push_back(gradient);
 		}
@@ -130,10 +130,13 @@ int Chunk::perlin1(int x, int z)
 		return ((6 * t - 15) * t + 10) * t * t * t;
 	};
 
-	unsigned int bottomL = z / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4);
-	unsigned int bottomR = z / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4) + 1;
-	unsigned int topL = (z / (m_size.z / 4) + 1) * m_size.x / 4 + x / (m_size.x / 4);
-	unsigned int topR = (z / (m_size.z / 4) + 1) * m_size.x / 4 + x / (m_size.x / 4) + 1;
+	unsigned int bottomL = z / (m_size.z / 4) * (m_size.x / 4) + x / (m_size.x / 4);
+	unsigned int bottomR = z / (m_size.z / 4) * (m_size.x / 4) + x / (m_size.x / 4) + 1;
+	unsigned int topL = (z / (m_size.z / 4) + 1) * (m_size.x / 4) + x / (m_size.x / 4);
+	unsigned int topR = (z / (m_size.z / 4) + 1) * (m_size.x / 4) + x / (m_size.x / 4) + 1;
+
+	int xRand = rand() % (int)(m_size.x - 1) + 0;
+	int zRand = rand() % (int)(m_size.z - 1) + 0;
 
 	glm::vec2 randomPointInQuad = {
 		x + static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
@@ -162,15 +165,30 @@ int Chunk::perlin1(int x, int z)
 	// std::cout << value << std::endl;
 #endif
 
-	return value / 4;
+	if (value < 0)
+	{
+		return 0;
+	}
+	return value / 3;
 }
 
 // That's JavidX9 code try to reuse it tomorrow
-int Chunk::perlin2(int nWidth, int nHeight, float* fSeed, int nOctaves, float fBias, float* fOutput)
+int Chunk::perlin2(int nOctaves, float fBias)
 {
+	std::vector<float> seed;
+	for (unsigned int z = 0; z < g_chunkSize.z * 2; z++)
+	{
+		for (unsigned int x = 0; x < g_chunkSize.x * 2; x++)
+		{
+			seed.push_back((float)rand() / (float)RAND_MAX);
+		}
+	}
+
+
 	// Used 1D Perlin Noise
-	for (int x = 0; x < nWidth; x++)
-		for (int y = 0; y < nHeight; y++)
+	for (int x = 0; x < m_size.x; x++)
+	{
+		for (int z = 0; z < m_size.z; z++)
 		{
 			float fNoise = 0.0f;
 			float fScaleAcc = 0.0f;
@@ -178,27 +196,28 @@ int Chunk::perlin2(int nWidth, int nHeight, float* fSeed, int nOctaves, float fB
 
 			for (int o = 0; o < nOctaves; o++)
 			{
-				int nPitch = nWidth >> o;
+				int nPitch = static_cast<int>(m_size.x) >> o;
 				int nSampleX1 = (x / nPitch) * nPitch;
-				int nSampleY1 = (y / nPitch) * nPitch;
+				int nSampleZ1 = (z / nPitch) * nPitch;
 
-				int nSampleX2 = (nSampleX1 + nPitch) % nWidth;
-				int nSampleY2 = (nSampleY1 + nPitch) % nWidth;
+				int nSampleX2 = (nSampleX1 + nPitch) % static_cast<int>(m_size.x);
+				int nSampleZ2 = (nSampleZ1 + nPitch) % static_cast<int>(m_size.x);
 
 				float fBlendX = (float)(x - nSampleX1) / (float)nPitch;
-				float fBlendY = (float)(y - nSampleY1) / (float)nPitch;
+				float fBlendZ = (float)(z - nSampleZ1) / (float)nPitch;
 
-				float fSampleT = (1.0f - fBlendX) * fSeed[nSampleY1 * nWidth + nSampleX1] + fBlendX * fSeed[nSampleY1 * nWidth + nSampleX2];
-				float fSampleB = (1.0f - fBlendX) * fSeed[nSampleY2 * nWidth + nSampleX1] + fBlendX * fSeed[nSampleY2 * nWidth + nSampleX2];
+				float fSampleT = (1.0f - fBlendX) * seed[nSampleZ1 * static_cast<int>(m_size.x) + nSampleX1] + fBlendX * seed[nSampleZ1 * static_cast<int>(m_size.x) + nSampleX2];
+				float fSampleB = (1.0f - fBlendX) * seed[nSampleZ2 * static_cast<int>(m_size.x) + nSampleX1] + fBlendX * seed[nSampleZ2 * static_cast<int>(m_size.x) + nSampleX2];
 
 				fScaleAcc += fScale;
-				fNoise += (fBlendY * (fSampleB - fSampleT) + fSampleT) * fScale;
+				fNoise += (fBlendZ * (fSampleB - fSampleT) + fSampleT) * fScale;
 				fScale = fScale / fBias;
 			}
 
 			// Scale to seed range
-			fOutput[y * nWidth + x] = fNoise / fScaleAcc;
+			m_heightMap.push_back(3 * fNoise / fScaleAcc);
 		}
+	}
 	return 0;
 }
 
@@ -226,8 +245,8 @@ void Chunk::traverseChunkGradX(const Chunk& chunk, const unsigned int currentX, 
 {
 	for (unsigned int z = 0; z < m_size.z / 4 + 1; z++)
 	{
-		m_gradients[z / (m_size.z / 4) * m_size.x / 4 + currentX / (m_size.x / 4)] =
-			chunk.m_gradients[z / (m_size.z / 4) * m_size.x / 4 + neighbourX / (m_size.x / 4)];
+		//m_gradients[z / (m_size.z / 4) * m_size.x / 4 + currentX / (m_size.x / 4)] =
+		//	chunk.m_gradients[z / (m_size.z / 4) * m_size.x / 4 + neighbourX / (m_size.x / 4)];
 	}
 }
 
@@ -235,8 +254,8 @@ void Chunk::traverseChunkGradZ(const Chunk& chunk, const unsigned int currentZ, 
 {
 	for (unsigned int x = 0; x < m_size.x / 4 + 1; x++)
 	{
-		m_gradients[currentZ / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4)] =
-			chunk.m_gradients[neighbourZ / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4)];
+		//m_gradients[currentZ / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4)] =
+		//	chunk.m_gradients[neighbourZ / (m_size.z / 4) * m_size.x / 4 + x / (m_size.x / 4)];
 	}
 }
 

@@ -121,8 +121,9 @@ void Application::initChunks()
 			glm::vec3 ePos = { (x + 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
 			glm::vec3 wPos = { (x - 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
 
-			m_chunks[pos] = std::move(Chunk(pos, generateHeightMap(pos)));			
-			m_chunks[pos].perlin2(4, 1);
+			m_chunks[pos] = std::move(Chunk(pos));
+			//m_chunks[pos].initGradientVectors();
+			m_chunks[pos].initHeightMap();
 			m_chunks[pos].initBlocks();
 
 

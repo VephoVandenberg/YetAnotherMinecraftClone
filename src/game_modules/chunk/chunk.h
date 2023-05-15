@@ -38,7 +38,7 @@ namespace GameModules
 	class Chunk
 	{
 	public:
-		Chunk(glm::vec3 pos, const std::vector<int>& heightMap);
+		Chunk(glm::vec3 pos);
 
 		void initMesh();
 		void initGradientVectors();
@@ -65,7 +65,8 @@ namespace GameModules
 		Chunk& operator=(const Chunk&) = delete;	
 
 	private:
-		int perlin1(int x, int y);
+		int perlin1(glm::vec2 randomPos);
+		float perlin3(float x, float z);
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);

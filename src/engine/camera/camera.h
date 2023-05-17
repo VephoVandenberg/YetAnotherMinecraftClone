@@ -21,7 +21,7 @@ namespace Engine
 	class Camera
 	{
 	public:
-		Camera(float width, float height); 
+		Camera(glm::vec3 pos, float width, float height); 
 
 		void update(float dt);
 		void handleInput(KeyboardEvent event);
@@ -30,6 +30,7 @@ namespace Engine
 		inline glm::mat4 getCameraView() const { return m_cameraView; }
 		inline glm::vec3 getCameraFront() const { return m_cameraFront; }
 		inline glm::vec3 getCameraPosition() const { return m_pos; }
+		inline glm::vec3 getVelocity() const { return m_velocity; }
 
 		~Camera() = default;
 
@@ -41,6 +42,7 @@ namespace Engine
 	private:
 		glm::vec3 m_pos;
 		glm::vec3 m_cameraFront;
+		glm::vec3 m_velocity;
 		glm::mat4 m_cameraView;
 
 		bool m_firstMove;

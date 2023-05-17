@@ -12,10 +12,11 @@ constexpr glm::vec3 g_caemraPos = glm::vec3(0.0f, 0.0f, 1.0f);
 constexpr glm::vec3 g_cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 constexpr glm::vec3 g_cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-constexpr float g_cameraSpeedCoeff = 7.5f;
+constexpr float g_cameraSpeedCoeff = 15.0f;
 
-Camera::Camera(float width, float height)
-	: m_pos(15.0f, 25.0f, 15.0f)
+Camera::Camera(glm::vec3 pos, float width, float height)
+	: m_pos(pos)
+	, m_velocity(0.0f)
 	, m_cameraFront(g_cameraFront)
 	, m_firstMove(true)
 	, m_lastX(width / 2.0f)
@@ -32,29 +33,37 @@ Camera::Camera(float width, float height)
 
 void Camera::update(float dt)
 {
-	glm::vec3 velocity = glm::vec3(0.0f);
-
 	if (m_moveType & (unsigned int)MoveType::Front)
 	{
-		velocity += m_cameraFront * g_cameraSpeedCoeff;
+		m_velocity += m_cameraFront;
 	}
 
 	if (m_moveType & (unsigned int)MoveType::Back)
 	{
-		velocity -= m_cameraFront * g_cameraSpeedCoeff;
+		m_velocity -= m_cameraFront;
 	}
 
 	if (m_moveType & (unsigned int)MoveType::Left)
 	{
-		velocity -= glm::cross(m_cameraFront, g_cameraUp) * g_cameraSpeedCoeff;
+		m_velocity -= glm::cross(m_cameraFront, g_cameraUp);
 	}
 
 	if (m_moveType & (unsigned int)MoveType::Right)
 	{
-		velocity += glm::cross(m_cameraFront, g_cameraUp) * g_cameraSpeedCoeff;
+		m_velocity += glm::cross(m_cameraFront, g_cameraUp);
 	}
 
-	m_pos += velocity * dt;
+	if (m_moveType == (unsigned int)MoveType::None)
+	{
+		m_velocity = glm::vec3(0.0f);
+	}
+	else
+	{
+		m_velocity = g_cameraSpeedCoeff * glm::normalize(m_velocity);
+	}
+
+
+	m_pos += m_velocity * dt;
 
 	m_cameraView = glm::lookAt(
 		m_pos,

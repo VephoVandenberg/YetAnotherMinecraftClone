@@ -4,10 +4,10 @@ using namespace GameNamespace;
 
 /*
 * Agenda
-* - investigate noise algorithms(Perlin noise to be certain)
+* - one more time look at the perlin noise generation octaves and amplitudes
 * Later
-* - imGUI
 * - infinite terrain generation
+* - imGUI
 * - add more blocks 
 * - layers in the chunk
 * Super Later

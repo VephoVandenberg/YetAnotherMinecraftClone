@@ -37,7 +37,9 @@ namespace GameNamespace
 		void initTextureCubes();
 		void initTextureArray();
 		void initChunks();
+
 		void checkChunksNeighbours();
+		void checkTerrainBorders();
 
 		std::vector<int> generateHeightMap(glm::vec3 pos);
 
@@ -53,8 +55,11 @@ namespace GameNamespace
 
 		bool m_isRunning;
 
+		glm::vec3 borderMin;
+		glm::vec3 borderMax;
+
 		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
-		std::unordered_map<glm::vec3, float, KeyFuncs> m_chunkCorners;
+		// std::unordered_map<glm::vec3, float, KeyFuncs> m_chunkCorners;
 
 		std::unique_ptr<Window> m_window;
 

@@ -15,12 +15,6 @@
 using namespace GameModules;
 
 constexpr glm::vec3 g_chunkSize = { 16.0f, 256.0f, 16.0f };
-constexpr static glm::vec2 g_gradients[] = {
-	{-1, -1},
-	{ 1, -1},
-	{-1,  1},
-	{ 1,  1}
-};
 
 static constexpr unsigned char p[512] = {
 	   151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142,
@@ -110,50 +104,12 @@ Chunk::Chunk(glm::vec3 pos)
 	: m_size(g_chunkSize)
 	, m_pos(pos)
 {
-	//initGradientVectors();
-	// Check for neighbourVectors
-	//initHeightMap();
-	//initBlocks();
-	//setChunkFaces();
+	// initGradientVectors();
+	// check for neighbour vectors (maybe no longer needed)
+	// initHeightMap();
+	// initBlocks();
+	// setChunkFaces();
 	// update neighbourFaces
-}
-
-void Chunk::initGradientVectors()
-{
-#if 0
-	m_gradients.reserve((m_size.x / 4 + 1) * (m_size.z / 4 + 1));
-	for (unsigned int z = 0; z < m_size.z / 4 + 1; z++)
-	{
-		for (unsigned int x = 0; x < m_size.x / 4 + 1; x++)
-		{
-			// Calculate gradient vectors
-			glm::vec2 randVec = {
-				glm::linearRand(-rand(), rand()),
-				glm::linearRand(-rand(), rand())
-			};
-			glm::vec2 pos = { m_pos.x + x, m_pos.z + z };
-			glm::vec2 gradient = glm::normalize(randVec);
-
-			m_gradients.push_back(gradient);
-		}
-	}
-#endif
-	m_gradients.reserve((m_size.x) * (m_size.z));
-	for (unsigned int z = 0; z < m_size.z + 1; z++)
-	{
-		for (unsigned int x = 0; x < m_size.x + 1; x++)
-		{
-			// Calculate gradient vectors
-			glm::vec2 randVec = {
-				glm::linearRand(-rand(), rand()),
-				glm::linearRand(-rand(), rand())
-			};
-			glm::vec2 pos = { m_pos.x + x, m_pos.z + z };
-			glm::vec2 gradient = glm::normalize(randVec);
-
-			m_gradients.push_back(g_gradients[rand() % 3]);
-		}
-	}
 }
 
 void Chunk::initHeightMap()
@@ -165,186 +121,25 @@ void Chunk::initHeightMap()
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-			glm::vec2 randomPointInQuad = {
-				static_cast<float>(x) + static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-				static_cast<float>(z) + static_cast<float>(rand()) / static_cast<float>(RAND_MAX)
-			};
-
 			float total = 0;
 			float frequency = 1;
 			float amplitude = 1;
 			float maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
-			for (int i = 0; i < octaves; i++) 
+			for (int i = 0; i < octaves; i++)
 			{
-				total += perlin3(0.1f * (m_pos.x + x) * frequency, 0.1f * (m_pos.z + z) * frequency) * amplitude;
+				total += perlin(0.1f * (std::abs(m_pos.x) + x) * frequency, 0.1f * (std::abs(m_pos.z) + z) * frequency) * amplitude;
 
 				maxValue += amplitude;
 
 				amplitude *= persistence;
 				frequency *= 2;
 			}
-
-
-#ifdef DEBUG_PERLIN
-			std::cout << total/maxValue << std::endl;
-#endif
-
-			m_heightMap.push_back(10 * (total/maxValue));
-		}
-
-		if (z % 256 == 0)
-		{
-			// octaves--;
-			persistence *= 2;
+			m_heightMap.push_back(10 * (total / maxValue));
 		}
 	}
 }
 
-int Chunk::perlin1(glm::vec2 randomPos)
-{
-	auto interpolate = [](float a0, float a1, float w) {
-		float mu2 = (1 - glm::cos(w * 3.14)) / 2;
-		return(a0 * (1 - mu2) + a1 * mu2);
-	};
-
-	auto fade = [](float t) {
-		return ((6 * t - 15) * t + 10) * t * t * t;
-	};
-
-#if 0
-	unsigned int bottomL = z / (m_size.z / 4) * (m_size.x / 4) + x / (m_size.x / 4);
-	unsigned int bottomR = z / (m_size.z / 4) * (m_size.x / 4) + x / (m_size.x / 4) + 1;
-	unsigned int topL = (z / (m_size.z / 4) + 1) * (m_size.x / 4) + x / (m_size.x / 4);
-	unsigned int topR = (z / (m_size.z / 4) + 1) * (m_size.x / 4) + x / (m_size.x / 4) + 1;
-
-	int xRand = rand() % (int)(m_size.x - 1) + 0;
-	int zRand = rand() % (int)(m_size.z - 1) + 0;
-
-	glm::vec2 randomPointInQuad = {
-		x + static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-		z + static_cast<float>(rand()) / static_cast<float>(RAND_MAX)
-	};
-
-	glm::vec2 dBottomL = randomPointInQuad - glm::vec2(x / (m_size.x / 4), z / (m_size.z / 4));
-	glm::vec2 dBottomR = randomPointInQuad - glm::vec2(x / (m_size.x / 4) + m_size.x / 4, z / (m_size.z / 4));
-	glm::vec2 dTopL = randomPointInQuad - glm::vec2(x / (m_size.x / 4), z / (m_size.z / 4) + m_size.z / 4);
-	glm::vec2 dTopR = randomPointInQuad - glm::vec2(x / (m_size.x / 4) + m_size.x / 4, z / (m_size.z / 4) + m_size.z / 4);
-
-	float dPrTopL = glm::dot(dTopL, m_gradients[topL]);
-	float dPrTopR = glm::dot(dTopR, m_gradients[topR]);
-	float dPrBottomL = glm::dot(dBottomL, m_gradients[bottomL]);
-	float dPrBottomR = glm::dot(dBottomR, m_gradients[bottomR]);
-
-	float sx = randomPointInQuad.x - static_cast<float>(x);
-	float sz = randomPointInQuad.y - static_cast<float>(z);
-
-	float value = interpolate(
-		interpolate(dPrTopL, dPrTopR, fade(sx)),
-		interpolate(dPrBottomL, dPrBottomR, fade(sx)),
-		fade(sz));
-
-#ifdef DEBUG_PERLIN
-	// std::cout << value << std::endl;
-#endif
-
-	if (value < 0)
-	{
-		return 0;
-	}
-	return value / 3;
-#else
-	int x0 = static_cast<int>(randomPos.x);
-	int x1 = static_cast<int>(randomPos.x) + 1;
-	int z0 = static_cast<int>(randomPos.y);
-	int z1 = static_cast<int>(randomPos.y) + 1;
-
-	unsigned int bottomL = z0 * m_size.x + x0;
-	unsigned int bottomR = z0 * m_size.x + x1;
-	unsigned int topL = z1 * m_size.x + x0;
-	unsigned int topR = z1 * m_size.x + x1;
-
-	glm::vec2 localPos = {
-		randomPos.x - static_cast<float>(x0),
-		randomPos.y - static_cast<float>(z0),
-	};
-
-	glm::vec2 dBottomL = randomPos - glm::vec2(x0, z0);
-	glm::vec2 dBottomR = randomPos -glm::vec2(x1, z0);
-	glm::vec2 dTopL = randomPos - glm::vec2(x0, z1);
-	glm::vec2 dTopR = randomPos - glm::vec2(x1, z1);
-
-	float dotBottomL = glm::dot(dBottomL, m_gradients[bottomL]);
-	float dotBottomR = glm::dot(dBottomR, m_gradients[bottomR]);
-	float dotTopL = glm::dot(dTopL, m_gradients[topL]);
-	float dotTopR = glm::dot(dTopR, m_gradients[topR]);
-
-	float sx = randomPos.x - static_cast<float>(x0);
-	float sz = randomPos.y - static_cast<float>(z0);
-
-	float value = interpolate(
-		interpolate(dotBottomL, dotBottomR, fade(sx)),
-		interpolate(dotTopL, dotTopR, fade(sx)),
-		fade(sz)
-	);
-
-#ifdef DEBUG_PERLIN
-	std::cout << value << std::endl;
-#endif
-
-	return value;
-#endif
-}
-
-// That's JavidX9 code try to reuse it tomorrow
-int Chunk::perlin2(int nOctaves, float fBias)
-{
-	std::vector<float> seed;
-	for (unsigned int z = 0; z < g_chunkSize.z * 2; z++)
-	{
-		for (unsigned int x = 0; x < g_chunkSize.x * 2; x++)
-		{
-			seed.push_back((float)rand() / (float)RAND_MAX);
-		}
-	}
-
-
-	// Used 1D Perlin Noise
-	for (int x = 0; x < m_size.x; x++)
-	{
-		for (int z = 0; z < m_size.z; z++)
-		{
-			float fNoise = 0.0f;
-			float fScaleAcc = 0.0f;
-			float fScale = 1.0f;
-
-			for (int o = 0; o < nOctaves; o++)
-			{
-				int nPitch = static_cast<int>(m_size.x) >> o;
-				int nSampleX1 = (x / nPitch) * nPitch;
-				int nSampleZ1 = (z / nPitch) * nPitch;
-
-				int nSampleX2 = (nSampleX1 + nPitch) % static_cast<int>(m_size.x);
-				int nSampleZ2 = (nSampleZ1 + nPitch) % static_cast<int>(m_size.x);
-
-				float fBlendX = (float)(x - nSampleX1) / (float)nPitch;
-				float fBlendZ = (float)(z - nSampleZ1) / (float)nPitch;
-
-				float fSampleT = (1.0f - fBlendX) * seed[nSampleZ1 * static_cast<int>(m_size.x) + nSampleX1] + fBlendX * seed[nSampleZ1 * static_cast<int>(m_size.x) + nSampleX2];
-				float fSampleB = (1.0f - fBlendX) * seed[nSampleZ2 * static_cast<int>(m_size.x) + nSampleX1] + fBlendX * seed[nSampleZ2 * static_cast<int>(m_size.x) + nSampleX2];
-
-				fScaleAcc += fScale;
-				fNoise += (fBlendZ * (fSampleB - fSampleT) + fSampleT) * fScale;
-				fScale = fScale / fBias;
-			}
-
-			// Scale to seed range
-			m_heightMap.push_back(3 * fNoise / fScaleAcc);
-		}
-	}
-	return 0;
-}
-
-float Chunk::perlin3(float x, float y) 
+float Chunk::perlin(float x, float y)
 {
 	auto interpolate = [](float a0, float a1, float w) {
 		float mu2 = (1 - glm::cos(w * 3.14)) / 2;
@@ -359,7 +154,7 @@ float Chunk::perlin3(float x, float y)
 		// In 2D case, the gradient may be any of 8 direction vectors pointing to the
 		// edges of a unit-square. The distance vector is the input offset (relative to
 		// the smallest bound).
-		switch (hash & 0x7) 
+		switch (hash & 0x7)
 		{
 		case 0x0: return  xf + yf;
 		case 0x1: return  xf;
@@ -401,7 +196,7 @@ float Chunk::perlin3(float x, float y)
 	const float x1 = interpolate(dot_grad(h00, xf0, yf0), dot_grad(h10, xf1, yf0), u);
 	const float x2 = interpolate(dot_grad(h01, xf0, yf1), dot_grad(h11, xf1, yf1), u);
 
-	return (interpolate(x1, x2, v)+1)/2;
+	return (interpolate(x1, x2, v) + 1) / 2;
 }
 
 void Chunk::updateGradientsToNieghbouChunk(const Chunk& chunk)
@@ -444,6 +239,7 @@ void Chunk::traverseChunkGradZ(const Chunk& chunk, const unsigned int currentZ, 
 
 void Chunk::initBlocks()
 {
+#if USE_VECTOR_FOR_BLOCKS
 	// Block initialization must be changed
 	for (unsigned int z = 0; z < g_chunkSize.z; z++)
 	{
@@ -452,16 +248,48 @@ void Chunk::initBlocks()
 			for (unsigned int x = 0; x < g_chunkSize.x; x++)
 			{
 				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
-				BlockType type = (y < m_heightMap[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
-				type = (y == m_heightMap[z * m_size.z + x] ? BlockType::GrassDirt : type);
+				BlockType type = (y < 30 + m_heightMap[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
+				type = (y == 30 + m_heightMap[z * m_size.z + x] ? BlockType::GrassDirt : type);
 
-#if USE_VECTOR_FOR_BLOCKS
 				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
-#else
-#endif
 			}
 		}
 	}
+#else
+	for (unsigned int z = 0; z < g_chunkSize.z; z++)
+	{
+		for (unsigned int x = 0; x < g_chunkSize.x; x++)
+		{
+
+			int octaves = 1;
+			float persistence = 4;
+
+			float total = 0;
+			float frequency = 1;
+			float amplitude = 1;
+			float maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
+			for (int i = 0; i < octaves; i++)
+			{
+				total += perlin(0.1f * (m_pos.x + x) * frequency, 0.1f * (m_pos.z + z) * frequency) * amplitude;
+
+				maxValue += amplitude;
+
+				amplitude *= persistence;
+				frequency *= 2;
+			}
+			int yHeight = 10 * (total / maxValue);
+
+			for (unsigned int y = 0; y < g_chunkSize.y; y++)
+			{
+				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
+				BlockType type = (y < yHeight ? BlockType::Dirt : BlockType::Air);
+				type = (y == yHeight ? BlockType::GrassDirt : type);
+
+				m_blocks[glm::vec3[x, y, z] = BlockRenderData(Block(pos, type));
+			}
+		}
+	}
+#endif
 }
 
 #define FRONT_BLOCK(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
@@ -471,7 +299,7 @@ void Chunk::initBlocks()
 #define RIGHT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
 #define LEFT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x - 1)
 
-bool Chunk::checkAir(unsigned int index)
+bool Chunk::checkAir(int index)
 {
 	if (index >= m_blocks.size() || index < 0)
 	{
@@ -491,22 +319,34 @@ void Chunk::setChunkFaces()
 		{
 			for (unsigned int x = 0; x < m_size.x; x++)
 			{
-				unsigned int currBlockIndex =
+#if USE_VECTOR_FOR_BLOCKS
+				unsigned int currBlock =
 					z * m_size.y * m_size.x + y * m_size.x + x;
-
-				auto& currentBlock = m_blocks[currBlockIndex];
+#else
+				glm::vec3 currBlock;
+#endif
+				auto& currentBlock = m_blocks[currBlock];
 
 				if (currentBlock.block.getType() == BlockType::Air)
 				{
 					continue;
 				}
 
+#if USE_VECTOR_FOR_BLOCKS
 				unsigned int frontBlock = FRONT_BLOCK(x, y, z, m_size);
 				unsigned int backBlock = BACK_BLOCK(x, y, z, m_size);
 				unsigned int topBlock = TOP_BLOCK(x, y, z, m_size);
 				unsigned int bottomBlock = BOTTOM_BLOCK(x, y, z, m_size);
 				unsigned int rightBlock = RIGHT_BLOCK(x, y, z, m_size);
 				unsigned int leftBlock = LEFT_BLOCK(x, y, z, m_size);
+#else
+				glm::vec3 frontBlock	= { x + 0, y + 0, z + 1 };
+				glm::vec3 backBlock		= { x + 0, y + 0, z - 1 };
+				glm::vec3 topBlock		= { x + 0, y + 1, z + 0 };
+				glm::vec3 bottomBlock	= { x + 0, y - 1, z + 0 };
+				glm::vec3 rightBlock	= { x + 1, y + 0, z + 0 };
+				glm::vec3 leftBlock		= { x - 1, y + 0, z + 0 };
+#endif
 
 				bool isFrontFree = checkAir(frontBlock) || (z == m_size.z - 1);
 				bool isBackFree = checkAir(backBlock) || (z == 0);
@@ -781,7 +621,6 @@ void Chunk::initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int
 
 		IBOData_index++;
 	}
-
 }
 
 void Chunk::initMesh()

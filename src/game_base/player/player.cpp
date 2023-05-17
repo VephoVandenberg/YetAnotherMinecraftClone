@@ -7,11 +7,9 @@
 using namespace Engine;
 using namespace GameNamespace;
 
-Player::Player(float width, float height)
-	: m_camera(width, height)
-{
-
-}
+Player::Player(glm::vec3 pos, float width, float height)
+	: m_camera(pos, width, height)
+{}
 
 void Player::handleInput(Event& event)
 {

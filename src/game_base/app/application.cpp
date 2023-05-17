@@ -1,5 +1,7 @@
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+
 #include "../../engine/resource_manager/resource_manager.h"
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
@@ -36,7 +38,7 @@ void Application::init()
 	data.m_func = std::bind(&Application::handleEvents, this, std::placeholders::_1);
 
 	m_window = std::unique_ptr<Window>(new Window(data));
-	m_player = std::unique_ptr<Player>(new Player(m_window->getWidth(), m_window->getHeight()));
+	m_player = std::unique_ptr<Player>(new Player(glm::vec3(0.0f, 40.0f, 0.0f), m_window->getWidth(), m_window->getHeight()));
 }
 
 void Application::handleEvents(Event& event)
@@ -111,28 +113,20 @@ std::vector<int> Application::generateHeightMap(glm::vec3 pos)
 
 void Application::initChunks()
 {
-	for (unsigned int z = 0; z < 5; z++)
+	borderMin = { -3.0f * g_chunkSize.x, 0.0f, -3.0 * g_chunkSize.z };
+	borderMax = {  3.0f * g_chunkSize.x, 0.0f,  3.0 * g_chunkSize.z };
+
+	for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
 	{
-		for (unsigned int x = 0; x < 5; x++)
+		for (float x = borderMin.x; x < borderMax.x; x += g_chunkSize.x)
 		{
-			glm::vec3 pos =	{ x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-			glm::vec3 nPos = { x * g_chunkSize.x, 0.0f, (z + 1) * g_chunkSize.z };
-			glm::vec3 sPos = { x * g_chunkSize.x, 0.0f, (z - 1) * g_chunkSize.z };
-			glm::vec3 ePos = { (x + 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-			glm::vec3 wPos = { (x - 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 pos = { x, 0.0f, z };
 
 			m_chunks[pos] = std::move(Chunk(pos));
-			//m_chunks[pos].initGradientVectors();
 			m_chunks[pos].initHeightMap();
 			m_chunks[pos].initBlocks();
-
-
-			// if (m_chunks.find(nPos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[nPos]); }
-			// if (m_chunks.find(sPos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[sPos]); }
-			// if (m_chunks.find(ePos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[ePos]); }
-			// if (m_chunks.find(wPos) != m_chunks.end()) { m_chunks[pos].updateGradientsToNieghbouChunk(m_chunks[wPos]); }
-
 			m_chunks[pos].setChunkFaces();
+			
 		}
 	}
 	checkChunksNeighbours();
@@ -141,35 +135,81 @@ void Application::initChunks()
 
 void Application::checkChunksNeighbours()
 {
-	for (unsigned int z = 0; z < 5; z++)
+	for (auto& chunk : m_chunks)
 	{
-		for (unsigned int x = 0; x < 5; x++)
+		glm::vec3 posNX = chunk.first; posNX.x += g_chunkSize.x;
+		if (m_chunks.find(posNX) != m_chunks.end())
 		{
-			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-			glm::vec3 posNX = { x * g_chunkSize.x + g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-			glm::vec3 posNZ = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z + g_chunkSize.z };
+			chunk.second.updateToNeighbourChunk(m_chunks[posNX]);
+		}
 
-			if (m_chunks.find(posNX) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
-			}
-			if (m_chunks.find(posNZ) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
-			}
+		glm::vec3 posNZ = chunk.first; posNZ.z += g_chunkSize.z;
+		if (m_chunks.find(posNZ) != m_chunks.end())
+		{
+			chunk.second.updateToNeighbourChunk(m_chunks[posNZ]);
 		}
 	}
 }
 
-void Application::updateChunkMeshes()
+void Application::checkTerrainBorders()
 {
-	for (unsigned int z = 0; z < 5; z++)
+	// We've got out posstion in (x, y, z)
+	// but mostly we are interested in x and z,
+	// so, we then check for the velocity x and z components,
+	// and then add some chunks to the terrain and remove the opposite chunks on the other side
+
+	auto dir = m_player->getVelocity();
+
+	glm::vec3 toMax = borderMax - m_player->getPlayerPosition();
+	glm::vec3 toMin = borderMin - m_player->getPlayerPosition();
+
+	if (toMax.x < 20.0f)
 	{
-		for (unsigned int x = 0; x < 5; x++)
+		for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
 		{
-			glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+			glm::vec3 pos = { borderMax.x, 0.0f, z };
+
+			m_chunks[pos] = std::move(Chunk(pos));
+			m_chunks[pos].initHeightMap();
+			m_chunks[pos].initBlocks();
+			m_chunks[pos].setChunkFaces();
+
+			glm::vec3 posNX = { borderMax.x - g_chunkSize.x, 0.0f, z };
+			if (m_chunks.find(posNX) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			}
+
+			glm::vec3 posNZ = { borderMax.x, 0.0f, z - g_chunkSize.z };
+			if (m_chunks.find(posNZ) != m_chunks.end())
+			{
+				m_chunks[pos ].updateToNeighbourChunk(m_chunks[posNZ]);
+			}
 			m_chunks[pos].initMesh();
 		}
+		borderMax.x += g_chunkSize.x;
+	}
+	else if (dir.x < 0 && std::abs(toMin.x) < 5.0f)
+	{
+		
+	}
+
+	if (dir.z > 0 && std::abs(toMax.z) < 5.0f)
+	{
+		
+	}
+	else if (dir.z < 0 && std::abs(toMin.x) < 5.0f)
+	{
+		
+	}
+
+}
+
+void Application::updateChunkMeshes()
+{
+	for (auto& chunk : m_chunks)
+	{
+		chunk.second.initMesh();
 	}
 }
 
@@ -184,6 +224,7 @@ void Application::run()
 		m_window->clear();
 
 		m_player->update(m_deltaFrame);
+		checkTerrainBorders();
 		updateChunks();
 		drawChunks();
 
@@ -204,76 +245,79 @@ void Application::drawChunks()
 
 void Application::updateChunks()
 {
-	for (unsigned int z = 0; z < 5; z++)
+	for (auto& chunk : m_chunks)
 	{
-		for (unsigned int x = 0; x < 5; x++)
+		if (m_player->getLeftButtonStatus())
 		{
-			if (m_player->getLeftButtonStatus())
+			glm::vec3 pos = chunk.first;
+
+			if (m_chunks.find(pos) == m_chunks.end())
 			{
-				glm::vec3 pos = { x * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
+				continue;
+			}
 
-				if (m_chunks.find(pos) == m_chunks.end())
+			glm::vec3 rayPos = {
+				m_player->getPlayerPosition().x + 0.5f,
+				m_player->getPlayerPosition().y,
+				m_player->getPlayerPosition().z + 0.5f
+			};
+
+			Ray ray(
+				rayPos,
+				m_player->getCameraFront(),
+				g_rayMagnitude);
+
+			bool rayStartInChunk =
+				ray.getPosition().x >= pos.x && ray.getPosition().x <= pos.x + g_chunkSize.x &&
+				ray.getPosition().z >= pos.z && ray.getPosition().z <= pos.z + g_chunkSize.z;
+			bool rayEndsInChunk =
+				ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
+				ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
+
+			if (rayStartInChunk)
+			{
+				if (m_chunks[pos].processRayToRemoveBlock(ray))
 				{
-					continue;
-				}
-
-				glm::vec3 rayPos = {
-					m_player->getPlayerPosition().x + 0.5f,
-					m_player->getPlayerPosition().y,
-					m_player->getPlayerPosition().z + 0.5f
-				};
-
-				Ray ray(
-					rayPos,
-					m_player->getCameraFront(),
-					g_rayMagnitude);
-
-				bool rayStartInChunk =
-					ray.getPosition().x >= pos.x && ray.getPosition().x <= pos.x + g_chunkSize.x &&
-					ray.getPosition().z >= pos.z && ray.getPosition().z <= pos.z + g_chunkSize.z;
-				bool rayEndsInChunk =
-					ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
-					ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
-
-				if (rayStartInChunk)
-				{
-					if (m_chunks[pos].processRayToRemoveBlock(ray))
+					if (!rayEndsInChunk)
 					{
-						if (!rayEndsInChunk)
-						{
-							// Another chunk should be worked out
-						}
-
-						glm::vec3 positiveX = { (x + 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-						glm::vec3 positiveZ = { x * g_chunkSize.x, 0.0f, (z + 1) * g_chunkSize.z };
-						glm::vec3 negativeX = { (x - 1) * g_chunkSize.x, 0.0f, z * g_chunkSize.z };
-						glm::vec3 negativeZ = { x * g_chunkSize.x, 0.0f, (z - 1) * g_chunkSize.z };
-
-
-						if (m_chunks.find(positiveX) != m_chunks.end())
-						{
-							m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
-						}
-						if (m_chunks.find(negativeX) != m_chunks.end())
-						{
-							m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
-						}
-
-						if (m_chunks.find(positiveZ) != m_chunks.end())
-						{
-							m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
-						}
-						if (m_chunks.find(negativeZ) != m_chunks.end())
-						{
-							m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
-						}
-						m_chunks[positiveX].setMesh();
-						m_chunks[negativeX].setMesh();
-						m_chunks[positiveZ].setMesh();
-						m_chunks[negativeZ].setMesh();
-						m_chunks[pos].setMesh();
-						return;
+						// Another chunk should be procecessed
 					}
+
+					glm::vec3 positiveX = chunk.first;
+					glm::vec3 positiveZ = chunk.first;
+					glm::vec3 negativeX = chunk.first;
+					glm::vec3 negativeZ = chunk.first;
+
+					positiveX.x += g_chunkSize.x;
+					if (m_chunks.find(positiveX) != m_chunks.end())
+					{
+						m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
+					}
+
+					negativeX.x -= g_chunkSize.x;
+					if (m_chunks.find(negativeX) != m_chunks.end())
+					{
+						m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
+					}
+
+					positiveZ.z += g_chunkSize.z;
+					if (m_chunks.find(positiveZ) != m_chunks.end())
+					{
+						m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
+					}
+
+					negativeZ.z -= g_chunkSize.z;
+					if (m_chunks.find(negativeZ) != m_chunks.end())
+					{
+						m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
+					}
+
+					m_chunks[positiveX].setMesh();
+					m_chunks[negativeX].setMesh();
+					m_chunks[positiveZ].setMesh();
+					m_chunks[negativeZ].setMesh();
+					m_chunks[pos].setMesh();
+					return;
 				}
 			}
 		}

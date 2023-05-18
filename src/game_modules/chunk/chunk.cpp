@@ -112,33 +112,6 @@ Chunk::Chunk(glm::vec3 pos)
 	// update neighbourFaces
 }
 
-void Chunk::initHeightMap()
-{
-	int octaves = 1;
-	float persistence = 2;
-
-	for (unsigned int z = 0; z < m_size.z; z++)
-	{
-		for (unsigned int x = 0; x < m_size.x; x++)
-		{
-			float total = 0;
-			float frequency = 1;
-			float amplitude = 1;
-			float maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
-			for (int i = 0; i < octaves; i++)
-			{
-				total += perlin(0.1f * (std::abs(m_pos.x) + x) * frequency, 0.1f * (std::abs(m_pos.z) + z) * frequency) * amplitude;
-
-				maxValue += amplitude;
-
-				amplitude *= persistence;
-				frequency *= 2;
-			}
-			m_heightMap.push_back(10 * (total / maxValue));
-		}
-	}
-}
-
 float Chunk::perlin(float x, float y)
 {
 	auto interpolate = [](float a0, float a1, float w) {
@@ -222,7 +195,7 @@ void Chunk::initBlocks()
 				amplitude *= persistence;
 				frequency *= 2;
 			}
-			int yHeight = 10 * (total / maxValue);
+			int yHeight = 30 + 10 * (total / maxValue);
 
 			for (unsigned int y = 0; y < g_chunkSize.y; y++)
 			{
@@ -236,21 +209,13 @@ void Chunk::initBlocks()
 	}
 }
 
-#define FRONT_BLOCK(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
-#define BACK_BLOCK(x, y, z, size)	(z - 1) * size.y * size.x + y * size.x + x
-#define TOP_BLOCK(x, y, z, size)	z * size.y * size.x + (y + 1) * size.x + x
-#define BOTTOM_BLOCK(x, y, z, size)	z * size.y * size.x + (y - 1) * size.x + x
-#define RIGHT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
-#define LEFT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x - 1)
-
-
 bool Chunk::checkAir(glm::vec3 pos)
 {
 	if (m_blocks.find(pos) == m_blocks.end())
 	{
 		return false;
 	}
-	else 
+	else
 	{
 		return m_blocks[pos].block.getType() == BlockType::Air;
 	}
@@ -273,12 +238,12 @@ void Chunk::setChunkFaces()
 					continue;
 				}
 
-				glm::vec3 frontBlock	= { x + 0, y + 0, z + 1 };
-				glm::vec3 backBlock		= { x + 0, y + 0, z - 1 };
-				glm::vec3 topBlock		= { x + 0, y + 1, z + 0 };
-				glm::vec3 bottomBlock	= { x + 0, y - 1, z + 0 };
-				glm::vec3 rightBlock	= { x + 1, y + 0, z + 0 };
-				glm::vec3 leftBlock		= { x - 1, y + 0, z + 0 };
+				glm::vec3 frontBlock = { x + 0, y + 0, z + 1 };
+				glm::vec3 backBlock = { x + 0, y + 0, z - 1 };
+				glm::vec3 topBlock = { x + 0, y + 1, z + 0 };
+				glm::vec3 bottomBlock = { x + 0, y - 1, z + 0 };
+				glm::vec3 rightBlock = { x + 1, y + 0, z + 0 };
+				glm::vec3 leftBlock = { x - 1, y + 0, z + 0 };
 
 				bool isFrontFree = checkAir(frontBlock) || (z == m_size.z - 1);
 				bool isBackFree = checkAir(backBlock) || (z == 0);
@@ -485,35 +450,34 @@ bool Chunk::processRayToRemoveBlock(Ray& ray)
 
 void Chunk::checkSurroundedBlocks(int z, int y, int x)
 {
-	glm::vec3 back	 = { x + 0, y + 0, z + 1 };
-	glm::vec3 top	 = { x + 0, y + 0, z - 1 };
-	glm::vec3 bottom = { x + 0, y + 1, z + 0 };
-	glm::vec3 right	 = { x + 0, y - 1, z + 0 };
-	glm::vec3 left	 = { x + 1, y + 0, z + 0 };
-	glm::vec3 front	 = { x - 1, y + 0, z + 0 };
+	glm::vec3 front = { x + 0, y + 0, z + 1 };
+	glm::vec3 back = { x + 0, y + 0, z - 1 };
+	glm::vec3 top = { x + 0, y + 1, z + 0 };
+	glm::vec3 bottom = { x + 0, y - 1, z + 0 };
+	glm::vec3 right = { x + 1, y + 0, z + 0 };
+	glm::vec3 left = { x - 1, y + 0, z + 0 };
 
-
-	if (m_blocks.find(top) != m_blocks.end())
+	if (y + 1 < g_chunkSize.y)
 	{
 		m_blocks[top].bottom = m_blocks[top].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.find(bottom) != m_blocks.end())
+	if (y - 1 >= 0)
 	{
 		m_blocks[bottom].top = m_blocks[bottom].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.find(front) != m_blocks.end())
+	if (z + 1  < g_chunkSize.z)
 	{
 		m_blocks[front].back = m_blocks[front].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.find(back) != m_blocks.end())
+	if (z - 1 >= 0)
 	{
 		m_blocks[back].front = m_blocks[back].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.find(left) != m_blocks.end())
+	if (x - 1 >= 0)
 	{
 		m_blocks[left].right = m_blocks[left].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.find(right) != m_blocks.end())
+	if (x + 1 < g_chunkSize.x)
 	{
 		m_blocks[right].left = m_blocks[right].block.getType() != BlockType::Air ? true : false;
 	}

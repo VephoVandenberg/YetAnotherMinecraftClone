@@ -105,12 +105,6 @@ void Application::initTextureArray()
 		.setTextureArray(s_texturePaths);
 }
 
-std::vector<int> Application::generateHeightMap(glm::vec3 pos)
-{
-	std::vector<int> v;
-	return v;
-}
-
 void Application::initChunks()
 {
 	borderMin = { -3.0f * g_chunkSize.x, 0.0f, -3.0 * g_chunkSize.z };
@@ -129,7 +123,7 @@ void Application::initChunks()
 		}
 	}
 	checkChunksNeighbours();
-	updateChunkMeshes();
+	setChunksMeshes();
 }
 
 void Application::checkChunksNeighbours()
@@ -152,11 +146,6 @@ void Application::checkChunksNeighbours()
 
 void Application::checkTerrainBorders()
 {
-	// We've got out posstion in (x, y, z)
-	// but mostly we are interested in x and z,
-	// so, we then check for the velocity x and z components,
-	// and then add some chunks to the terrain and remove the opposite chunks on the other side
-
 	auto dir = m_player->getVelocity();
 
 	glm::vec3 toMax = borderMax - m_player->getPlayerPosition();
@@ -183,6 +172,8 @@ void Application::checkTerrainBorders()
 			{
 				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
 			}
+
+			m_chunks.erase(glm::vec3(borderMin.x, 0.0f, z));
 		}
 
 		for (glm::vec3 pos = { borderMax.x, 0.0f, borderMin.z };
@@ -191,25 +182,13 @@ void Application::checkTerrainBorders()
 		{
 			m_chunks[pos].initMesh();
 		}
+
 		borderMax.x += g_chunkSize.x;
+		borderMin.x += g_chunkSize.x;
 	}
-	else if (dir.x < 0 && std::abs(toMin.x) < 5.0f)
-	{
-
-	}
-
-	if (dir.z > 0 && std::abs(toMax.z) < 5.0f)
-	{
-
-	}
-	else if (dir.z < 0 && std::abs(toMin.x) < 5.0f)
-	{
-
-	}
-
 }
 
-void Application::updateChunkMeshes()
+void Application::setChunksMeshes()
 {
 	for (auto& chunk : m_chunks)
 	{
@@ -249,81 +228,70 @@ void Application::drawChunks()
 
 void Application::updateChunks()
 {
-	for (auto& chunk : m_chunks)
+	if (m_player->getLeftButtonStatus())
 	{
-		if (m_player->getLeftButtonStatus())
+		glm::vec3 rayPos = {
+			m_player->getPlayerPosition().x + 0.5f,
+			m_player->getPlayerPosition().y,
+			m_player->getPlayerPosition().z + 0.5f
+		};
+
+		Ray ray(
+			rayPos,
+			m_player->getCameraFront(),
+			g_rayMagnitude);
+
+		glm::vec3 pos = {
+			static_cast<int>(m_player->getPlayerPosition().x)
+				- static_cast<int>(m_player->getPlayerPosition().x) % static_cast<int>(g_chunkSize.x),
+			0.0f,
+			static_cast<int>(m_player->getPlayerPosition().z)
+				- static_cast<int>(m_player->getPlayerPosition().z) % static_cast<int>(g_chunkSize.z)
+		};
+
+		bool rayEndsInChunk =
+			ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
+			ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
+
+		if (m_chunks[pos].processRayToRemoveBlock(ray))
 		{
-			glm::vec3 pos = chunk.first;
-
-			if (m_chunks.find(pos) == m_chunks.end())
+			if (!rayEndsInChunk)
 			{
-				continue;
+				// Another chunk should be procecessed
 			}
 
-			glm::vec3 rayPos = {
-				m_player->getPlayerPosition().x + 0.5f,
-				m_player->getPlayerPosition().y,
-				m_player->getPlayerPosition().z + 0.5f
-			};
+			glm::vec3 positiveX = pos;
+			glm::vec3 positiveZ = pos;
+			glm::vec3 negativeX = pos;
+			glm::vec3 negativeZ = pos;
 
-			Ray ray(
-				rayPos,
-				m_player->getCameraFront(),
-				g_rayMagnitude);
-
-			bool rayStartInChunk =
-				ray.getPosition().x >= pos.x && ray.getPosition().x <= pos.x + g_chunkSize.x &&
-				ray.getPosition().z >= pos.z && ray.getPosition().z <= pos.z + g_chunkSize.z;
-			bool rayEndsInChunk =
-				ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
-				ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
-
-			if (rayStartInChunk)
+			positiveX.x += g_chunkSize.x;
+			negativeX.x -= g_chunkSize.x;
+			if (m_chunks.find(positiveX) != m_chunks.end())
 			{
-				if (m_chunks[pos].processRayToRemoveBlock(ray))
-				{
-					if (!rayEndsInChunk)
-					{
-						// Another chunk should be procecessed
-					}
-
-					glm::vec3 positiveX = chunk.first;
-					glm::vec3 positiveZ = chunk.first;
-					glm::vec3 negativeX = chunk.first;
-					glm::vec3 negativeZ = chunk.first;
-
-					positiveX.x += g_chunkSize.x;
-					if (m_chunks.find(positiveX) != m_chunks.end())
-					{
-						m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
-					}
-
-					negativeX.x -= g_chunkSize.x;
-					if (m_chunks.find(negativeX) != m_chunks.end())
-					{
-						m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
-					}
-
-					positiveZ.z += g_chunkSize.z;
-					if (m_chunks.find(positiveZ) != m_chunks.end())
-					{
-						m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
-					}
-
-					negativeZ.z -= g_chunkSize.z;
-					if (m_chunks.find(negativeZ) != m_chunks.end())
-					{
-						m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
-					}
-
-					m_chunks[positiveX].setMesh();
-					m_chunks[negativeX].setMesh();
-					m_chunks[positiveZ].setMesh();
-					m_chunks[negativeZ].setMesh();
-					m_chunks[pos].setMesh();
-					return;
-				}
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
 			}
+			if (m_chunks.find(negativeX) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
+			}
+
+			positiveZ.z += g_chunkSize.z;
+			negativeZ.z -= g_chunkSize.z;
+			if (m_chunks.find(positiveZ) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
+			}
+			if (m_chunks.find(negativeZ) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
+			}
+
+			m_chunks[positiveX].setMesh();
+			m_chunks[negativeX].setMesh();
+			m_chunks[positiveZ].setMesh();
+			m_chunks[negativeZ].setMesh();
+			m_chunks[pos].setMesh();
 		}
 	}
 }

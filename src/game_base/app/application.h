@@ -41,12 +41,10 @@ namespace GameNamespace
 		void checkChunksNeighbours();
 		void checkTerrainBorders();
 
-		std::vector<int> generateHeightMap(glm::vec3 pos);
-
 		void drawChunks();
 
 		void updateChunks();
-		void updateChunkMeshes();
+		void setChunksMeshes();
 
 		void handleEvents(Event& event);
 
@@ -59,7 +57,6 @@ namespace GameNamespace
 		glm::vec3 borderMax;
 
 		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
-		// std::unordered_map<glm::vec3, float, KeyFuncs> m_chunkCorners;
 
 		std::unique_ptr<Window> m_window;
 

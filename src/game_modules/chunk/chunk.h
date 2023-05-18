@@ -37,9 +37,7 @@ namespace GameModules
 		Chunk(glm::vec3 pos);
 
 		void initMesh();
-		void initHeightMap();
 		void initBlocks();
-		void updateGradientsToNieghbouChunk(const Chunk& chunk);
 		void setMesh();
 
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
@@ -99,9 +97,6 @@ namespace GameModules
 			{}
 		};
 
-
 		std::unordered_map<glm::vec3, BlockRenderData, KeyFuncs> m_blocks;
-
-		std::vector<int> m_heightMap;
 	};
 }

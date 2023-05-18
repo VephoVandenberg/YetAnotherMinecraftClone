@@ -1,10 +1,6 @@
 #pragma once
 
-#if USE_VECTOR_FOR_BLOCKS
-#include <vector>
-#else
 #include <unordered_map>
-#endif
 
 #include <glm/glm.hpp>
 
@@ -66,17 +62,14 @@ namespace GameModules
 		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
-		void traverseChunkGradX(const Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
-		void traverseChunkGradZ(const Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		void calcBlockBorderData(
 			const Block& block, const Ray& ray,
 			float& tMaxX, float& tMaxY, float& tMaxZ,
 			int& stepX, int& stepY, int& stepZ);
-#if 1
-		bool checkAir(int index);
+
 		void checkSurroundedBlocks(int Z, int Y, int X);
-#else
-#endif
+		bool checkAir(glm::vec3 pos);
+
 		glm::vec3 m_size;
 		glm::vec3 m_pos;
 
@@ -93,6 +86,8 @@ namespace GameModules
 			bool right;
 			bool left;
 
+			BlockRenderData() = default;
+
 			BlockRenderData(Block&& b)
 				: block(std::move(b))
 				, front(false)
@@ -104,12 +99,9 @@ namespace GameModules
 			{}
 		};
 
-#if USE_VECTOR_FOR_BLOCKS
-		std::vector<BlockRenderData> m_blocks;
-#else
+
 		std::unordered_map<glm::vec3, BlockRenderData, KeyFuncs> m_blocks;
-#endif
-		std::vector<glm::vec2> m_gradients;
+
 		std::vector<int> m_heightMap;
 	};
 }

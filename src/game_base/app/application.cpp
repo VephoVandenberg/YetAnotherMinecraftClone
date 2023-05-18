@@ -114,7 +114,7 @@ std::vector<int> Application::generateHeightMap(glm::vec3 pos)
 void Application::initChunks()
 {
 	borderMin = { -3.0f * g_chunkSize.x, 0.0f, -3.0 * g_chunkSize.z };
-	borderMax = {  3.0f * g_chunkSize.x, 0.0f,  3.0 * g_chunkSize.z };
+	borderMax = { 3.0f * g_chunkSize.x, 0.0f,  3.0 * g_chunkSize.z };
 
 	for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
 	{
@@ -123,10 +123,9 @@ void Application::initChunks()
 			glm::vec3 pos = { x, 0.0f, z };
 
 			m_chunks[pos] = std::move(Chunk(pos));
-			m_chunks[pos].initHeightMap();
 			m_chunks[pos].initBlocks();
 			m_chunks[pos].setChunkFaces();
-			
+
 		}
 	}
 	checkChunksNeighbours();
@@ -170,7 +169,6 @@ void Application::checkTerrainBorders()
 			glm::vec3 pos = { borderMax.x, 0.0f, z };
 
 			m_chunks[pos] = std::move(Chunk(pos));
-			m_chunks[pos].initHeightMap();
 			m_chunks[pos].initBlocks();
 			m_chunks[pos].setChunkFaces();
 
@@ -183,24 +181,30 @@ void Application::checkTerrainBorders()
 			glm::vec3 posNZ = { borderMax.x, 0.0f, z - g_chunkSize.z };
 			if (m_chunks.find(posNZ) != m_chunks.end())
 			{
-				m_chunks[pos ].updateToNeighbourChunk(m_chunks[posNZ]);
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
 			}
+		}
+
+		for (glm::vec3 pos = { borderMax.x, 0.0f, borderMin.z };
+			pos.z < borderMax.z;
+			pos.z += g_chunkSize.z)
+		{
 			m_chunks[pos].initMesh();
 		}
 		borderMax.x += g_chunkSize.x;
 	}
 	else if (dir.x < 0 && std::abs(toMin.x) < 5.0f)
 	{
-		
+
 	}
 
 	if (dir.z > 0 && std::abs(toMax.z) < 5.0f)
 	{
-		
+
 	}
 	else if (dir.z < 0 && std::abs(toMin.x) < 5.0f)
 	{
-		
+
 	}
 
 }

@@ -199,63 +199,8 @@ float Chunk::perlin(float x, float y)
 	return (interpolate(x1, x2, v) + 1) / 2;
 }
 
-void Chunk::updateGradientsToNieghbouChunk(const Chunk& chunk)
-{
-	if (m_pos.x > chunk.m_pos.x)
-	{
-		traverseChunkGradX(chunk, 0, chunk.m_size.x - 1);
-	}
-	else if (m_pos.x < chunk.m_pos.x)
-	{
-		traverseChunkGradX(chunk, chunk.m_size.x - 1, 0);
-	}
-	else if (m_pos.z > chunk.m_pos.z)
-	{
-		traverseChunkGradZ(chunk, 0, chunk.m_size.z - 1);
-	}
-	else if (m_pos.z < chunk.m_pos.z)
-	{
-		traverseChunkGradZ(chunk, chunk.m_size.z - 1, 0);
-	}
-}
-
-void Chunk::traverseChunkGradX(const Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX)
-{
-	for (unsigned int z = 0; z < m_size.z + 1; z++)
-	{
-		m_gradients[z * m_size.x + currentX] =
-			chunk.m_gradients[z * m_size.x + neighbourX];
-	}
-}
-
-void Chunk::traverseChunkGradZ(const Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ)
-{
-	for (unsigned int x = 0; x < m_size.x + 1; x++)
-	{
-		m_gradients[currentZ * m_size.x + x] =
-			chunk.m_gradients[neighbourZ * m_size.x + x];
-	}
-}
-
 void Chunk::initBlocks()
 {
-#if USE_VECTOR_FOR_BLOCKS
-	// Block initialization must be changed
-	for (unsigned int z = 0; z < g_chunkSize.z; z++)
-	{
-		for (unsigned int y = 0; y < g_chunkSize.y; y++)
-		{
-			for (unsigned int x = 0; x < g_chunkSize.x; x++)
-			{
-				glm::vec3 pos = m_pos + glm::vec3(x, y, z);
-				BlockType type = (y < 30 + m_heightMap[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
-				type = (y == 30 + m_heightMap[z * m_size.z + x] ? BlockType::GrassDirt : type);
-
-				m_blocks.emplace_back(BlockRenderData(Block(pos, type)));
-			}
-		}
-	}
-#else
 	for (unsigned int z = 0; z < g_chunkSize.z; z++)
 	{
 		for (unsigned int x = 0; x < g_chunkSize.x; x++)
@@ -270,7 +215,7 @@ void Chunk::initBlocks()
 			float maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
 			for (int i = 0; i < octaves; i++)
 			{
-				total += perlin(0.1f * (m_pos.x + x) * frequency, 0.1f * (m_pos.z + z) * frequency) * amplitude;
+				total += perlin(0.1f * (std::abs(m_pos.x) + x) * frequency, 0.1f * (std::abs(m_pos.z) + z) * frequency) * amplitude;
 
 				maxValue += amplitude;
 
@@ -285,11 +230,10 @@ void Chunk::initBlocks()
 				BlockType type = (y < yHeight ? BlockType::Dirt : BlockType::Air);
 				type = (y == yHeight ? BlockType::GrassDirt : type);
 
-				m_blocks[glm::vec3[x, y, z] = BlockRenderData(Block(pos, type));
+				m_blocks[glm::vec3(x, y, z)] = BlockRenderData(Block(pos, type));
 			}
 		}
 	}
-#endif
 }
 
 #define FRONT_BLOCK(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
@@ -299,15 +243,16 @@ void Chunk::initBlocks()
 #define RIGHT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x + 1)
 #define LEFT_BLOCK(x, y, z, size)	z * size.y * size.x + y * size.x + (x - 1)
 
-bool Chunk::checkAir(int index)
+
+bool Chunk::checkAir(glm::vec3 pos)
 {
-	if (index >= m_blocks.size() || index < 0)
+	if (m_blocks.find(pos) == m_blocks.end())
 	{
 		return false;
 	}
-	else
+	else 
 	{
-		return m_blocks[index].block.getType() == BlockType::Air;
+		return m_blocks[pos].block.getType() == BlockType::Air;
 	}
 }
 
@@ -319,12 +264,8 @@ void Chunk::setChunkFaces()
 		{
 			for (unsigned int x = 0; x < m_size.x; x++)
 			{
-#if USE_VECTOR_FOR_BLOCKS
-				unsigned int currBlock =
-					z * m_size.y * m_size.x + y * m_size.x + x;
-#else
-				glm::vec3 currBlock;
-#endif
+
+				glm::vec3 currBlock = { x, y, z };
 				auto& currentBlock = m_blocks[currBlock];
 
 				if (currentBlock.block.getType() == BlockType::Air)
@@ -332,21 +273,12 @@ void Chunk::setChunkFaces()
 					continue;
 				}
 
-#if USE_VECTOR_FOR_BLOCKS
-				unsigned int frontBlock = FRONT_BLOCK(x, y, z, m_size);
-				unsigned int backBlock = BACK_BLOCK(x, y, z, m_size);
-				unsigned int topBlock = TOP_BLOCK(x, y, z, m_size);
-				unsigned int bottomBlock = BOTTOM_BLOCK(x, y, z, m_size);
-				unsigned int rightBlock = RIGHT_BLOCK(x, y, z, m_size);
-				unsigned int leftBlock = LEFT_BLOCK(x, y, z, m_size);
-#else
 				glm::vec3 frontBlock	= { x + 0, y + 0, z + 1 };
 				glm::vec3 backBlock		= { x + 0, y + 0, z - 1 };
 				glm::vec3 topBlock		= { x + 0, y + 1, z + 0 };
 				glm::vec3 bottomBlock	= { x + 0, y - 1, z + 0 };
 				glm::vec3 rightBlock	= { x + 1, y + 0, z + 0 };
 				glm::vec3 leftBlock		= { x - 1, y + 0, z + 0 };
-#endif
 
 				bool isFrontFree = checkAir(frontBlock) || (z == m_size.z - 1);
 				bool isBackFree = checkAir(backBlock) || (z == 0);
@@ -400,10 +332,8 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 	{
 		for (unsigned int y = 0; y < m_size.y; y++)
 		{
-			unsigned int currentBlock
-				= z * m_size.x * m_size.y + y * m_size.x + currentX;
-			unsigned int neighbourBlock
-				= z * m_size.x * m_size.y + y * m_size.x + neighbourX;
+			glm::vec3 currentBlock = { currentX, y, z };
+			glm::vec3 neighbourBlock = { neighbourX, y, z };
 
 			auto& leftBlock = (currentX > neighbourX) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
 			auto& rightBlock = (currentX < neighbourX) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
@@ -431,10 +361,8 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-			unsigned int currentBlock
-				= currentZ * m_size.x * m_size.y + y * m_size.x + x;
-			unsigned int neighbourBlock
-				= neighbourZ * m_size.x * m_size.y + y * m_size.x + x;
+			glm::vec3 currentBlock = { x, y, currentZ };
+			glm::vec3 neighbourBlock = { x, y, neighbourZ };
 
 			auto& frontBlock = (currentZ < neighbourZ) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
 			auto& backBlock = (currentZ > neighbourZ) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
@@ -509,7 +437,7 @@ bool Chunk::processRayToRemoveBlock(Ray& ray)
 	int endZ_index = ray.getEndPoint().z - m_pos.z;
 
 	// Find out where in chunk's block ray starts
-	int iCurrBlock = currZ_index * m_size.x * m_size.y + currY_index * m_size.x + currX_index;
+	glm::vec3 iCurrBlock = { currX_index, currY_index, currZ_index };
 
 	// Find out in what direction ray should be traversed
 	float tMaxX, tMaxY, tMaxZ;
@@ -535,8 +463,8 @@ bool Chunk::processRayToRemoveBlock(Ray& ray)
 			currZ_index += stepZ;
 		}
 
-		iCurrBlock = currZ_index * m_size.x * m_size.y + currY_index * m_size.x + currX_index;
-		if (iCurrBlock >= m_blocks.size())
+		iCurrBlock = { currX_index, currY_index, currZ_index };
+		if (m_blocks.find(iCurrBlock) == m_blocks.end())
 		{
 			return false;
 		}
@@ -557,35 +485,35 @@ bool Chunk::processRayToRemoveBlock(Ray& ray)
 
 void Chunk::checkSurroundedBlocks(int z, int y, int x)
 {
-	unsigned int back = BACK_BLOCK(x, y, z, m_size);
-	unsigned int top = TOP_BLOCK(x, y, z, m_size);
-	unsigned int bottom = BOTTOM_BLOCK(x, y, z, m_size);
-	unsigned int right = RIGHT_BLOCK(x, y, z, m_size);
-	unsigned int left = LEFT_BLOCK(x, y, z, m_size);
-	unsigned int front = FRONT_BLOCK(x, y, z, m_size);
+	glm::vec3 back	 = { x + 0, y + 0, z + 1 };
+	glm::vec3 top	 = { x + 0, y + 0, z - 1 };
+	glm::vec3 bottom = { x + 0, y + 1, z + 0 };
+	glm::vec3 right	 = { x + 0, y - 1, z + 0 };
+	glm::vec3 left	 = { x + 1, y + 0, z + 0 };
+	glm::vec3 front	 = { x - 1, y + 0, z + 0 };
 
 
-	if (m_blocks.size() >= top)
+	if (m_blocks.find(top) != m_blocks.end())
 	{
 		m_blocks[top].bottom = m_blocks[top].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= bottom)
+	if (m_blocks.find(bottom) != m_blocks.end())
 	{
 		m_blocks[bottom].top = m_blocks[bottom].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= front)
+	if (m_blocks.find(front) != m_blocks.end())
 	{
 		m_blocks[front].back = m_blocks[front].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= back)
+	if (m_blocks.find(back) != m_blocks.end())
 	{
 		m_blocks[back].front = m_blocks[back].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= left)
+	if (m_blocks.find(left) != m_blocks.end())
 	{
 		m_blocks[left].right = m_blocks[left].block.getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= right)
+	if (m_blocks.find(right) != m_blocks.end())
 	{
 		m_blocks[right].left = m_blocks[right].block.getType() != BlockType::Air ? true : false;
 	}
@@ -598,26 +526,26 @@ void Chunk::initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int
 	for (auto& data : m_blocks)
 	{
 		bool shouldBeRendered =
-			data.front || data.back ||
-			data.top || data.bottom ||
-			data.right || data.left;
+			data.second.front || data.second.back ||
+			data.second.top || data.second.bottom ||
+			data.second.right || data.second.left;
 
 		if (!shouldBeRendered)
 		{
 			continue;
 		}
 
-		if (data.front) { addFront(indices, IBOData_index); }
-		if (data.back) { addBack(indices, IBOData_index); }
-		if (data.top) { addTop(indices, IBOData_index); }
-		if (data.bottom) { addBottom(indices, IBOData_index); }
-		if (data.right) { addRight(indices, IBOData_index); }
-		if (data.left) { addLeft(indices, IBOData_index); }
+		if (data.second.front) { addFront(indices, IBOData_index); }
+		if (data.second.back) { addBack(indices, IBOData_index); }
+		if (data.second.top) { addTop(indices, IBOData_index); }
+		if (data.second.bottom) { addBottom(indices, IBOData_index); }
+		if (data.second.right) { addRight(indices, IBOData_index); }
+		if (data.second.left) { addLeft(indices, IBOData_index); }
 
 		vertices.insert(
 			vertices.end(),
-			data.block.getVertices().begin(),
-			data.block.getVertices().end());
+			data.second.block.getVertices().begin(),
+			data.second.block.getVertices().end());
 
 		IBOData_index++;
 	}

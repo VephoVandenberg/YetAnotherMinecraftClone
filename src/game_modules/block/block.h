@@ -34,11 +34,11 @@ namespace GameModules
 		inline BlockType getType() const { return m_type; }
 		inline glm::vec3 getPos() const { return m_pos; }
 
+		Block() = default;
 		~Block() = default;
 		Block(Block&&) = default;
 		Block& operator=(Block&&) = default;
 
-		Block() = delete;
 		Block(const Block&) = delete;
 		Block& operator=(const Block&) = delete;
 

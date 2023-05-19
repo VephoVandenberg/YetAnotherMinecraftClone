@@ -38,7 +38,9 @@ void Application::init()
 	data.m_func = std::bind(&Application::handleEvents, this, std::placeholders::_1);
 
 	m_window = std::unique_ptr<Window>(new Window(data));
-	m_player = std::unique_ptr<Player>(new Player(glm::vec3(0.0f, 40.0f, 0.0f), m_window->getWidth(), m_window->getHeight()));
+	m_player = std::unique_ptr<Player>(
+		new Player(glm::vec3(0.0f, 40.0f, 0.0f),
+			m_window->getWidth(), m_window->getHeight()));
 }
 
 void Application::handleEvents(Event& event)
@@ -148,43 +150,121 @@ void Application::checkTerrainBorders()
 {
 	auto dir = m_player->getVelocity();
 
-	glm::vec3 toMax = borderMax - m_player->getPlayerPosition();
-	glm::vec3 toMin = borderMin - m_player->getPlayerPosition();
+	int signX = (dir.x > 0) ? 1 : -1;
+	float distanceX = 
+		(signX > 0) ?
+		((borderMax.x - borderMin.x) / 2.0f - g_chunkSize.x / 2.0f):
+		((borderMin.x - borderMax.x) / 2.0f - g_chunkSize.x / 2.0f);
+	float gradMaxX = signX > 0 ? borderMax.x : borderMin.x - g_chunkSize.x;
+	float gradMinX = signX > 0 ? borderMin.x : borderMax.x;
+	float offsetX = signX * g_chunkSize.x;
 
-	if (toMax.x < 20.0f)
+	bool exprX;
+
+	if (dir.x > 0.0f)
+	{
+		exprX = gradMaxX - m_player->getPlayerPosition().x < distanceX;
+	}
+	else
+	{
+		exprX = gradMaxX - m_player->getPlayerPosition().x > distanceX;
+	}
+
+	if (exprX)
 	{
 		for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
 		{
-			glm::vec3 pos = { borderMax.x, 0.0f, z };
+			glm::vec3 pos = { gradMaxX, 0.0f, z };
 
 			m_chunks[pos] = std::move(Chunk(pos));
 			m_chunks[pos].initBlocks();
 			m_chunks[pos].setChunkFaces();
-
-			glm::vec3 posNX = { borderMax.x - g_chunkSize.x, 0.0f, z };
+			 
+			glm::vec3 posNX = { gradMaxX - offsetX, 0.0f, z };
 			if (m_chunks.find(posNX) != m_chunks.end())
 			{
 				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
 			}
 
-			glm::vec3 posNZ = { borderMax.x, 0.0f, z - g_chunkSize.z };
+			glm::vec3 posNZ = { gradMaxX, 0.0f, z - g_chunkSize.z };
 			if (m_chunks.find(posNZ) != m_chunks.end())
 			{
 				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
 			}
 
-			m_chunks.erase(glm::vec3(borderMin.x, 0.0f, z));
+			m_chunks.erase(glm::vec3(gradMinX, 0.0f, z));
 		}
 
-		for (glm::vec3 pos = { borderMax.x, 0.0f, borderMin.z };
+		for (glm::vec3 pos = { gradMaxX, 0.0f, borderMin.z };
 			pos.z < borderMax.z;
 			pos.z += g_chunkSize.z)
 		{
 			m_chunks[pos].initMesh();
 		}
+	}
 
-		borderMax.x += g_chunkSize.x;
-		borderMin.x += g_chunkSize.x;
+	int signZ = (dir.z > 0) ? 1 : -1;
+	float distanceZ = 
+		(signZ > 0) ?
+		((borderMax.z - borderMin.z) / 2.0f - g_chunkSize.z / 2.0f) :
+		((borderMin.z - borderMax.z) / 2.0f - g_chunkSize.z / 2.0f);
+	float gradMaxZ = signZ > 0 ? borderMax.z : borderMin.z - g_chunkSize.z;
+	float gradMinZ = signZ > 0 ? borderMin.z : borderMax.z;
+	float offsetZ = signZ * g_chunkSize.z;
+
+	bool exprZ;
+
+	if (dir.z > 0.0f)
+	{
+		exprZ = gradMaxZ - m_player->getPlayerPosition().z < distanceZ;
+	}
+	else
+	{
+		exprZ = gradMaxZ - m_player->getPlayerPosition().z > distanceZ;
+	}
+
+	if (exprZ)
+	{
+		for (float x = borderMin.x; x < borderMax.x; x += g_chunkSize.x)
+		{
+			glm::vec3 pos = { x, 0.0f, gradMaxZ };
+
+			m_chunks[pos] = std::move(Chunk(pos));
+			m_chunks[pos].initBlocks();
+			m_chunks[pos].setChunkFaces();
+
+			glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, gradMaxZ };
+			if (m_chunks.find(posNX) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			}
+
+			glm::vec3 posNZ = { x, 0.0f, gradMaxZ - offsetZ };
+			if (m_chunks.find(posNZ) != m_chunks.end())
+			{
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+			}
+
+			m_chunks.erase(glm::vec3(x, 0.0f, gradMinZ));
+		}
+
+		for (glm::vec3 pos = { borderMin.x, 0.0f, gradMaxZ};
+			pos.x < borderMax.x;
+			pos.x += g_chunkSize.x)
+		{
+			m_chunks[pos].initMesh();
+		}
+	}
+
+	if (exprX)
+	{
+		borderMax.x += offsetX;
+		borderMin.x += offsetX;
+	}
+	if (exprZ)
+	{
+		borderMax.z += offsetZ;
+		borderMin.z += offsetZ;
 	}
 }
 

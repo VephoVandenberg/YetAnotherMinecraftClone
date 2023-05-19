@@ -60,7 +60,7 @@ void Application::handleEvents(Event& event)
 
 void Application::initShaders()
 {
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_window->getWidth() / m_window->getHeight(), 1.0f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_window->getWidth() / m_window->getHeight(), 1.0f, 200.0f);
 	for (auto& sValue : g_shaderPaths)
 	{
 		auto& sName = sValue.first;				// Get shader name
@@ -156,7 +156,7 @@ void Application::checkTerrainBorders()
 		((borderMax.x - borderMin.x) / 2.0f - g_chunkSize.x / 2.0f):
 		((borderMin.x - borderMax.x) / 2.0f - g_chunkSize.x / 2.0f);
 	float gradMaxX = signX > 0 ? borderMax.x : borderMin.x - g_chunkSize.x;
-	float gradMinX = signX > 0 ? borderMin.x : borderMax.x;
+	float gradMinX = signX > 0 ? borderMin.x : borderMax.x - g_chunkSize.x;
 	float offsetX = signX * g_chunkSize.x;
 
 	bool exprX;
@@ -209,7 +209,7 @@ void Application::checkTerrainBorders()
 		((borderMax.z - borderMin.z) / 2.0f - g_chunkSize.z / 2.0f) :
 		((borderMin.z - borderMax.z) / 2.0f - g_chunkSize.z / 2.0f);
 	float gradMaxZ = signZ > 0 ? borderMax.z : borderMin.z - g_chunkSize.z;
-	float gradMinZ = signZ > 0 ? borderMin.z : borderMax.z;
+	float gradMinZ = signZ > 0 ? borderMin.z : borderMax.z - g_chunkSize.z;
 	float offsetZ = signZ * g_chunkSize.z;
 
 	bool exprZ;

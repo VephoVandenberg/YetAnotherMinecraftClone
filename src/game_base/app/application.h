@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <unordered_map>
+#include <thread>
+#include <future>
 
 #include "../../engine/window/window.h"
 #include "../../engine/event/event.h"
@@ -41,6 +43,9 @@ namespace GameNamespace
 		void checkChunksNeighbours();
 		void checkTerrainBorders();
 
+		void updateTerrainOnX(float gradMaxX, float gradMinX, float offsetX);
+		void updateTerrainOnZ(float gradMaxZ, float gradMinZ, float offsetZ);
+
 		void drawChunks();
 
 		void updateChunks();
@@ -57,6 +62,8 @@ namespace GameNamespace
 		glm::vec3 borderMax;
 
 		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
+		std::vector<std::thread> m_threads;
+		std::vector<std::future<void>> m_futures;
 
 		std::unique_ptr<Window> m_window;
 

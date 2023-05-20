@@ -1,6 +1,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <mutex>
+#include <chrono>
 
 #include "../../engine/resource_manager/resource_manager.h"
 #include "../../engine/shader/shader.h"
@@ -20,6 +22,8 @@ using namespace GameNamespace;
 
 constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
 constexpr float g_rayMagnitude = 7.0f;
+
+std::mutex g_chunkMap_lock;
 
 Application::Application()
 	: m_isRunning(true)
@@ -109,8 +113,8 @@ void Application::initTextureArray()
 
 void Application::initChunks()
 {
-	borderMin = { -3.0f * g_chunkSize.x, 0.0f, -3.0 * g_chunkSize.z };
-	borderMax = { 3.0f * g_chunkSize.x, 0.0f,  3.0 * g_chunkSize.z };
+	borderMin = { -2.0f * g_chunkSize.x, 0.0f, -2.0 * g_chunkSize.z };
+	borderMax = { 2.0f * g_chunkSize.x, 0.0f,  2.0 * g_chunkSize.z };
 
 	for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
 	{
@@ -119,9 +123,24 @@ void Application::initChunks()
 			glm::vec3 pos = { x, 0.0f, z };
 
 			m_chunks[pos] = std::move(Chunk(pos));
-			m_chunks[pos].initBlocks();
-			m_chunks[pos].setChunkFaces();
 
+			auto begin = std::chrono::high_resolution_clock::now();
+			m_chunks[pos].initBlocks();
+			auto end = std::chrono::high_resolution_clock::now();
+
+#if 1
+			std::cout << "initBlocks - "
+				<< std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
+
+			begin = std::chrono::high_resolution_clock::now();
+			m_chunks[pos].setChunkFaces();
+			end = std::chrono::high_resolution_clock::now();
+
+#if 1
+			std::cout << "SetChunkFaces - " 
+				<< std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
 		}
 	}
 	checkChunksNeighbours();
@@ -135,13 +154,25 @@ void Application::checkChunksNeighbours()
 		glm::vec3 posNX = chunk.first; posNX.x += g_chunkSize.x;
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
+			auto begin = std::chrono::high_resolution_clock::now();
 			chunk.second.updateToNeighbourChunk(m_chunks[posNX]);
+			auto end = std::chrono::high_resolution_clock::now();
+#if 1
+			std::cout << "checkXNeighbour - " << 
+				std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
 		}
 
 		glm::vec3 posNZ = chunk.first; posNZ.z += g_chunkSize.z;
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
+			auto begin = std::chrono::high_resolution_clock::now();
 			chunk.second.updateToNeighbourChunk(m_chunks[posNZ]);
+			auto end = std::chrono::high_resolution_clock::now();
+#if 1
+			std::cout << "checkZNeighbour - " << 
+				std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
 		}
 	}
 }
@@ -159,7 +190,7 @@ void Application::checkTerrainBorders()
 	float gradMinX = signX > 0 ? borderMin.x : borderMax.x - g_chunkSize.x;
 	float offsetX = signX * g_chunkSize.x;
 
-	bool exprX;
+	bool exprX = false;
 
 	if (dir.x > 0.0f)
 	{
@@ -170,37 +201,12 @@ void Application::checkTerrainBorders()
 		exprX = gradMaxX - m_player->getPlayerPosition().x > distanceX;
 	}
 
-	if (exprX)
+	if (exprX && m_threads.empty())
 	{
-		for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
-		{
-			glm::vec3 pos = { gradMaxX, 0.0f, z };
+		 m_threads.push_back(std::thread(&Application::updateTerrainOnX, this, gradMaxX, gradMinX, offsetX));
 
-			m_chunks[pos] = std::move(Chunk(pos));
-			m_chunks[pos].initBlocks();
-			m_chunks[pos].setChunkFaces();
-			 
-			glm::vec3 posNX = { gradMaxX - offsetX, 0.0f, z };
-			if (m_chunks.find(posNX) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
-			}
-
-			glm::vec3 posNZ = { gradMaxX, 0.0f, z - g_chunkSize.z };
-			if (m_chunks.find(posNZ) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
-			}
-
-			m_chunks.erase(glm::vec3(gradMinX, 0.0f, z));
-		}
-
-		for (glm::vec3 pos = { gradMaxX, 0.0f, borderMin.z };
-			pos.z < borderMax.z;
-			pos.z += g_chunkSize.z)
-		{
-			m_chunks[pos].initMesh();
-		}
+		//m_futures.push_back(
+		//	std::async(std::launch::async, &Application::updateTerrainOnX, this, gradMaxX, gradMinX, offsetX));
 	}
 
 	int signZ = (dir.z > 0) ? 1 : -1;
@@ -212,7 +218,7 @@ void Application::checkTerrainBorders()
 	float gradMinZ = signZ > 0 ? borderMin.z : borderMax.z - g_chunkSize.z;
 	float offsetZ = signZ * g_chunkSize.z;
 
-	bool exprZ;
+	bool exprZ = false;
 
 	if (dir.z > 0.0f)
 	{
@@ -225,54 +231,102 @@ void Application::checkTerrainBorders()
 
 	if (exprZ)
 	{
-		for (float x = borderMin.x; x < borderMax.x; x += g_chunkSize.x)
+		// m_threads.push_back(
+		// 	new std::thread(&Application::updateTerrainOnZ, this, gradMaxZ, gradMinZ, offsetZ));
+	}
+}
+
+void Application::updateTerrainOnX(float gradMaxX, float gradMinX, float offsetX)
+{
+	for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
+	{
+		glm::vec3 pos = { gradMaxX, 0.0f, z };
+
+		m_chunks[pos] = std::move(Chunk(pos));
+		m_chunks[pos].initBlocks();
+		m_chunks[pos].setChunkFaces();
+
+		glm::vec3 posNX = { gradMaxX - offsetX, 0.0f, z };
+		if (m_chunks.find(posNX) != m_chunks.end())
 		{
-			glm::vec3 pos = { x, 0.0f, gradMaxZ };
-
-			m_chunks[pos] = std::move(Chunk(pos));
-			m_chunks[pos].initBlocks();
-			m_chunks[pos].setChunkFaces();
-
-			glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, gradMaxZ };
-			if (m_chunks.find(posNX) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
-			}
-
-			glm::vec3 posNZ = { x, 0.0f, gradMaxZ - offsetZ };
-			if (m_chunks.find(posNZ) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
-			}
-
-			m_chunks.erase(glm::vec3(x, 0.0f, gradMinZ));
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
 		}
 
-		for (glm::vec3 pos = { borderMin.x, 0.0f, gradMaxZ};
-			pos.x < borderMax.x;
-			pos.x += g_chunkSize.x)
+		glm::vec3 posNZ = { gradMaxX, 0.0f, z - g_chunkSize.z };
+		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
-			m_chunks[pos].initMesh();
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
 		}
+
+		g_chunkMap_lock.lock();
+		m_chunks.erase(glm::vec3(gradMinX, 0.0f, z));
+		g_chunkMap_lock.unlock();
 	}
 
-	if (exprX)
+	for (glm::vec3 pos = { gradMaxX, 0.0f, borderMin.z };
+		pos.z < borderMax.z;
+		pos.z += g_chunkSize.z)
 	{
-		borderMax.x += offsetX;
-		borderMin.x += offsetX;
+		g_chunkMap_lock.lock();
+		m_chunks[pos].initMesh();
+		g_chunkMap_lock.unlock();
 	}
-	if (exprZ)
+
+	borderMax.x += offsetX;
+	borderMin.x += offsetX;
+}
+
+void Application::updateTerrainOnZ(float gradMaxZ, float gradMinZ, float offsetZ)
+{
+	for (float x = borderMin.x; x < borderMax.x; x += g_chunkSize.x)
 	{
-		borderMax.z += offsetZ;
-		borderMin.z += offsetZ;
+		glm::vec3 pos = { x, 0.0f, gradMaxZ };
+
+		g_chunkMap_lock.lock();
+		m_chunks[pos] = std::move(Chunk(pos));
+		g_chunkMap_lock.unlock();
+
+		m_chunks[pos].initBlocks();
+		m_chunks[pos].setChunkFaces();
+
+		glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, gradMaxZ };
+		if (m_chunks.find(posNX) != m_chunks.end())
+		{
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+		}
+
+		glm::vec3 posNZ = { x, 0.0f, gradMaxZ - offsetZ };
+		if (m_chunks.find(posNZ) != m_chunks.end())
+		{
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+		}
+		g_chunkMap_lock.lock();
+		m_chunks.erase(glm::vec3(x, 0.0f, gradMinZ));
+		g_chunkMap_lock.unlock();
 	}
+
+	for (glm::vec3 pos = { borderMin.x, 0.0f, gradMaxZ };
+		pos.x < borderMax.x;
+		pos.x += g_chunkSize.x)
+	{
+		m_chunks[pos].initMesh();
+	}
+
+	borderMax.z += offsetZ;
+	borderMin.z += offsetZ;
 }
 
 void Application::setChunksMeshes()
 {
 	for (auto& chunk : m_chunks)
 	{
+		auto begin = std::chrono::high_resolution_clock::now();
 		chunk.second.initMesh();
+		auto end = std::chrono::high_resolution_clock::now();
+#if 1
+		std::cout << "initMesh - " <<
+			std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
 	}
 }
 

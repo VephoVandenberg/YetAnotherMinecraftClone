@@ -532,6 +532,8 @@ void Chunk::setMesh()
 
 	initMeshData(vertices, indices);
 
+	m_meshInitialized = true;
+
 	m_mesh.updateData(vertices, indices);
 }
 

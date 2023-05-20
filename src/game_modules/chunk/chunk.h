@@ -46,7 +46,8 @@ namespace GameModules
 		bool processRayToRemoveBlock(Ray& ray);
 
 		inline glm::vec3 getSize() const { return m_size; }
-		
+		inline bool isMeshInitialized() const { return m_meshInitialized;  }
+
 		Chunk() = default;
 		~Chunk() = default;
 		Chunk(Chunk&&) = default;
@@ -72,6 +73,8 @@ namespace GameModules
 		glm::vec3 m_pos;
 
 		Mesh m_mesh;
+
+		bool m_meshInitialized = false;
 
 		struct BlockRenderData
 		{

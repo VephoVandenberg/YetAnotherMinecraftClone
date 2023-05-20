@@ -64,6 +64,7 @@ namespace GameNamespace
 		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
 		std::vector<std::thread> m_threads;
 		std::vector<std::future<void>> m_futures;
+		std::vector<Chunk*> m_chunksToInit;
 
 		std::unique_ptr<Window> m_window;
 

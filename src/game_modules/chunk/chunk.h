@@ -38,6 +38,7 @@ namespace GameModules
 
 		void initMesh();
 		void initBlocks();
+		void initMeshData();
 		void setMesh();
 
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
@@ -58,7 +59,6 @@ namespace GameModules
 
 	private:
 		float perlin(float x, float z);
-		void initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indicies);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		void calcBlockBorderData(
@@ -101,5 +101,7 @@ namespace GameModules
 		};
 
 		std::unordered_map<glm::vec3, BlockRenderData, KeyFuncs> m_blocks;
+		std::vector<Vertex> m_vertices;
+		std::vector<unsigned int> m_indicies;
 	};
 }

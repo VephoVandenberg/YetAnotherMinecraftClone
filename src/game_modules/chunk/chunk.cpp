@@ -484,7 +484,7 @@ void Chunk::checkSurroundedBlocks(int z, int y, int x)
 
 }
 
-void Chunk::initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
+void Chunk::initMeshData()
 {
 	unsigned int IBOData_index = 0;
 	for (auto& data : m_blocks)
@@ -499,15 +499,15 @@ void Chunk::initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int
 			continue;
 		}
 
-		if (data.second.front) { addFront(indices, IBOData_index); }
-		if (data.second.back) { addBack(indices, IBOData_index); }
-		if (data.second.top) { addTop(indices, IBOData_index); }
-		if (data.second.bottom) { addBottom(indices, IBOData_index); }
-		if (data.second.right) { addRight(indices, IBOData_index); }
-		if (data.second.left) { addLeft(indices, IBOData_index); }
+		if (data.second.front) { addFront(m_indicies, IBOData_index); }
+		if (data.second.back) { addBack(m_indicies, IBOData_index); }
+		if (data.second.top) { addTop(m_indicies, IBOData_index); }
+		if (data.second.bottom) { addBottom(m_indicies, IBOData_index); }
+		if (data.second.right) { addRight(m_indicies, IBOData_index); }
+		if (data.second.left) { addLeft(m_indicies, IBOData_index); }
 
-		vertices.insert(
-			vertices.end(),
+		m_vertices.insert(
+			m_vertices.end(),
 			data.second.block.getVertices().begin(),
 			data.second.block.getVertices().end());
 
@@ -517,24 +517,14 @@ void Chunk::initMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int
 
 void Chunk::initMesh()
 {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-
-	initMeshData(vertices, indices);
-
-	m_mesh = Mesh(vertices, m_blocks.size(), indices, 6 * m_blocks.size());
+	m_mesh = Mesh(m_vertices, m_blocks.size(), m_indicies, 6 * m_blocks.size());
 }
 
 void Chunk::setMesh()
 {
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-
-	initMeshData(vertices, indices);
-
 	m_meshInitialized = true;
 
-	m_mesh.updateData(vertices, indices);
+	m_mesh.updateData(m_vertices, m_indicies);
 }
 
 void Chunk::draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView)

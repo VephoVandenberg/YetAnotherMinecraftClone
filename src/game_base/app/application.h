@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <unordered_map>
-#include <thread>
+#include <queue>
 #include <future>
 
 #include "../../engine/window/window.h"
@@ -62,12 +62,14 @@ namespace GameNamespace
 		glm::vec3 borderMax;
 
 		std::unordered_map<glm::vec3, Chunk, KeyFuncs> m_chunks;
-		std::vector<std::thread> m_threads;
-		std::vector<std::future<void>> m_futures;
-		std::vector<Chunk*> m_chunksToInit;
+		std::queue<std::future<void>> m_futures;
+		std::queue<Chunk*> m_chunksToInit;
 
 		std::unique_ptr<Window> m_window;
 
 		std::unique_ptr<Player> m_player;
+
+		bool isNotUpdatedX = true;
+		bool isNotUpdatedZ = true;
 	};
 }

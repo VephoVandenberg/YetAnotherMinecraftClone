@@ -203,7 +203,7 @@ void Chunk::initBlocks()
 				BlockType type = (y < yHeight ? BlockType::Dirt : BlockType::Air);
 				type = (y == yHeight ? BlockType::GrassDirt : type);
 
-				m_blocks[glm::vec3(x, y, z)] = BlockRenderData(Block(pos, type));
+ 				m_blocks[glm::vec3(x, y, z)] = BlockRenderData(Block(pos, type));
 			}
 		}
 	}

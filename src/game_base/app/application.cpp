@@ -182,147 +182,181 @@ void Application::checkTerrainBorders()
 	auto dir = m_player->getVelocity();
 
 	int signX = (dir.x > 0) ? 1 : -1;
+	int signZ = (dir.z > 0) ? 1 : -1;
 	float distanceX = 
 		(signX > 0) ?
 		((borderMax.x - borderMin.x) / 2.0f - g_chunkSize.x / 2.0f):
 		((borderMin.x - borderMax.x) / 2.0f - g_chunkSize.x / 2.0f);
-	float gradMaxX = signX > 0 ? borderMax.x : borderMin.x - g_chunkSize.x;
-	float gradMinX = signX > 0 ? borderMin.x : borderMax.x - g_chunkSize.x;
-	float offsetX = signX * g_chunkSize.x;
-
-	bool exprX = false;
-
-	if (dir.x > 0.0f)
-	{
-		exprX = gradMaxX - m_player->getPlayerPosition().x < distanceX;
-	}
-	else
-	{
-		exprX = gradMaxX - m_player->getPlayerPosition().x > distanceX;
-	}
-
-	if (exprX && isNotUpdatedX)
-	{
-		m_futures.push(
-			std::async(std::launch::async, &Application::updateTerrainOnX, this, gradMaxX, gradMinX, offsetX));
-	}
-
-	int signZ = (dir.z > 0) ? 1 : -1;
-	float distanceZ = 
+	float distanceZ =
 		(signZ > 0) ?
 		((borderMax.z - borderMin.z) / 2.0f - g_chunkSize.z / 2.0f) :
 		((borderMin.z - borderMax.z) / 2.0f - g_chunkSize.z / 2.0f);
-	float gradMaxZ = signZ > 0 ? borderMax.z : borderMin.z - g_chunkSize.z;
-	float gradMinZ = signZ > 0 ? borderMin.z : borderMax.z - g_chunkSize.z;
+	float maxX = signX > 0 ? borderMax.x : borderMin.x - g_chunkSize.x;
+	float minX = signX > 0 ? borderMin.x : borderMax.x - g_chunkSize.x;
+	float maxZ = signZ > 0 ? borderMax.z : borderMin.z - g_chunkSize.z;
+	float minZ = signZ > 0 ? borderMin.z : borderMax.z - g_chunkSize.z;
+	float offsetX = signX * g_chunkSize.x;
 	float offsetZ = signZ * g_chunkSize.z;
 
+	bool exprX = false;
 	bool exprZ = false;
 
-	if (dir.z > 0.0f)
+
+	if (dir.x > 0.0f)
 	{
-		exprZ = gradMaxZ - m_player->getPlayerPosition().z < distanceZ;
+		exprX = maxX - m_player->getPlayerPosition().x < distanceX;
 	}
 	else
 	{
-		exprZ = gradMaxZ - m_player->getPlayerPosition().z > distanceZ;
+		exprX = maxX - m_player->getPlayerPosition().x > distanceX;
 	}
 
-	if (exprZ && isNotUpdatedZ)
+	if (exprX)
 	{
 		m_futures.push(
-			std::async(std::launch::async, &Application::updateTerrainOnZ, this, gradMaxZ, gradMinZ, offsetZ));
+			std::async(
+				std::launch::async, &Application::updateTerrainOnX, 
+				this, 
+				maxX, minX, maxZ, minZ, offsetX, offsetZ, signX, signZ));
+		borderMax.x += offsetX;
+		borderMin.x += offsetX;
+	}
+
+	if (dir.z > 0.0f) 
+	{
+		exprZ = maxZ - m_player->getPlayerPosition().z < distanceZ;
+	}
+	else
+	{
+		exprZ = maxZ - m_player->getPlayerPosition().z > distanceZ;
+	}
+
+	if (exprZ)
+	{
+		m_futures.push(
+			std::async(
+				std::launch::async, &Application::updateTerrainOnZ, 
+				this, 
+				maxX, minX, maxZ, minZ, offsetX, offsetZ, signX, signZ));
+		borderMax.z += offsetZ;
+		borderMin.z += offsetZ;
 	}
 }
 
-void Application::updateTerrainOnX(float gradMaxX, float gradMinX, float offsetX)
+void Application::updateTerrainOnX(
+	float maxX, float minX,
+	float maxZ, float minZ,
+	float offsetX, float offsetZ,
+	int signX, int signZ)
 {
 	isNotUpdatedX = false;
+	bool shouldUpdateZ = true;
 
-	if (isNotUpdatedZ)
+	float z = minZ;
+
+	while (z != maxZ)
 	{
-		//borderMax.z += offsetX;
-	}
+		glm::vec3 pos = { maxX, 0.0f, z };
+		Chunk chunk(pos);
+		chunk.initBlocks();
+		chunk.setChunkFaces();
 
-	float z = borderMin.z;
-	while (z < borderMax.z)
-	{
-		glm::vec3 pos = { gradMaxX, 0.0f, z };
-
-		m_chunks[pos] = std::move(Chunk(pos));
-		m_chunks[pos].initBlocks();
-		m_chunks[pos].setChunkFaces();
-
-		glm::vec3 posNX = { gradMaxX - offsetX, 0.0f, z };
-		if (m_chunks.find(posNX) != m_chunks.end())
+		if (shouldUpdateZ && !isNotUpdatedZ)
 		{
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			//maxZ += offsetZ;
+			//borderMax.z += offsetZ;
+			//shouldUpdateZ = false;
 		}
 
-		glm::vec3 posNZ = { gradMaxX, 0.0f, z - g_chunkSize.z };
+		glm::vec3 posNX = { maxX - offsetX, 0.0f, z };
+		if (m_chunks.find(posNX) != m_chunks.end())
+		{
+			g_chunkMap_lock.lock();
+			chunk.updateToNeighbourChunk(m_chunks[posNX]);
+			g_chunkMap_lock.unlock();
+		}
+
+		glm::vec3 posNZ = { maxX, 0.0f, z - g_chunkSize.z };
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+			g_chunkMap_lock.lock();
+			chunk.updateToNeighbourChunk(m_chunks[posNZ]);
+			g_chunkMap_lock.unlock();
 		}
 
 		g_chunkMap_lock.lock();
-		m_chunks.erase(glm::vec3(gradMinX, 0.0f, z));
-		m_chunks[pos].initMeshData();
+		m_chunks.erase(glm::vec3(minX, 0.0f, z));
+		chunk.initMeshData();
+		m_chunks[pos] = std::move(chunk);
 		m_chunksToInit.push(&m_chunks[pos]);
 		g_chunkMap_lock.unlock();
 
-		z += g_chunkSize.z;
+		z += offsetZ;
 	}
 
 	g_chunkMap_lock.lock();
-	borderMax.x += offsetX;
-	borderMin.x += offsetX;
+	m_chunks[glm::vec3(maxX, 0.0f, z)] = std::move(Chunk(glm::vec3(maxX, 0.0f, z)));
+	m_chunks.erase(glm::vec3(minX, 0.0f, z));
 	g_chunkMap_lock.unlock();
+
 	isNotUpdatedX = true;
 }
 
-void Application::updateTerrainOnZ(float gradMaxZ, float gradMinZ, float offsetZ)
+void Application::updateTerrainOnZ(
+	float maxX, float minX,
+	float maxZ, float minZ,
+	float offsetX, float offsetZ,
+	int signX, int signZ)
 {
 	isNotUpdatedZ = false;
+	bool shouldUpdateX = true;
 
-	if (isNotUpdatedX)
+	float x = minX;
+
+	while (x != maxX)
 	{
-		//
-	}
+		glm::vec3 pos = { x, 0.0f, maxZ };
+		Chunk chunk(pos);
+		chunk.initBlocks();
+		chunk.setChunkFaces();
 
-	float x = borderMin.x;
-	while (x < borderMax.x)
-	{
-		glm::vec3 pos = { x, 0.0f, gradMaxZ };
+		if (shouldUpdateX && !isNotUpdatedX)
+		{
+			//maxX += offsetX;
+			//borderMax.x += offsetX;
+			//shouldUpdateX = false;
+		}
 
-		m_chunks[pos] = std::move(Chunk(pos));
-
-		m_chunks[pos].initBlocks();
-		m_chunks[pos].setChunkFaces();
-
-		glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, gradMaxZ };
+		glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, maxZ };
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			g_chunkMap_lock.lock();
+			chunk.updateToNeighbourChunk(m_chunks[posNX]);
+			g_chunkMap_lock.unlock();
 		}
 
-		glm::vec3 posNZ = { x, 0.0f, gradMaxZ - offsetZ };
+		glm::vec3 posNZ = { x, 0.0f, maxZ - offsetZ };
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+			g_chunkMap_lock.lock();
+			chunk.updateToNeighbourChunk(m_chunks[posNZ]);
+			g_chunkMap_lock.unlock();
 		}
 		g_chunkMap_lock.lock();
-		m_chunks.erase(glm::vec3(x, 0.0f, gradMinZ));
-		m_chunks[pos].initMeshData();
+		m_chunks.erase(glm::vec3(x, 0.0f, minZ));
+		chunk.initMeshData();
+		m_chunks[pos] = std::move(chunk);
 		m_chunksToInit.push(&m_chunks[pos]);
 		g_chunkMap_lock.unlock();
 
-		x += g_chunkSize.x;
+		x += offsetX;
 	}
 
 	g_chunkMap_lock.lock();
-	borderMax.z += offsetZ;
-	borderMin.z += offsetZ;
+	m_chunks[glm::vec3(x, 0.0f, maxZ)] = std::move(Chunk(glm::vec3(x, 0.0f, maxZ)));
+	m_chunks.erase(glm::vec3(x, 0.0f, minZ));
 	g_chunkMap_lock.unlock();
+
 	isNotUpdatedZ = true;
 }
 

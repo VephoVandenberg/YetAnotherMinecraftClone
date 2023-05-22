@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <thread>
 
 #include <glm/glm.hpp>
 
@@ -103,5 +104,7 @@ namespace GameModules
 		std::unordered_map<glm::vec3, BlockRenderData, KeyFuncs> m_blocks;
 		std::vector<Vertex> m_vertices;
 		std::vector<unsigned int> m_indicies;
+
+		std::vector<std::thread> m_initThreads;
 	};
 }

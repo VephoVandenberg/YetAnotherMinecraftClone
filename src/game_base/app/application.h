@@ -43,8 +43,16 @@ namespace GameNamespace
 		void checkChunksNeighbours();
 		void checkTerrainBorders();
 
-		void updateTerrainOnX(float gradMaxX, float gradMinX, float offsetX);
-		void updateTerrainOnZ(float gradMaxZ, float gradMinZ, float offsetZ);
+		void updateTerrainOnX(
+			float maxX, float minX,
+			float maxZ, float minZ, 
+			float offsetX, float offsetZ, 
+			int signX, int signZ);
+		void updateTerrainOnZ(
+			float maxX, float minX, 
+			float maxZ, float minZ, 
+			float offsetX, float offsetZ,
+			int signX, int signZ);
 
 		void drawChunks();
 

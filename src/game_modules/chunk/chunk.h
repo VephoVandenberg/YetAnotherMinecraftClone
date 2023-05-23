@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <thread>
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -66,9 +67,9 @@ namespace GameModules
 			const Block& block, const Ray& ray,
 			float& tMaxX, float& tMaxY, float& tMaxZ,
 			int& stepX, int& stepY, int& stepZ);
-
+		void addVertices(Block& m_block);
 		void checkSurroundedBlocks(int Z, int Y, int X);
-		bool checkAir(glm::vec3 pos);
+		bool checkAir(int index);
 
 		glm::vec3 m_size;
 		glm::vec3 m_pos;
@@ -77,34 +78,8 @@ namespace GameModules
 
 		bool m_meshInitialized = false;
 
-		struct BlockRenderData
-		{
-			Block block;
-
-			bool front;
-			bool back;
-			bool top;
-			bool bottom;
-			bool right;
-			bool left;
-
-			BlockRenderData() = default;
-
-			BlockRenderData(Block&& b)
-				: block(std::move(b))
-				, front(false)
-				, back(false)
-				, top(false)
-				, bottom(false)
-				, right(false)
-				, left(false)
-			{}
-		};
-
-		std::unordered_map<glm::vec3, BlockRenderData, KeyFuncs> m_blocks;
+		std::vector<Block> m_blocks;
 		std::vector<Vertex> m_vertices;
 		std::vector<unsigned int> m_indicies;
-
-		std::vector<std::thread> m_initThreads;
 	};
 }

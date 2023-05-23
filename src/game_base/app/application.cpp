@@ -121,21 +121,19 @@ void Application::initChunks()
 		for (float x = borderMin.x; x < borderMax.x; x += g_chunkSize.x)
 		{
 			glm::vec3 pos = { x, 0.0f, z };
-
+			
+			auto begin = std::chrono::high_resolution_clock::now();
 			m_chunks[pos] = std::move(Chunk(pos));
+			auto end = std::chrono::high_resolution_clock::now();
 
-			//auto begin = std::chrono::high_resolution_clock::now();
-			m_chunks[pos].initBlocks();
-			//auto end = std::chrono::high_resolution_clock::now();
-
-#if 0
+#if 1
 			std::cout << "initBlocks - "
 				<< std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
 #endif
 
-			//begin = std::chrono::high_resolution_clock::now();
+			begin = std::chrono::high_resolution_clock::now();
 			m_chunks[pos].setChunkFaces();
-			//end = std::chrono::high_resolution_clock::now();
+			end = std::chrono::high_resolution_clock::now();
 
 #if 0
 			std::cout << "SetChunkFaces - " 
@@ -154,9 +152,9 @@ void Application::checkChunksNeighbours()
 		glm::vec3 posNX = chunk.first; posNX.x += g_chunkSize.x;
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
-			//auto begin = std::chrono::high_resolution_clock::now();
+			auto begin = std::chrono::high_resolution_clock::now();
 			chunk.second.updateToNeighbourChunk(m_chunks[posNX]);
-			//auto end = std::chrono::high_resolution_clock::now();
+			auto end = std::chrono::high_resolution_clock::now();
 #if 0
 			std::cout << "checkXNeighbour - " << 
 				std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
@@ -166,9 +164,9 @@ void Application::checkChunksNeighbours()
 		glm::vec3 posNZ = chunk.first; posNZ.z += g_chunkSize.z;
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
-			//auto begin = std::chrono::high_resolution_clock::now();
+			auto begin = std::chrono::high_resolution_clock::now();
 			chunk.second.updateToNeighbourChunk(m_chunks[posNZ]);
-			//auto end = std::chrono::high_resolution_clock::now();
+			auto end = std::chrono::high_resolution_clock::now();
 #if 0
 			std::cout << "checkZNeighbour - " << 
 				std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
@@ -258,7 +256,6 @@ void Application::updateTerrainOnX(
 	{
 		glm::vec3 pos = { maxX, 0.0f, z };
 		Chunk chunk(pos);
-		chunk.initBlocks();
 		chunk.setChunkFaces();
 
 		if (shouldUpdateZ && !isNotUpdatedZ)
@@ -317,7 +314,6 @@ void Application::updateTerrainOnZ(
 	{
 		glm::vec3 pos = { x, 0.0f, maxZ };
 		Chunk chunk(pos);
-		chunk.initBlocks();
 		chunk.setChunkFaces();
 
 		if (shouldUpdateX && !isNotUpdatedX)
@@ -364,8 +360,10 @@ void Application::setChunksMeshes()
 {
 	for (auto& chunk : m_chunks)
 	{
+		auto begin = std::chrono::high_resolution_clock::now();
 		chunk.second.initMeshData();
 		chunk.second.initMesh();
+		auto end = std::chrono::high_resolution_clock::now();
 #if 0
 		std::cout << "initMesh - " <<
 			std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;

@@ -11,72 +11,32 @@ constexpr unsigned int g_numberOfFaces = 36;
 constexpr float g_texX = 128.0f;
 constexpr float g_texY = 128.0f;
 
+
 Block::Block(glm::vec3 pos, BlockType type)
 	: m_pos(pos)
 	, m_type(type)
+	, front(false)
+	, back(false)
+	, top(false)
+	, bottom(false)
+	, right(false)
+	, left(false)
 {
-	float top = 0.0f;
-	float bottom = 0.0f;
-	float side = 0.0f;
-
 	switch (m_type)
 	{
 	case BlockType::GrassDirt:
 	{
-		top = 2.0f;
-		bottom = 1.0f;
-		side = 0.0f;
+		topT_ind = 2.0f;
+		bottomT_ind = 1.0f;
+		sideT_ind = 0.0f;
 	}break;
 
 	case BlockType::Dirt:
 	{
-		top = bottom = side = 1.0f;
+		topT_ind = bottomT_ind = sideT_ind = 1.0f;
 	}break;
 
-	case BlockType::Stone:
-	{
-
-	}break;
-
-	case BlockType::Air:
+	default:
 	{}break;
 	}
-
-	m_vertices = {
-		// front
-		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f),  {0.0f, 0.0f, side}},
-		{ m_pos + glm::vec3( 0.5f, -0.5f,  0.5f),  {1.0f, 0.0f, side}},
-		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f),  {0.0f, 1.0f, side}},
-		{ m_pos + glm::vec3( 0.5f,  0.5f,  0.5f),  {1.0f, 1.0f, side}},
-
-		// back
-		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 0.0f, side}},
-		{ m_pos + glm::vec3( 0.5f, -0.5f, -0.5f), {1.0f, 0.0f, side}},
-		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), {0.0f, 1.0f, side}},
-		{ m_pos + glm::vec3( 0.5f,  0.5f, -0.5f), {1.0f, 1.0f, side}},
-
-		// top
-		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), {0.0f, 0.0f, top}},
-		{ m_pos + glm::vec3( 0.5f,  0.5f,  0.5f), {1.0f, 0.0f, top}},
-		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), {0.0f, 1.0f, top}},
-		{ m_pos + glm::vec3( 0.5f,  0.5f, -0.5f), {1.0f, 1.0f, top}},
-
-		// bottom
-		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), {0.0f, 0.0f, bottom}},
-		{ m_pos + glm::vec3( 0.5f, -0.5f,  0.5f), {1.0f, 0.0f, bottom}},
-		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 1.0f, bottom}},
-		{ m_pos + glm::vec3( 0.5f, -0.5f, -0.5f), {1.0f, 1.0f, bottom}},
-
-		// left
-		{ m_pos + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 0.0f, side}},
-		{ m_pos + glm::vec3(-0.5f, -0.5f,  0.5f), {1.0f, 0.0f, side}},
-		{ m_pos + glm::vec3(-0.5f,  0.5f, -0.5f), {0.0f, 1.0f, side}},
-		{ m_pos + glm::vec3(-0.5f,  0.5f,  0.5f), {1.0f, 1.0f, side}},
-
-		// right									   
-		{ m_pos + glm::vec3(0.5f, -0.5f, -0.5f), {0.0f, 0.0f, side}},
-		{ m_pos + glm::vec3(0.5f, -0.5f,  0.5f), {1.0f, 0.0f, side}},
-		{ m_pos + glm::vec3(0.5f,  0.5f, -0.5f), {0.0f, 1.0f, side}},
-		{ m_pos + glm::vec3(0.5f,  0.5f,  0.5f), {1.0f, 1.0f, side}}
-	};
 }

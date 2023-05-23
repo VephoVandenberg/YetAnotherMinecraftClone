@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -28,15 +28,26 @@ namespace GameModules
 	class Block
 	{
 	public:
+		bool front = false;
+		bool back = false;
+		bool top = false;
+		bool bottom = false;
+		bool right = false;
+		bool left = false;
+
+		float topT_ind = 0.0f;
+		float bottomT_ind = 0.0f;
+		float sideT_ind = 0.0f;
+
+	public:
 		Block(glm::vec3 pos, BlockType type);
 
-		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
-		inline BlockType getType() const { return m_type; }
-		inline glm::vec3 getPos() const { return m_pos; }
+		BlockType getType() const { return m_type; }
+		glm::vec3 getPos() const { return m_pos; }
 
 		Block() = default;
 		~Block() = default;
-		Block(Block&&) = default;
+		Block(Block&& b) = default;
 		Block& operator=(Block&&) = default;
 
 		Block(const Block&) = delete;
@@ -45,7 +56,5 @@ namespace GameModules
 	private:
 		glm::vec3 m_pos;
 		BlockType m_type;
-
-		std::vector<Vertex> m_vertices;
 	};
 }

@@ -174,13 +174,11 @@ float Chunk::perlin(float x, float y)
 
 void Chunk::initBlocks()
 {
-	m_blocks.reserve(g_chunkSize.x * g_chunkSize.y * g_chunkSize.z);
-	m_vertices.reserve(m_blocks.size() * m_blocks.size());
-	for (unsigned int z = 0; z < g_chunkSize.z; z++)
+	std::vector<int> heights;
+	for (unsigned int z = 0; z < m_size.z; z++)
 	{
-		for (unsigned int x = 0; x < g_chunkSize.x; x++)
+		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-
 			int octaves = 1;
 			float persistence = 4;
 
@@ -198,14 +196,23 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			int yHeight = 10 * (total / maxValue);
+			heights.push_back(10 * (total / maxValue));
+		}
+	}
 
-			for (unsigned int y = 0; y < g_chunkSize.y; y++)
+
+	m_blocks.reserve(m_size.x * m_size.y * m_size.z);
+	for (unsigned int z = 0; z < m_size.z; z++)
+	{
+		for (unsigned int y = 0; y < m_size.y; y++)
+		{
+			for (unsigned int x = 0; x < m_size.x; x++)
 			{
 				glm::vec3 pos = { x, y, z };
-				BlockType type = (y < yHeight ? BlockType::Dirt : BlockType::Air);
-				type = (y == yHeight ? BlockType::GrassDirt : type);
+				BlockType type = (y < heights[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
+				type = (y == heights[z * m_size.z + x] ? BlockType::GrassDirt : type);
 
+				int index = z * m_size.x * m_size.y + y * m_size.x + x;
 				m_blocks.emplace_back(m_pos + pos, type);
 			}
 		}
@@ -262,6 +269,7 @@ void Chunk::setChunkFaces()
 				currentBlock.bottom = checkAir(bottomBlock) || (y == 0);
 				currentBlock.right = checkAir(rightBlock) || (x == m_size.x - 1);
 				currentBlock.left = checkAir(leftBlock) || (x == 0);
+
 			}
 		}
 	}
@@ -563,7 +571,7 @@ void Chunk::addVertices(Block& block)
 
 void Chunk::initMesh()
 {
-	m_mesh = Mesh(m_vertices, m_blocks.size(), m_indicies, 6 * m_blocks.size());
+	m_mesh = Mesh(m_vertices, m_blocks.size(), m_indicies, m_blocks.size());
 }
 
 void Chunk::setMesh()

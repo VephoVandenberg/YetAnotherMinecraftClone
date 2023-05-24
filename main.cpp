@@ -5,15 +5,14 @@ using namespace GameNamespace;
 /*
 * Agenda
 * Later
-* - Investigate order of drawing faces
 * - one more time look at the perlin noise generation octaves and amplitudes
-* - infinite terrain generation
 * - imGUI
-* - add more blocks 
+* - Investigate order of drawing faces
 * - layers in the chunk
 * Super Later
 * - Investigate the number of meshes that are alocated for chunks
 * - Raycast and cube removal still don't work the way I would like it to work(VERY IMPORTANT)
+* - infinite terrain generation maybe there is faster and better way of doing it
 */
 
 
@@ -25,4 +24,4 @@ int main(int argc, char** argv)
 	delete app;
 
 	return 0;
-}
+} 

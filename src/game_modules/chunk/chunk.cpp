@@ -180,7 +180,7 @@ void Chunk::initBlocks()
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
 			int octaves = 1;
-			float persistence = 4;
+			float persistence = 2;
 
 			float total = 0;
 			float frequency = 1;
@@ -196,7 +196,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(10 * (total / maxValue));
+			heights.push_back(40 + 10 * (total / maxValue));
 		}
 	}
 
@@ -263,12 +263,12 @@ void Chunk::setChunkFaces()
 				unsigned int rightBlock = RIGHT_BLOCK(x, y, z, m_size);
 				unsigned int leftBlock = LEFT_BLOCK(x, y, z, m_size);
 
-				currentBlock.front = checkAir(frontBlock) || (z == m_size.z - 1);
-				currentBlock.back = checkAir(backBlock) || (z == 0);
-				currentBlock.top = checkAir(topBlock) || (y == m_size.y - 1);
-				currentBlock.bottom = checkAir(bottomBlock) || (y == 0);
-				currentBlock.right = checkAir(rightBlock) || (x == m_size.x - 1);
-				currentBlock.left = checkAir(leftBlock) || (x == 0);
+				currentBlock.front = checkAir(frontBlock);
+				currentBlock.back = checkAir(backBlock);
+				currentBlock.top = checkAir(topBlock);
+				currentBlock.bottom = checkAir(bottomBlock);
+				currentBlock.right = checkAir(rightBlock);
+				currentBlock.left = checkAir(leftBlock);
 
 			}
 		}

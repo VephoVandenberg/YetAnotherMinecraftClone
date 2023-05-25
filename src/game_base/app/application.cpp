@@ -248,7 +248,6 @@ void Application::updateTerrainOnX(
 	int signX, int signZ)
 {
 	isNotUpdatedX = false;
-	bool shouldUpdateZ = true;
 
 	float z = minZ;
 
@@ -258,13 +257,6 @@ void Application::updateTerrainOnX(
 		Chunk chunk(pos);
 		chunk.setChunkFaces();
 
-		if (shouldUpdateZ && !isNotUpdatedZ)
-		{
-			//maxZ += offsetZ;
-			//borderMax.z += offsetZ;
-			//shouldUpdateZ = false;
-		}
-
 		glm::vec3 posNX = { maxX - offsetX, 0.0f, z };
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
@@ -273,7 +265,7 @@ void Application::updateTerrainOnX(
 			g_chunkMap_lock.unlock();
 		}
 
-		glm::vec3 posNZ = { maxX, 0.0f, z - g_chunkSize.z };
+		glm::vec3 posNZ = { maxX, 0.0f, z - offsetZ };
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();
@@ -316,14 +308,7 @@ void Application::updateTerrainOnZ(
 		Chunk chunk(pos);
 		chunk.setChunkFaces();
 
-		if (shouldUpdateX && !isNotUpdatedX)
-		{
-			//maxX += offsetX;
-			//borderMax.x += offsetX;
-			//shouldUpdateX = false;
-		}
-
-		glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, maxZ };
+		glm::vec3 posNX = { x + offsetX, 0.0f, maxZ };
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();
@@ -331,7 +316,7 @@ void Application::updateTerrainOnZ(
 			g_chunkMap_lock.unlock();
 		}
 
-		glm::vec3 posNZ = { x, 0.0f, maxZ - offsetZ };
+		glm::vec3 posNZ = { x, 0.0f, maxZ + offsetZ };
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();

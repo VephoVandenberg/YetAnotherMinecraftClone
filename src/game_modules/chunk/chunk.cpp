@@ -577,7 +577,7 @@ void Chunk::initMesh()
 {
 	m_meshInitialized = true;
 
-	m_mesh = Mesh(m_vertices, m_blocks.size(), m_indicies, m_blocks.size());
+	m_mesh = Mesh(m_vertices, m_blocks.size(), m_indicies, 6 * m_blocks.size());
 }
 
 void Chunk::setMesh()

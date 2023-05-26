@@ -246,7 +246,6 @@ void Application::updateTerrainOnX(
 		{
 			g_chunkMap_lock.lock();
 			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
-			m_chunksToInit.push(&m_chunks[posNZ]);
 			g_chunkMap_lock.unlock();
 		}
 
@@ -282,7 +281,6 @@ void Application::updateTerrainOnZ(
 		{
 			g_chunkMap_lock.lock();
 			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
-			m_chunksToInit.push(&m_chunks[posNX]);
 			g_chunkMap_lock.unlock();
 		}
 
@@ -343,7 +341,8 @@ void Application::drawChunks()
 {
 	for (auto& chunk : m_chunks)
 	{
-		
+		bool canDraw = chunk.second.isMeshInitialized();
+
 		{
 			chunk.second.draw(
 				ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),

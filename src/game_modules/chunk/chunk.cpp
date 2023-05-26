@@ -196,7 +196,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(40 + 10 * (total / maxValue));
+			heights.push_back(5 + 10 * (total / maxValue));
 		}
 	}
 
@@ -209,8 +209,8 @@ void Chunk::initBlocks()
 			for (unsigned int x = 0; x < m_size.x; x++)
 			{
 				glm::vec3 pos = { x, y, z };
-				BlockType type = (y < heights[z * m_size.z + x] ? BlockType::Dirt : BlockType::Air);
-				type = (y == heights[z * m_size.z + x] ? BlockType::GrassDirt : type);
+				BlockType type = (y < heights[z * m_size.x + x] ? BlockType::Dirt : BlockType::Air);
+				type = (y == heights[z * m_size.x + x] ? BlockType::GrassDirt : type);
 
 				int index = z * m_size.x * m_size.y + y * m_size.x + x;
 				m_blocks.emplace_back(m_pos + pos, type);
@@ -314,15 +314,15 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 			unsigned int neighbourBlock
 				= z * m_size.x * m_size.y + y * m_size.x + neighbourX;
 
-			auto& leftBlock = (currentX > neighbourX) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
-			auto& rightBlock = (currentX < neighbourX) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
+			auto& leftBlock = (m_pos.x < chunk.m_pos.x) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
+			auto& rightBlock = (m_pos.x > chunk.m_pos.x) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
 
 			if (leftBlock.getType() != BlockType::Air && rightBlock.getType() != BlockType::Air)
 			{
 				leftBlock.right = false;
 				rightBlock.left = false;
 			}
-			else if (leftBlock.getType() == BlockType::Air && rightBlock.getType() != BlockType::Air)
+			if (leftBlock.getType() == BlockType::Air && rightBlock.getType() != BlockType::Air)
 			{
 				rightBlock.left = true;
 			}
@@ -345,15 +345,15 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 			unsigned int neighbourBlock
 				= neighbourZ * m_size.x * m_size.y + y * m_size.x + x;
 
-			auto& frontBlock = (currentZ < neighbourZ) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
-			auto& backBlock = (currentZ > neighbourZ) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
+			auto& frontBlock = (m_pos.z > chunk.m_pos.z) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
+			auto& backBlock = (m_pos.z < chunk.m_pos.z) ? m_blocks[currentBlock] : chunk.m_blocks[neighbourBlock];
 
 			if (frontBlock.getType() != BlockType::Air && backBlock.getType() != BlockType::Air)
 			{
-				frontBlock.back = false;
 				backBlock.front = false;
+				frontBlock.back = false;
 			}
-			else if (frontBlock.getType() == BlockType::Air && backBlock.getType() != BlockType::Air)
+			if (frontBlock.getType() == BlockType::Air && backBlock.getType() != BlockType::Air)
 			{
 				backBlock.front = true;
 			}
@@ -505,6 +505,10 @@ void Chunk::checkSurroundedBlocks(int z, int y, int x)
 void Chunk::initMeshData()
 {
 	unsigned int IBOData_index = 0;
+
+	m_vertices.clear();
+	m_indicies.clear();
+
 	for (auto& block : m_blocks)
 	{
 		bool shouldBeRendered =
@@ -571,6 +575,8 @@ void Chunk::addVertices(Block& block)
 
 void Chunk::initMesh()
 {
+	m_meshInitialized = true;
+
 	m_mesh = Mesh(m_vertices, m_blocks.size(), m_indicies, m_blocks.size());
 }
 

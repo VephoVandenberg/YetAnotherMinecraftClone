@@ -121,12 +121,12 @@ void Application::initChunks()
 		for (float x = borderMin.x; x < borderMax.x; x += g_chunkSize.x)
 		{
 			glm::vec3 pos = { x, 0.0f, z };
-			
+
 			auto begin = std::chrono::high_resolution_clock::now();
 			m_chunks[pos] = std::move(Chunk(pos));
 			auto end = std::chrono::high_resolution_clock::now();
 
-#if 1
+#if 0
 			std::cout << "initBlocks - "
 				<< std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
 #endif
@@ -135,44 +135,37 @@ void Application::initChunks()
 			m_chunks[pos].setChunkFaces();
 			end = std::chrono::high_resolution_clock::now();
 
+			glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, z };
+			if (m_chunks.find(posNX) != m_chunks.end())
+			{
+				auto begin = std::chrono::high_resolution_clock::now();
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+				auto end = std::chrono::high_resolution_clock::now();
 #if 0
-			std::cout << "SetChunkFaces - " 
+				std::cout << "checkXNeighbour - " <<
+					std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
+			}
+
+			glm::vec3 posNZ = { x, 0.0f, z - g_chunkSize.z };
+			if (m_chunks.find(posNZ) != m_chunks.end())
+			{
+				auto begin = std::chrono::high_resolution_clock::now();
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+				auto end = std::chrono::high_resolution_clock::now();
+#if 0
+				std::cout << "checkZNeighbour - " <<
+					std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
+#endif
+			}
+
+#if 0
+			std::cout << "SetChunkFaces - "
 				<< std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
 #endif
 		}
 	}
-	checkChunksNeighbours();
 	setChunksMeshes();
-}
-
-void Application::checkChunksNeighbours()
-{
-	for (auto& chunk : m_chunks)
-	{
-		glm::vec3 posNX = chunk.first; posNX.x += g_chunkSize.x;
-		if (m_chunks.find(posNX) != m_chunks.end())
-		{
-			auto begin = std::chrono::high_resolution_clock::now();
-			chunk.second.updateToNeighbourChunk(m_chunks[posNX]);
-			auto end = std::chrono::high_resolution_clock::now();
-#if 0
-			std::cout << "checkXNeighbour - " << 
-				std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
-#endif
-		}
-
-		glm::vec3 posNZ = chunk.first; posNZ.z += g_chunkSize.z;
-		if (m_chunks.find(posNZ) != m_chunks.end())
-		{
-			auto begin = std::chrono::high_resolution_clock::now();
-			chunk.second.updateToNeighbourChunk(m_chunks[posNZ]);
-			auto end = std::chrono::high_resolution_clock::now();
-#if 0
-			std::cout << "checkZNeighbour - " << 
-				std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
-#endif
-		}
-	}
 }
 
 void Application::checkTerrainBorders()
@@ -181,14 +174,10 @@ void Application::checkTerrainBorders()
 
 	int signX = (dir.x > 0) ? 1 : -1;
 	int signZ = (dir.z > 0) ? 1 : -1;
-	float distanceX = 
-		(signX > 0) ?
-		((borderMax.x - borderMin.x) / 2.0f - g_chunkSize.x / 2.0f):
-		((borderMin.x - borderMax.x) / 2.0f - g_chunkSize.x / 2.0f);
+	float distanceX =
+		std::abs((borderMax.x - borderMin.x)) / 2.0f - g_chunkSize.x / 2.0f;
 	float distanceZ =
-		(signZ > 0) ?
-		((borderMax.z - borderMin.z) / 2.0f - g_chunkSize.z / 2.0f) :
-		((borderMin.z - borderMax.z) / 2.0f - g_chunkSize.z / 2.0f);
+		std::abs((borderMax.z - borderMin.z)) / 2.0f - g_chunkSize.z / 2.0f;
 	float maxX = signX > 0 ? borderMax.x : borderMin.x - g_chunkSize.x;
 	float minX = signX > 0 ? borderMin.x : borderMax.x - g_chunkSize.x;
 	float maxZ = signZ > 0 ? borderMax.z : borderMin.z - g_chunkSize.z;
@@ -199,43 +188,27 @@ void Application::checkTerrainBorders()
 	bool exprX = false;
 	bool exprZ = false;
 
-
-	if (dir.x > 0.0f)
-	{
-		exprX = maxX - m_player->getPlayerPosition().x < distanceX;
-	}
-	else
-	{
-		exprX = maxX - m_player->getPlayerPosition().x > distanceX;
-	}
-
+	exprX = std::abs(maxX - m_player->getPlayerPosition().x) < distanceX;
 	if (exprX)
 	{
 		m_futures.push(
 			std::async(
-				std::launch::async, &Application::updateTerrainOnX, 
-				this, 
-				maxX, minX, maxZ, minZ, offsetX, offsetZ, signX, signZ));
+				std::launch::async, &Application::updateTerrainOnX,
+				this,
+				maxX, minX, maxZ, minZ, offsetX, offsetZ));
 		borderMax.x += offsetX;
 		borderMin.x += offsetX;
 	}
 
-	if (dir.z > 0.0f) 
-	{
-		exprZ = maxZ - m_player->getPlayerPosition().z < distanceZ;
-	}
-	else
-	{
-		exprZ = maxZ - m_player->getPlayerPosition().z > distanceZ;
-	}
 
+	exprZ = std::abs(maxZ - m_player->getPlayerPosition().z) < distanceZ;
 	if (exprZ)
 	{
 		m_futures.push(
 			std::async(
-				std::launch::async, &Application::updateTerrainOnZ, 
-				this, 
-				maxX, minX, maxZ, minZ, offsetX, offsetZ, signX, signZ));
+				std::launch::async, &Application::updateTerrainOnZ,
+				this,
+				maxX, minX, maxZ, minZ, offsetX, offsetZ));
 		borderMax.z += offsetZ;
 		borderMin.z += offsetZ;
 	}
@@ -244,8 +217,7 @@ void Application::checkTerrainBorders()
 void Application::updateTerrainOnX(
 	float maxX, float minX,
 	float maxZ, float minZ,
-	float offsetX, float offsetZ,
-	int signX, int signZ)
+	float offsetX, float offsetZ)
 {
 	isNotUpdatedX = false;
 
@@ -254,14 +226,18 @@ void Application::updateTerrainOnX(
 	while (z != maxZ)
 	{
 		glm::vec3 pos = { maxX, 0.0f, z };
-		Chunk chunk(pos);
-		chunk.setChunkFaces();
+		g_chunkMap_lock.lock();
+		m_chunks[pos] = std::move(Chunk(pos));
+		m_chunks[pos].setChunkFaces();
+		g_chunkMap_lock.unlock();
 
 		glm::vec3 posNX = { maxX - offsetX, 0.0f, z };
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();
-			chunk.updateToNeighbourChunk(m_chunks[posNX]);
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			m_chunks[posNX].initMeshData();
+			m_chunksToInit.push(&m_chunks[posNX]);
 			g_chunkMap_lock.unlock();
 		}
 
@@ -269,24 +245,17 @@ void Application::updateTerrainOnX(
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();
-			chunk.updateToNeighbourChunk(m_chunks[posNZ]);
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+			m_chunksToInit.push(&m_chunks[posNZ]);
 			g_chunkMap_lock.unlock();
 		}
 
 		g_chunkMap_lock.lock();
 		m_chunks.erase(glm::vec3(minX, 0.0f, z));
-		chunk.initMeshData();
-		m_chunks[pos] = std::move(chunk);
-		m_chunksToInit.push(&m_chunks[pos]);
 		g_chunkMap_lock.unlock();
 
 		z += offsetZ;
 	}
-
-	g_chunkMap_lock.lock();
-	m_chunks[glm::vec3(maxX, 0.0f, z)] = std::move(Chunk(glm::vec3(maxX, 0.0f, z)));
-	m_chunks.erase(glm::vec3(minX, 0.0f, z));
-	g_chunkMap_lock.unlock();
 
 	isNotUpdatedX = true;
 }
@@ -294,49 +263,45 @@ void Application::updateTerrainOnX(
 void Application::updateTerrainOnZ(
 	float maxX, float minX,
 	float maxZ, float minZ,
-	float offsetX, float offsetZ,
-	int signX, int signZ)
+	float offsetX, float offsetZ)
 {
 	isNotUpdatedZ = false;
-	bool shouldUpdateX = true;
 
 	float x = minX;
 
 	while (x != maxX)
 	{
 		glm::vec3 pos = { x, 0.0f, maxZ };
-		Chunk chunk(pos);
-		chunk.setChunkFaces();
+		g_chunkMap_lock.lock();
+		m_chunks[pos] = std::move(Chunk(pos));
+		m_chunks[pos].setChunkFaces();
+		g_chunkMap_lock.unlock();
 
-		glm::vec3 posNX = { x + offsetX, 0.0f, maxZ };
+		glm::vec3 posNX = { x - offsetX, 0.0f, maxZ };
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();
-			chunk.updateToNeighbourChunk(m_chunks[posNX]);
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			m_chunksToInit.push(&m_chunks[posNX]);
 			g_chunkMap_lock.unlock();
 		}
 
-		glm::vec3 posNZ = { x, 0.0f, maxZ + offsetZ };
+		glm::vec3 posNZ = { x, 0.0f, maxZ - offsetZ };
 		if (m_chunks.find(posNZ) != m_chunks.end())
 		{
 			g_chunkMap_lock.lock();
-			chunk.updateToNeighbourChunk(m_chunks[posNZ]);
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNZ]);
+			m_chunks[posNZ].initMeshData();
+			m_chunksToInit.push(&m_chunks[posNZ]);
 			g_chunkMap_lock.unlock();
 		}
+
 		g_chunkMap_lock.lock();
 		m_chunks.erase(glm::vec3(x, 0.0f, minZ));
-		chunk.initMeshData();
-		m_chunks[pos] = std::move(chunk);
-		m_chunksToInit.push(&m_chunks[pos]);
 		g_chunkMap_lock.unlock();
 
 		x += offsetX;
 	}
-
-	g_chunkMap_lock.lock();
-	m_chunks[glm::vec3(x, 0.0f, maxZ)] = std::move(Chunk(glm::vec3(x, 0.0f, maxZ)));
-	m_chunks.erase(glm::vec3(x, 0.0f, minZ));
-	g_chunkMap_lock.unlock();
 
 	isNotUpdatedZ = true;
 }
@@ -370,7 +335,6 @@ void Application::run()
 		checkTerrainBorders();
 		updateChunks();
 		drawChunks();
-
 		m_window->update();
 	}
 }
@@ -379,10 +343,13 @@ void Application::drawChunks()
 {
 	for (auto& chunk : m_chunks)
 	{
-		chunk.second.draw(
-			ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
-			ResourceManager::getInstance().getTextureArray(),
-			m_player->getCameraView());
+		
+		{
+			chunk.second.draw(
+				ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
+				ResourceManager::getInstance().getTextureArray(),
+				m_player->getCameraView());
+		}
 	}
 }
 
@@ -459,9 +426,16 @@ void Application::updateChunks()
 		}
 	}
 
-	if (!m_chunksToInit.empty())
+	if (!m_chunksToInit.empty() && !m_futures.empty())
 	{
-		m_chunksToInit.front()->initMesh();
+		if (m_chunksToInit.front()->isMeshInitialized())
+		{
+			m_chunksToInit.front()->setMesh();
+		}
+		else
+		{
+			m_chunksToInit.front()->initMesh();
+		}
 		m_chunksToInit.pop();
 	}
 }

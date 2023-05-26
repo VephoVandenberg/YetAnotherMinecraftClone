@@ -4,6 +4,7 @@ using namespace GameNamespace;
 
 /*
 * Agenda
+* - Fix terrain face rendering
 * Later
 * - one more time look at the perlin noise generation octaves and amplitudes
 * - imGUI

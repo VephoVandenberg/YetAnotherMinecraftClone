@@ -24,12 +24,12 @@ namespace GameModules
 	{
 		size_t operator()(const glm::vec3& v) const
 		{
-			return std::hash<int>()(v.x) ^ std::hash<int>()(v.y) ^ std::hash<int>()(v.z);
+			return std::hash<int>()(v.x) ^ std::hash<int>()(v.z);
 		}
 
 		bool operator()(const glm::vec3& a, const glm::vec3& b) const
 		{
-			return a.x == b.x && a.y == b.y && a.x == b.z;
+			return a.x == b.x && a.x == b.z;
 		}
 	};
 

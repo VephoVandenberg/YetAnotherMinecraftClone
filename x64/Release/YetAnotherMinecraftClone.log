@@ -1,4 +1,4 @@
-﻿  main.cpp
+﻿  chunk.cpp
 D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,29): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
           with
           [
@@ -17,135 +17,34 @@ D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,53): warni
           [
               _Kty=int
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,77): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_base\player\player.h(7,13): warning C4099: 'Engine::Event': type name first seen using 'struct' now seen using 'class'
-D:\Working\YetAnotherMinecraftClone\src\engine\event\event.h(13,9): message : see declaration of 'Engine::Event'
-  application.cpp
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,29): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,53): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,77): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_base\player\player.h(7,13): warning C4099: 'Engine::Event': type name first seen using 'struct' now seen using 'class'
-D:\Working\YetAnotherMinecraftClone\src\engine\window\window.h(15,9): message : see declaration of 'Engine::Event'
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(372,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(382,3): error C2065: 'asdasfgsrdfg': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(383,4): error C2146: syntax error: missing ';' before identifier 'asd'
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(383,4): error C2065: 'asd': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(383,9): error C2065: 'lfajksd': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(383,18): error C2065: 'lfa': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(384,4): error C2146: syntax error: missing ';' before identifier 'a'
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(384,4): error C2065: 'a': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(384,7): error C2065: 'sldkjf': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(384,15): error C2065: 'alsdkjf': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(384,23): error C2065: 'lasdkjf': undeclared identifier
-D:\Working\YetAnotherMinecraftClone\src\game_base\app\application.cpp(385,3): error C2146: syntax error: missing ';' before identifier 'm_window'
-  chunk.cpp
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,29): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,53): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.h(27,77): warning C4244: 'argument': conversion from 'const T' to 'const _Kty', possible loss of data
-          with
-          [
-              T=float
-          ]
-          and
-          [
-              _Kty=int
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(118,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(199,25): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(117,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(203,25): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=int
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(204,39): warning C4244: 'argument': conversion from 'T' to 'const unsigned __int64', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(208,39): warning C4244: 'argument': conversion from 'T' to 'const unsigned __int64', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(212,48): warning C4244: 'argument': conversion from 'T' to 'const unsigned __int64', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(216,48): warning C4244: 'argument': conversion from 'T' to 'const unsigned __int64', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(212,25): warning C4018: '<': signed/unsigned mismatch
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(213,39): warning C4244: 'argument': conversion from 'T' to 'const unsigned __int64', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(216,25): warning C4018: '<': signed/unsigned mismatch
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(217,39): warning C4244: 'argument': conversion from 'T' to 'const unsigned __int64', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(215,15): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(219,15): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(249,28): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(259,29): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(260,28): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(261,27): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
-          with
-          [
-              T=float
-          ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(262,30): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(253,28): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
@@ -160,72 +59,87 @@ D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(264,28): wa
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(283,27): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(265,27): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(288,25): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(266,30): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(295,27): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(267,29): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(300,25): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(268,28): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(313,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(286,27): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(315,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(291,25): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(344,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(298,27): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(346,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(303,25): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(413,18): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(316,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(414,17): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(318,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(415,18): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(347,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(416,17): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(349,5): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(417,18): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(416,18): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(418,17): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(417,17): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(418,18): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(419,17): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(420,18): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
@@ -235,39 +149,49 @@ D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(421,17): wa
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(449,63): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(424,17): warning C4244: 'initializing': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(471,20): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(452,63): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(472,19): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(474,20): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(473,22): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(475,19): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(474,21): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(476,22): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(475,20): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(477,21): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(476,21): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(478,20): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
           with
           [
               T=float
           ]
-D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(574,73): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(479,21): warning C4244: 'initializing': conversion from 'T' to 'unsigned int', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Working\YetAnotherMinecraftClone\src\game_modules\chunk\chunk.cpp(583,77): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
+  Generating code
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 2406 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  YetAnotherMinecraftClone.vcxproj -> D:\Working\YetAnotherMinecraftClone\x64\Release\YetAnotherMinecraftClone.exe

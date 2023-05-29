@@ -4,6 +4,10 @@
 
 #include "window.h"
 
+#if _DEBUG
+#include <imgui.h>
+#endif
+
 constexpr float g_windowWidth = 1200;
 constexpr float g_windowHeight = 800;
 

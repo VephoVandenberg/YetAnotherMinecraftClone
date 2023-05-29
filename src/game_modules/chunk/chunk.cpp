@@ -100,14 +100,13 @@ auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
 	indicies.push_back(24 * i + 23);
 };
 
-Chunk::Chunk(glm::vec3 pos)
+Chunk::Chunk(glm::vec3 pos, int octaves, float persistance)
 	: m_size(g_chunkSize)
 	, m_pos(pos)
 {
 	// initGradientVectors();
-	// check for neighbour vectors (maybe no longer needed)
-	// initHeightMap();
-	initBlocks();
+	// check for nep();
+	initBlocks(octaves, persistance);
 	// setChunkFaces();
 	// update neighbourFaces
 }
@@ -115,8 +114,7 @@ Chunk::Chunk(glm::vec3 pos)
 float Chunk::perlin(float x, float y)
 {
 	auto interpolate = [](float a0, float a1, float w) {
-		float mu2 = (1 - glm::cos(w * 3.14)) / 2;
-		return(a0 * (1 - mu2) + a1 * mu2);
+		return (a1 - a0) * w + a0;
 	};
 
 	auto fade = [](float t) {
@@ -142,12 +140,12 @@ float Chunk::perlin(float x, float y)
 	};
 
 	// Top-left coordinates of the unit-square.
-	const int xi0 = static_cast<int>(x) & 0xFF;
-	const int yi0 = static_cast<int>(y) & 0xFF;
+	const int xi0 = static_cast<int>(std::floor(x));
+	const int yi0 = static_cast<int>(std::floor(y));
 
 	// Input location in the unit-square.
-	const float xf0 = x - static_cast<int>(xi0);
-	const float yf0 = y - static_cast<int>(yi0);
+	const float xf0 = x - xi0;
+	const float yf0 = y - yi0;
 	const float xf1 = xf0 - 1.0f;
 	const float yf1 = yf0 - 1.0f;
 
@@ -160,35 +158,33 @@ float Chunk::perlin(float x, float y)
 	const float v = fade(yf0);
 
 	// Generate hash values for each point of the unit-square.
-	int const h00 = p[p[xi + 0] + yi + 0];
-	int const h01 = p[p[xi + 0] + yi + 1];
-	int const h10 = p[p[xi + 1] + yi + 0];
-	int const h11 = p[p[xi + 1] + yi + 1];
+	int const h00 = p[p[(xi + 0)] + yi + 0];
+	int const h01 = p[p[(xi + 0)] + yi + 1];
+	int const h10 = p[p[(xi + 1)] + yi + 0];
+	int const h11 = p[p[(xi + 1)] + yi + 1];
 
 	// Linearly interpolate between dot products of each gradient with its distance to the input location.
 	const float x1 = interpolate(dot_grad(h00, xf0, yf0), dot_grad(h10, xf1, yf0), u);
 	const float x2 = interpolate(dot_grad(h01, xf0, yf1), dot_grad(h11, xf1, yf1), u);
 
-	return (interpolate(x1, x2, v) + 1) / 2;
+	return (interpolate(x1, x2, v));
 }
 
-void Chunk::initBlocks()
+void Chunk::initBlocks(int octaves, float persistence)
 {
 	std::vector<int> heights;
 	for (unsigned int z = 0; z < m_size.z; z++)
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
-			int octaves = 1;
-			float persistence = 2;
+			float frequency = 0.005f;
+			float amplitude = 1.0f;
 
-			float total = 0;
-			float frequency = 1;
-			float amplitude = 1;
-			float maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
+			float y = 0.0f;
+			float maxValue = 0.0f;  // Used for normalizing result to 0.0 - 1.0
 			for (int i = 0; i < octaves; i++)
 			{
-				total += perlin(0.1f * (std::abs(m_pos.x) + x) * frequency, 0.1f * (std::abs(m_pos.z) + z) * frequency) * amplitude;
+				y += (perlin((m_pos.x + x)  * frequency, (m_pos.z + z)  * frequency)) * amplitude;
 
 				maxValue += amplitude;
 
@@ -196,7 +192,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(5 + 10 * (total / maxValue));
+			heights.push_back(40 + 10 * octaves * (y/maxValue));
 		}
 	}
 
@@ -269,7 +265,6 @@ void Chunk::setChunkFaces()
 				currentBlock.bottom = checkAir(bottomBlock);
 				currentBlock.right = checkAir(rightBlock);
 				currentBlock.left = checkAir(leftBlock);
-
 			}
 		}
 	}
@@ -538,27 +533,27 @@ void Chunk::addVertices(Block& block)
 {
 	// front
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f,  0.5f),  {0.0f, 0.0f, block.sideT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f, -0.5f,  0.5f),  {1.0f, 0.0f,  block.sideT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f,  0.5f),  {1.0f, 0.0f,  block.sideT_ind} });
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f,  0.5f,  0.5f),  {0.0f, 1.0f, block.sideT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f,  0.5f,  0.5f),  {1.0f, 1.0f,  block.sideT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f,  0.5f,  0.5f),  {1.0f, 1.0f,  block.sideT_ind} });
 
 	// back
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 0.0f, block.sideT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f, -0.5f, -0.5f),	{1.0f, 0.0f, block.sideT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f, -0.5f),	{1.0f, 0.0f, block.sideT_ind} });
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f,  0.5f, -0.5f),	{0.0f, 1.0f, block.sideT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f,  0.5f, -0.5f),	{1.0f, 1.0f, block.sideT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f,  0.5f, -0.5f),	{1.0f, 1.0f, block.sideT_ind} });
 
 	// top
-	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, 0.5f,  0.5f), {0.0f, 0.0f,  block.topT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f, 0.5f,  0.5f),  {1.0f, 0.0f,  block.topT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, 0.5f, -0.5f), {0.0f, 1.0f,  block.topT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f, 0.5f, -0.5f),  {1.0f, 1.0f,  block.topT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, 0.5f,  0.5f),  {0.0f, 0.0f,  block.topT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, 0.5f,  0.5f),  {1.0f, 0.0f,  block.topT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, 0.5f, -0.5f),  {0.0f, 1.0f,  block.topT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, 0.5f, -0.5f),  {1.0f, 1.0f,  block.topT_ind} });
 
 	// bottom
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f,  0.5f), {0.0f, 0.0f,  block.bottomT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f, -0.5f,  0.5f), {1.0f, 0.0f,  block.bottomT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f,  0.5f), {1.0f, 0.0f,  block.bottomT_ind} });
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 1.0f,  block.bottomT_ind} });
-	m_vertices.push_back({ block.getPos() + glm::vec3(0.5f, -0.5f, -0.5f), {1.0f, 1.0f,  block.bottomT_ind} });
+	m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f, -0.5f), {1.0f, 1.0f,  block.bottomT_ind} });
 
 	// left
 	m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 0.0f, block.sideT_ind} });

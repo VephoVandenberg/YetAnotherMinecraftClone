@@ -7,7 +7,7 @@
 
 #include "../../engine/window/window.h"
 #include "../../engine/event/event.h"
-#include "../../engine/mesh/mesh.h"
+//#include "../../engine/mesh/mesh.h"
 
 #include "../../game_modules/block/block.h"
 #include "../../game_modules/chunk/chunk.h"

@@ -36,10 +36,10 @@ namespace GameModules
 	class Chunk
 	{
 	public:
-		Chunk(glm::vec3 pos);
+		Chunk(glm::vec3 pos, int octaves, float persistance);
 
 		void initMesh();
-		void initBlocks();
+		void initBlocks(int octaves, float persistance);
 		void initMeshData();
 		void setMesh();
 
@@ -61,6 +61,7 @@ namespace GameModules
 
 	private:
 		float perlin(float x, float z);
+		float myPerlin(float x, float z);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		void calcBlockBorderData(

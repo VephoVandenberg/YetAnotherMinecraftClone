@@ -20,7 +20,11 @@
 using namespace Engine;
 using namespace GameNamespace;
 
+
 constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
+constexpr glm::vec3 g_borderStartMin = {-12 * g_chunkSize.x, 0.0f, -12 * g_chunkSize.z};
+constexpr glm::vec3 g_borderStartMax = { 12 * g_chunkSize.x, 0.0f,  12 * g_chunkSize.z };
+
 constexpr float g_rayMagnitude = 7.0f;
 
 std::mutex g_chunkMap_lock;
@@ -43,7 +47,7 @@ void Application::init()
 
 	m_window = std::unique_ptr<Window>(new Window(data));
 	m_player = std::unique_ptr<Player>(
-		new Player(glm::vec3(0.0f, 40.0f, 0.0f),
+		new Player(glm::vec3(0.0f, 50.0f, 0.0f),
 			m_window->getWidth(), m_window->getHeight()));
 }
 
@@ -113,8 +117,11 @@ void Application::initTextureArray()
 
 void Application::initChunks()
 {
-	borderMin = { -6.0f * g_chunkSize.x, 0.0f, -6.0 * g_chunkSize.z };
-	borderMax = { 6.0f * g_chunkSize.x, 0.0f,  6.0 * g_chunkSize.z };
+	borderMin = g_borderStartMin;
+	borderMax = g_borderStartMax;
+
+	int octaves = 6;
+	float persistance = 0.5f;
 
 	for (float z = borderMin.z; z < borderMax.z; z += g_chunkSize.z)
 	{
@@ -123,7 +130,7 @@ void Application::initChunks()
 			glm::vec3 pos = { x, 0.0f, z };
 
 			auto begin = std::chrono::high_resolution_clock::now();
-			m_chunks[pos] = std::move(Chunk(pos));
+			m_chunks[pos] = std::move(Chunk(pos, octaves, persistance));
 			auto end = std::chrono::high_resolution_clock::now();
 
 #if 0
@@ -141,10 +148,6 @@ void Application::initChunks()
 				auto begin = std::chrono::high_resolution_clock::now();
 				m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
 				auto end = std::chrono::high_resolution_clock::now();
-#if 0
-				std::cout << "checkXNeighbour - " <<
-					std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms" << std::endl;
-#endif
 			}
 
 			glm::vec3 posNZ = { x, 0.0f, z - g_chunkSize.z };
@@ -223,11 +226,14 @@ void Application::updateTerrainOnX(
 
 	float z = minZ;
 
+	int octaves = 6;
+	float persistance = 0.5f;
+
 	while (z != maxZ)
 	{
 		glm::vec3 pos = { maxX, 0.0f, z };
 		g_chunkMap_lock.lock();
-		m_chunks[pos] = std::move(Chunk(pos));
+		m_chunks[pos] = std::move(Chunk(pos, octaves, persistance));
 		m_chunks[pos].setChunkFaces();
 		g_chunkMap_lock.unlock();
 
@@ -268,11 +274,14 @@ void Application::updateTerrainOnZ(
 
 	float x = minX;
 
+	int octaves = 6;
+	float persistance = 0.5f;
+
 	while (x != maxX)
 	{
 		glm::vec3 pos = { x, 0.0f, maxZ };
 		g_chunkMap_lock.lock();
-		m_chunks[pos] = std::move(Chunk(pos));
+		m_chunks[pos] = std::move(Chunk(pos, octaves, persistance));
 		m_chunks[pos].setChunkFaces();
 		g_chunkMap_lock.unlock();
 
@@ -425,7 +434,7 @@ void Application::updateChunks()
 		}
 	}
 
-	if (!m_chunksToInit.empty() && !m_futures.empty())
+	if (!m_chunksToInit.empty())
 	{
 		if (m_chunksToInit.front()->isMeshInitialized())
 		{

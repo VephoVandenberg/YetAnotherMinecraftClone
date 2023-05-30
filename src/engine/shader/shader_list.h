@@ -6,7 +6,7 @@ namespace Engine
 {
 	namespace ShaderNames
 	{
-		const char* g_base_shader = "base_shader";
+		inline const char* g_base_shader = "base_shader";
 	}
 
 	using ShaderPaths = std::map<const char*, std::pair<const char*, const char*>>;

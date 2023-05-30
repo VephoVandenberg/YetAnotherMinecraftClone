@@ -8,6 +8,8 @@
 
 #include "../../engine/mesh/mesh.h"
 
+#include "../block/block.h"
+
 namespace Engine
 {
 	class Shader;
@@ -18,7 +20,6 @@ namespace Engine
 namespace GameModules
 {
 	using namespace Engine;
-	class Block;
 
 	struct KeyFuncs
 	{
@@ -61,7 +62,6 @@ namespace GameModules
 
 	private:
 		float perlin(float x, float z);
-		float myPerlin(float x, float z);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		void calcBlockBorderData(

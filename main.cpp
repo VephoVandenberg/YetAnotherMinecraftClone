@@ -4,13 +4,12 @@ using namespace GameNamespace;
 
 /*
 * Agenda
+* - layers in the chunk
 * Later
-* - Make again your version of perlin noise with acquired knowledge
 * - imGUI
 * - More complex terrain generation
-* - layers in the chunk
 * Super Late
-* - Investigate order of drawing facesr
+* - Investigate order of drawing faces
 * - Investigate the number of meshes that are alocated for chunks
 * - Raycast and cube removal still don't work the way I would like it to work(VERY IMPORTANT)
 * - infinite terrain generation maybe there is faster and better way of doing it

@@ -36,6 +36,11 @@ Block::Block(glm::vec3 pos, BlockType type)
 		topT_ind = bottomT_ind = sideT_ind = 1.0f;
 	}break;
 
+	case BlockType::Stone:
+	{
+		topT_ind = bottomT_ind = sideT_ind = 3.0f;
+	}break;
+
 	default:
 	{}break;
 	}

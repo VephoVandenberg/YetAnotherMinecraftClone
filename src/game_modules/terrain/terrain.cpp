@@ -24,16 +24,13 @@ Terrain::Terrain(glm::vec3 borderMin, glm::vec3 borderMax)
 
 void Terrain::init()
 {
-	int octaves = 6;
-	float persistance = 0.5f;
-
 	for (float z = m_borderMin.z; z < m_borderMax.z; z += g_chunkSize.z)
 	{
 		for (float x = m_borderMin.x; x < m_borderMax.x; x += g_chunkSize.x)
 		{
 			glm::vec3 pos = { x, 0.0f, z };
 			
-			m_chunks[pos] = std::move(Chunk(pos, octaves, persistance));
+			m_chunks[pos] = std::move(Chunk(pos));
 			m_chunks[pos].setChunkFaces();
 
 			glm::vec3 posNX = { x - g_chunkSize.x, 0.0f, z };
@@ -211,14 +208,11 @@ void Terrain::updateTerrainOnX(
 
 	float z = minZ;
 
-	int octaves = 6;
-	float persistance = 0.5f;
-
 	while (z != maxZ)
 	{
 		glm::vec3 pos = { maxX, 0.0f, z };
 		g_chunk_lock.lock();
-		m_chunks[pos] = std::move(Chunk(pos, octaves, persistance));
+		m_chunks[pos] = std::move(Chunk(pos));
 		m_chunks[pos].setChunkFaces();
 		g_chunk_lock.unlock();
 
@@ -259,14 +253,11 @@ void Terrain::updateTerrainOnZ(
 
 	float x = minX;
 
-	int octaves = 6;
-	float persistance = 0.5f;
-
 	while (x != maxX)
 	{
 		glm::vec3 pos = { x, 0.0f, maxZ };
 		g_chunk_lock.lock();
-		m_chunks[pos] = std::move(Chunk(pos, octaves, persistance));
+		m_chunks[pos] = std::move(Chunk(pos));
 		m_chunks[pos].setChunkFaces();
 		g_chunk_lock.unlock();
 

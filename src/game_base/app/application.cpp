@@ -70,7 +70,8 @@ void Application::handleEvents(Event& event)
 
 void Application::initShaders()
 {
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), m_window->getWidth() / m_window->getHeight(), 1.0f, 200.0f);
+	glm::mat4 projection = 
+		glm::perspective(glm::radians(45.0f), m_window->getWidth() / m_window->getHeight(), 1.0f, 200.0f);
 	for (auto& sValue : g_shaderPaths)
 	{
 		auto& sName = sValue.first;				// Get shader name

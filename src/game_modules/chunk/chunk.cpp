@@ -100,13 +100,13 @@ auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
 	indicies.push_back(24 * i + 23);
 };
 
-Chunk::Chunk(glm::vec3 pos, int octaves, float persistance)
+Chunk::Chunk(glm::vec3 pos)
 	: m_size(g_chunkSize)
 	, m_pos(pos)
 {
 	// initGradientVectors();
 	// check for nep();
-	initBlocks(octaves, persistance);
+	initBlocks();
 	// setChunkFaces();
 	// update neighbourFaces
 }
@@ -170,16 +170,18 @@ float Chunk::perlin(float x, float y)
 	return (interpolate(x1, x2, v));
 }
 
-void Chunk::initBlocks(int octaves, float persistence)
+void Chunk::initBlocks()
 {
 	std::vector<int> heights;
 	for (unsigned int z = 0; z < m_size.z; z++)
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
+
+			int octaves = 6;
+			float persistance = 0.5f;
 			float frequency = 0.005f;
 			float amplitude = 1.0f;
-
 			float y = 0.0f;
 			float maxValue = 0.0f;  // Used for normalizing result to 0.0 - 1.0
 			for (int i = 0; i < octaves; i++)
@@ -188,14 +190,13 @@ void Chunk::initBlocks(int octaves, float persistence)
 
 				maxValue += amplitude;
 
-				amplitude *= persistence;
+				amplitude *= persistance;
 				frequency *= 2;
 
 			}
 			heights.push_back(40 + 10 * octaves * (y/maxValue));
 		}
 	}
-
 
 	m_blocks.reserve(m_size.x * m_size.y * m_size.z);
 	for (unsigned int z = 0; z < m_size.z; z++)
@@ -205,13 +206,35 @@ void Chunk::initBlocks(int octaves, float persistence)
 			for (unsigned int x = 0; x < m_size.x; x++)
 			{
 				glm::vec3 pos = { x, y, z };
-				BlockType type = (y < heights[z * m_size.x + x] ? BlockType::Dirt : BlockType::Air);
-				type = (y == heights[z * m_size.x + x] ? BlockType::GrassDirt : type);
+				BlockType type = getBlockType(heights[z * m_size.x + x], y);
 
 				int index = z * m_size.x * m_size.y + y * m_size.x + x;
 				m_blocks.emplace_back(m_pos + pos, type);
 			}
 		}
+	}
+}
+
+BlockType Chunk::getBlockType(int height, int index)
+{
+	int stone = (height * 2) / 3;
+	int grass = height;
+
+	if (index <= stone)
+	{
+		return BlockType::Stone;
+	}
+	else if (index < grass)
+	{
+		return BlockType::Dirt;
+	}
+	else if (index == grass)
+	{
+		return BlockType::GrassDirt;
+	}
+	else
+	{
+		return BlockType::Air;
 	}
 }
 

@@ -37,10 +37,10 @@ namespace GameModules
 	class Chunk
 	{
 	public:
-		Chunk(glm::vec3 pos, int octaves, float persistance);
+		Chunk(glm::vec3 pos);
 
 		void initMesh();
-		void initBlocks(int octaves, float persistance);
+		void initBlocks();
 		void initMeshData();
 		void setMesh();
 
@@ -71,6 +71,7 @@ namespace GameModules
 		void addVertices(Block& m_block);
 		void checkSurroundedBlocks(int Z, int Y, int X);
 		bool checkAir(int index);
+		BlockType getBlockType(int height, int index);
 
 		glm::vec3 m_size;
 		glm::vec3 m_pos;

@@ -10,6 +10,7 @@ namespace Engine
 	{
 		const char* g_dirt_grass = "dirt_grass";
 		const char* g_dirt = "dirt";
+		const char* g_stone = "stone";
 	}
 
 	using facePaths = std::vector<std::string>;

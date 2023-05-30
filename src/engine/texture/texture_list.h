@@ -9,6 +9,7 @@ namespace Engine
 	namespace TextureNames
 	{
 		const char* g_grass = "grass";
+		const char* g_stone = "stone";
 	}
 
 	const std::map<const char*, const char*> g_texturePaths= {

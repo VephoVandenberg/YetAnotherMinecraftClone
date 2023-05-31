@@ -178,7 +178,7 @@ void Chunk::initBlocks()
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
 
-			int octaves = 6;
+			int octaves = 7;
 			float persistance = 0.5f;
 			float frequency = 0.005f;
 			float amplitude = 1.0f;
@@ -194,7 +194,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(40 + 10 * octaves * (y/maxValue));
+			heights.push_back(60 + 10 * octaves * (y/maxValue));
 		}
 	}
 
@@ -217,7 +217,7 @@ void Chunk::initBlocks()
 
 BlockType Chunk::getBlockType(int height, int index)
 {
-	int stone = (height * 2) / 3;
+	int stone = 30;
 	int grass = height;
 
 	if (index <= stone)
@@ -383,108 +383,32 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 	}
 }
 
-void Chunk::calcBlockBorderData(const Block& block, const Ray& ray, float& tMaxX, float& tMaxY, float& tMaxZ, int& stepX, int& stepY, int& stepZ)
-{
-	float blockBorderX = block.getPos().x;
-	glm::vec3 dir = ray.getEndPoint() - ray.getPosition();
-	if (ray.getDirection().x > 0.0f)
-	{
-		stepX = 1;
-		blockBorderX += 1.0f;
-		tMaxX = (blockBorderX - ray.getPosition().x) / dir.x;
-	}
-	else  if (ray.getDirection().x < 0.0f)
-	{
-		stepX = -1;
-		tMaxX = (blockBorderX - ray.getPosition().x) / dir.x;
-	}
-
-	float blockBorderY = block.getPos().y;
-	if (ray.getDirection().y > 0.0f)
-	{
-		stepY = 1;
-		blockBorderY += 1.0f;
-		tMaxY = (blockBorderY - ray.getPosition().y) / dir.y;
-	}
-	else if (ray.getDirection().y < 0.0f)
-	{
-		stepY = -1;
-		tMaxY = (blockBorderY - ray.getPosition().y) / dir.y;
-	}
-
-	float blockBorderZ = block.getPos().z;
-	if (ray.getDirection().z > 0.0f)
-	{
-		stepZ = 1;
-		blockBorderZ += 1.0f;
-		tMaxZ = (blockBorderZ - ray.getPosition().z) / dir.z;
-	}
-	else if (ray.getDirection().z < 0.0f)
-	{
-		stepZ = -1;
-		tMaxZ = (blockBorderZ - ray.getPosition().z) / dir.z;
-	}
-}
-
 bool Chunk::processRayToRemoveBlock(Ray& ray)
 {
-	int currX_index = ray.getPosition().x - m_pos.x;
-	int endX_index = ray.getEndPoint().x - m_pos.x;
-	int currY_index = ray.getPosition().y - m_pos.y;
-	int endY_index = ray.getEndPoint().y - m_pos.y;
-	int currZ_index = ray.getPosition().z - m_pos.z;
-	int endZ_index = ray.getEndPoint().z - m_pos.z;
-
-	// Find out where in chunk's block ray starts
-	int iCurrBlock =
-		currZ_index * m_size.x * m_size.y + currY_index * m_size.x + currX_index;
-
-	// Find out in what direction ray should be traversed
-	float tMaxX, tMaxY, tMaxZ;
-	int stepX, stepY, stepZ;
-
-	calcBlockBorderData(m_blocks[iCurrBlock], ray, tMaxX, tMaxY, tMaxZ, stepX, stepY, stepZ);
-
-	while (
-		currX_index < m_size.x && currX_index >= 0 && currX_index != endX_index &&
-		currY_index < m_size.y && currY_index >= 0 && currY_index != endY_index &&
-		currZ_index < m_size.z && currZ_index >= 0 && currZ_index != endZ_index)
+	float rayLength = glm::length(ray.getEndPoint() - ray.getPosition());
+	for (float delta = 0.0f; delta < rayLength; delta += 0.1f)
 	{
-		if (tMaxX < tMaxY && tMaxX < tMaxZ)
-		{
-			currX_index += stepX;
-		}
-		else if (tMaxY < tMaxZ)
-		{
-			currY_index += stepY;
-		}
-		else
-		{
-			currZ_index += stepZ;
-		}
+		int x = static_cast<int>((ray.getPosition().x + delta * ray.getDirection().x) - m_pos.x);
+		int y = static_cast<int>((ray.getPosition().y + delta * ray.getDirection().y) - m_pos.y);
+		int z = static_cast<int>((ray.getPosition().z + delta * ray.getDirection().z) - m_pos.z);
 
-		iCurrBlock =
-			currZ_index * m_size.x * m_size.y + currY_index * m_size.x + currX_index;
-		if (iCurrBlock >= m_blocks.size())
+		int index = z * m_size.x * m_size.y + y * m_size.x + x;
+		if (index >= m_blocks.size())
 		{
 			return false;
 		}
-		auto& tmp = m_blocks[iCurrBlock];
-
-		if (tmp.getType() != BlockType::Air)
+		if (m_blocks[index].getType() != BlockType::Air)
 		{
-			tmp = Block(tmp.getPos(), BlockType::Air);
-			checkSurroundedBlocks(currZ_index, currY_index, currX_index);
+			m_blocks[index] = std::move(Block(glm::vec3(x, y, z), BlockType::Air));			
+			checkSurroundedBlocks(x, y, z);
 			return true;
 		}
-
-		calcBlockBorderData(tmp, ray, tMaxX, tMaxY, tMaxZ, stepX, stepY, stepZ);
 	}
 
 	return false;
 }
 
-void Chunk::checkSurroundedBlocks(int z, int y, int x)
+void Chunk::checkSurroundedBlocks(int x, int y, int z)
 {
 	unsigned int back = BACK_BLOCK(x, y, z, m_size);
 	unsigned int top = TOP_BLOCK(x, y, z, m_size);
@@ -493,27 +417,27 @@ void Chunk::checkSurroundedBlocks(int z, int y, int x)
 	unsigned int left = LEFT_BLOCK(x, y, z, m_size);
 	unsigned int front = FRONT_BLOCK(x, y, z, m_size);
 
-	if (m_blocks.size() >= top)
+	if (m_blocks.size() > top)
 	{
 		m_blocks[top].bottom = m_blocks[top].getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= bottom)
+	if (m_blocks.size() > bottom)
 	{
 		m_blocks[bottom].top = m_blocks[bottom].getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= front)
+	if (m_blocks.size() > front)
 	{
 		m_blocks[front].back = m_blocks[front].getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= back)
+	if (m_blocks.size() > back)
 	{
 		m_blocks[back].front = m_blocks[back].getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= left)
+	if (m_blocks.size() > left)
 	{
 		m_blocks[left].right = m_blocks[left].getType() != BlockType::Air ? true : false;
 	}
-	if (m_blocks.size() >= right)
+	if (m_blocks.size() > right)
 	{
 		m_blocks[right].left = m_blocks[right].getType() != BlockType::Air ? true : false;
 	}

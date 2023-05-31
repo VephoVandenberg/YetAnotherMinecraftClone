@@ -67,6 +67,8 @@ namespace GameModules
 		void calcBlockBorderData(
 			const Block& block, const Ray& ray,
 			float& tMaxX, float& tMaxY, float& tMaxZ,
+			float& tMinX, float& tMinY, float& tMinZ,
+			float& deltaX, float& deltaY, float& deltaZ,
 			int& stepX, int& stepY, int& stepZ);
 		void addVertices(Block& m_block);
 		void checkSurroundedBlocks(int Z, int Y, int X);

@@ -11,7 +11,7 @@
 using namespace GameModules;
 
 constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
-constexpr float g_rayMagnitude = 7.0f;
+constexpr float g_rayMagnitude = 4.0f;
 
 std::mutex g_chunk_lock;
 
@@ -114,25 +114,35 @@ void Terrain::checkTerrainBorders(const glm::vec3 pos, const glm::vec3 velocity)
 
 void Terrain::update(const GameNamespace::Player& player)
 {
+	if (!m_chunksToInit.empty())
+	{
+		if (m_chunksToInit.front()->isMeshInitialized())
+		{
+			m_chunksToInit.front()->setMesh();
+		}
+		else
+		{
+			m_chunksToInit.front()->initMesh();
+		}
+		if (m_chunksToInit.front())
+		{
+			m_chunksToInit.pop();
+		}
+	}
+
 	if (player.getLeftButtonStatus())
 	{
-		glm::vec3 rayPos = {
-			player.getPlayerPosition().x + 0.5f,
-			player.getPlayerPosition().y,
-			player.getPlayerPosition().z + 0.5f
-		};
-
 		Ray ray(
-			rayPos,
+			player.getPlayerPosition(),
 			player.getCameraFront(),
 			g_rayMagnitude);
 
 		glm::vec3 pos = {
-			static_cast<int>(player.getPlayerPosition().x)
-				- static_cast<int>(player.getPlayerPosition().x) % static_cast<int>(g_chunkSize.x),
+			static_cast<int>((player.getPlayerPosition().x))
+				- static_cast<int>((player.getPlayerPosition().x)) % static_cast<int>(g_chunkSize.x),
 			0.0f,
-			static_cast<int>(player.getPlayerPosition().z)
-				- static_cast<int>(player.getPlayerPosition().z) % static_cast<int>(g_chunkSize.z)
+			static_cast<int>(std::floor(player.getPlayerPosition().z))
+				- static_cast<int>((player.getPlayerPosition().z)) % static_cast<int>(g_chunkSize.z)
 		};
 
 		bool rayEndsInChunk =
@@ -181,21 +191,10 @@ void Terrain::update(const GameNamespace::Player& player)
 			m_chunks[negativeX].setMesh();
 			m_chunks[positiveZ].setMesh();
 			m_chunks[negativeZ].setMesh();
+			m_chunks[pos].initMeshData();
 			m_chunks[pos].setMesh();
+			return;
 		}
-	}
-
-	if (!m_chunksToInit.empty())
-	{
-		if (m_chunksToInit.front()->isMeshInitialized())
-		{
-			m_chunksToInit.front()->setMesh();
-		}
-		else
-		{
-			m_chunksToInit.front()->initMesh();
-		}
-		m_chunksToInit.pop();
 	}
 }
 

@@ -34,6 +34,13 @@ namespace GameModules
 		}
 	};
 
+	enum class RayStatus
+	{
+		EndInChunk,
+		HitTheBlock,
+		EndInNeighbour
+	};
+
 	class Chunk
 	{
 	public:
@@ -47,7 +54,7 @@ namespace GameModules
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
 		void setChunkFaces();
 		void updateToNeighbourChunk(Chunk& chunk);
-		bool processRayToRemoveBlock(Ray& ray);
+		RayStatus processRayToRemoveBlock(Ray& ray);
 
 		inline glm::vec3 getSize() const { return m_size; }
 		inline bool isMeshInitialized() const { return m_meshInitialized;  }
@@ -64,12 +71,6 @@ namespace GameModules
 		float perlin(float x, float z);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
-		void calcBlockBorderData(
-			const Block& block, const Ray& ray,
-			float& tMaxX, float& tMaxY, float& tMaxZ,
-			float& tMinX, float& tMinY, float& tMinZ,
-			float& deltaX, float& deltaY, float& deltaZ,
-			int& stepX, int& stepY, int& stepZ);
 		void addVertices(Block& m_block);
 		void checkSurroundedBlocks(int Z, int Y, int X);
 		bool checkAir(int index);

@@ -29,7 +29,7 @@ void Terrain::init()
 		for (float x = m_borderMin.x; x < m_borderMax.x; x += g_chunkSize.x)
 		{
 			glm::vec3 pos = { x, 0.0f, z };
-			
+
 			m_chunks[pos] = std::move(Chunk(pos));
 			m_chunks[pos].setChunkFaces();
 
@@ -132,8 +132,14 @@ void Terrain::update(const GameNamespace::Player& player)
 
 	if (player.getLeftButtonStatus())
 	{
+		glm::vec3 rayPos = {
+			player.getPlayerPosition().x + 0.5f,
+			player.getPlayerPosition().y,
+			player.getPlayerPosition().z + 0.5f
+		};
+
 		Ray ray(
-			player.getPlayerPosition(),
+			rayPos,
 			player.getCameraFront(),
 			g_rayMagnitude);
 
@@ -145,55 +151,129 @@ void Terrain::update(const GameNamespace::Player& player)
 				- static_cast<int>((player.getPlayerPosition().z)) % static_cast<int>(g_chunkSize.z)
 		};
 
-		bool rayEndsInChunk =
-			ray.getEndPoint().x >= pos.x && ray.getEndPoint().x <= pos.x + g_chunkSize.x &&
-			ray.getEndPoint().z >= pos.z && ray.getEndPoint().z <= pos.z + g_chunkSize.z;
+		glm::vec3 positiveX = pos;
+		glm::vec3 positiveZ = pos;
+		glm::vec3 negativeX = pos;
+		glm::vec3 negativeZ = pos;
 
-		if (m_chunks[pos].processRayToRemoveBlock(ray))
+		positiveX.x += g_chunkSize.x;
+		negativeX.x -= g_chunkSize.x;
+		positiveZ.z += g_chunkSize.z;
+		negativeZ.z -= g_chunkSize.z;
+
+		switch (m_chunks[pos].processRayToRemoveBlock(ray))
 		{
-			if (!rayEndsInChunk)
-			{
-				// Another chunk should be procecessed
-			}
+		case RayStatus::HitTheBlock:
+		{
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
 
-			glm::vec3 positiveX = pos;
-			glm::vec3 positiveZ = pos;
-			glm::vec3 negativeX = pos;
-			glm::vec3 negativeZ = pos;
-
-			positiveX.x += g_chunkSize.x;
-			negativeX.x -= g_chunkSize.x;
-			if (m_chunks.find(positiveX) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
-			}
-			if (m_chunks.find(negativeX) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
-			}
-
-			positiveZ.z += g_chunkSize.z;
-			negativeZ.z -= g_chunkSize.z;
-			if (m_chunks.find(positiveZ) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
-			}
-			if (m_chunks.find(negativeZ) != m_chunks.end())
-			{
-				m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
-			}
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
+			m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
 
 			m_chunks[positiveX].initMeshData();
 			m_chunks[negativeX].initMeshData();
 			m_chunks[positiveZ].initMeshData();
 			m_chunks[negativeZ].initMeshData();
+			m_chunks[pos].initMeshData();
 			m_chunks[positiveX].setMesh();
 			m_chunks[negativeX].setMesh();
 			m_chunks[positiveZ].setMesh();
 			m_chunks[negativeZ].setMesh();
-			m_chunks[pos].initMeshData();
 			m_chunks[pos].setMesh();
-			return;
+		} break;
+
+		case RayStatus::EndInNeighbour:
+		{
+			bool isInChunk =
+				ray.getEndPoint().x >= positiveX.x && ray.getEndPoint().x < positiveX.x + g_chunkSize.x &&
+				ray.getEndPoint().z >= positiveX.z && ray.getEndPoint().z < positiveX.z + g_chunkSize.z;
+			if (isInChunk)
+			{
+				if (m_chunks[positiveX].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
+				{
+					glm::vec3 posNX = { positiveX.x, 0.0f, positiveX.z + g_chunkSize.z };
+					glm::vec3 negNX = { positiveX.x, 0.0f, positiveX.z - g_chunkSize.z };
+					m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
+					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[posNX]);
+					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[negNX]);
+					m_chunks[positiveX].initMeshData();
+					m_chunks[posNX].initMeshData();
+					m_chunks[negNX].initMeshData();
+					m_chunks[pos].initMeshData();
+					m_chunks[positiveX].setMesh();
+					m_chunks[posNX].setMesh();
+					m_chunks[negNX].setMesh();
+					m_chunks[pos].setMesh();
+				}
+			}
+			isInChunk =
+				ray.getEndPoint().x >= negativeX.x && ray.getEndPoint().x < negativeX.x + g_chunkSize.x &&
+				ray.getEndPoint().z >= negativeX.z && ray.getEndPoint().z < negativeX.z + g_chunkSize.z;
+			if (isInChunk)
+			{
+				if (m_chunks[negativeX].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
+				{
+					glm::vec3 posNX = { negativeX.x, 0.0f, negativeX.z + g_chunkSize.z };
+					glm::vec3 negNX = { negativeX.x, 0.0f, negativeX.z - g_chunkSize.z };
+					m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
+					m_chunks[negativeX].updateToNeighbourChunk(m_chunks[posNX]);
+					m_chunks[negativeX].updateToNeighbourChunk(m_chunks[negNX]);
+					m_chunks[negativeX].initMeshData();
+					m_chunks[posNX].initMeshData();
+					m_chunks[negNX].initMeshData();
+					m_chunks[pos].initMeshData();
+					m_chunks[negativeX].setMesh();
+					m_chunks[posNX].setMesh();
+					m_chunks[negNX].setMesh();
+					m_chunks[pos].setMesh();
+				}
+			}
+			isInChunk =
+				ray.getEndPoint().x >= positiveZ.x && ray.getEndPoint().x < positiveZ.x + g_chunkSize.x &&
+				ray.getEndPoint().z >= positiveZ.z && ray.getEndPoint().z < positiveZ.z + g_chunkSize.z;
+			if (isInChunk)
+			{
+				if (m_chunks[positiveZ].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
+				{
+					glm::vec3 posNZ = { positiveZ.x + g_chunkSize.x, 0.0f, positiveZ.z};
+					glm::vec3 negNZ = { positiveZ.x - g_chunkSize.x, 0.0f, positiveZ.z};
+					m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
+					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[posNZ]);
+					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[negNZ]);
+					m_chunks[positiveX].initMeshData();
+					m_chunks[posNZ].initMeshData();
+					m_chunks[negNZ].initMeshData();
+					m_chunks[pos].initMeshData();
+					m_chunks[positiveX].setMesh();
+					m_chunks[posNZ].setMesh();
+					m_chunks[negNZ].setMesh();
+					m_chunks[pos].setMesh();
+				}
+			}
+			isInChunk =
+				ray.getEndPoint().x >= negativeZ.x && ray.getEndPoint().x < negativeZ.x + g_chunkSize.x &&
+				ray.getEndPoint().z >= negativeZ.z && ray.getEndPoint().z < negativeZ.z + g_chunkSize.z;
+			if (isInChunk)
+			{
+				if (m_chunks[negativeZ].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
+				{
+					glm::vec3 posNZ = { negativeZ.x + g_chunkSize.x, 0.0f, negativeZ.z };
+					glm::vec3 negNZ = { negativeZ.x - g_chunkSize.x, 0.0f, negativeZ.z };
+					m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
+					m_chunks[negativeZ].updateToNeighbourChunk(m_chunks[posNZ]);
+					m_chunks[negativeZ].updateToNeighbourChunk(m_chunks[negNZ]);
+					m_chunks[negativeZ].initMeshData();
+					m_chunks[posNZ].initMeshData();
+					m_chunks[negNZ].initMeshData();
+					m_chunks[pos].initMeshData();
+					m_chunks[negativeZ].setMesh();
+					m_chunks[posNZ].setMesh();
+					m_chunks[negNZ].setMesh();
+					m_chunks[pos].setMesh();
+				}
+			}
+		}
 		}
 	}
 }

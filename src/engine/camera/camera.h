@@ -25,7 +25,7 @@ namespace Engine
 
 		void update(float dt);
 		void handleInput(KeyboardEvent event);
-		void handleInput(MouseMoveEvent event);
+		void handleInput(MouseMoveEvent event, float dt);
 
 		inline glm::mat4 getCameraView() const { return m_cameraView; }
 		inline glm::vec3 getCameraFront() const { return m_cameraFront; }

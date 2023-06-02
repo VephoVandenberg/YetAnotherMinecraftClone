@@ -62,7 +62,7 @@ void Terrain::draw(const glm::mat4& view)
 
 		{
 			chunk.second.draw(
-				ResourceManager::getInstance().getShader(ShaderNames::g_base_shader),
+				ResourceManager::getInstance().getShader(ShaderNames::g_cube_shader),
 				ResourceManager::getInstance().getTextureArray(),
 				view);
 		}
@@ -185,94 +185,7 @@ void Terrain::update(const GameNamespace::Player& player)
 
 		case RayStatus::EndInNeighbour:
 		{
-			bool isInChunk =
-				ray.getEndPoint().x >= positiveX.x && ray.getEndPoint().x < positiveX.x + g_chunkSize.x &&
-				ray.getEndPoint().z >= positiveX.z && ray.getEndPoint().z < positiveX.z + g_chunkSize.z;
-			if (isInChunk)
-			{
-				if (m_chunks[positiveX].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
-				{
-					glm::vec3 posNX = { positiveX.x, 0.0f, positiveX.z + g_chunkSize.z };
-					glm::vec3 negNX = { positiveX.x, 0.0f, positiveX.z - g_chunkSize.z };
-					m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
-					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[posNX]);
-					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[negNX]);
-					m_chunks[positiveX].initMeshData();
-					m_chunks[posNX].initMeshData();
-					m_chunks[negNX].initMeshData();
-					m_chunks[pos].initMeshData();
-					m_chunks[positiveX].setMesh();
-					m_chunks[posNX].setMesh();
-					m_chunks[negNX].setMesh();
-					m_chunks[pos].setMesh();
-				}
-			}
-			isInChunk =
-				ray.getEndPoint().x >= negativeX.x && ray.getEndPoint().x < negativeX.x + g_chunkSize.x &&
-				ray.getEndPoint().z >= negativeX.z && ray.getEndPoint().z < negativeX.z + g_chunkSize.z;
-			if (isInChunk)
-			{
-				if (m_chunks[negativeX].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
-				{
-					glm::vec3 posNX = { negativeX.x, 0.0f, negativeX.z + g_chunkSize.z };
-					glm::vec3 negNX = { negativeX.x, 0.0f, negativeX.z - g_chunkSize.z };
-					m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
-					m_chunks[negativeX].updateToNeighbourChunk(m_chunks[posNX]);
-					m_chunks[negativeX].updateToNeighbourChunk(m_chunks[negNX]);
-					m_chunks[negativeX].initMeshData();
-					m_chunks[posNX].initMeshData();
-					m_chunks[negNX].initMeshData();
-					m_chunks[pos].initMeshData();
-					m_chunks[negativeX].setMesh();
-					m_chunks[posNX].setMesh();
-					m_chunks[negNX].setMesh();
-					m_chunks[pos].setMesh();
-				}
-			}
-			isInChunk =
-				ray.getEndPoint().x >= positiveZ.x && ray.getEndPoint().x < positiveZ.x + g_chunkSize.x &&
-				ray.getEndPoint().z >= positiveZ.z && ray.getEndPoint().z < positiveZ.z + g_chunkSize.z;
-			if (isInChunk)
-			{
-				if (m_chunks[positiveZ].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
-				{
-					glm::vec3 posNZ = { positiveZ.x + g_chunkSize.x, 0.0f, positiveZ.z};
-					glm::vec3 negNZ = { positiveZ.x - g_chunkSize.x, 0.0f, positiveZ.z};
-					m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
-					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[posNZ]);
-					m_chunks[positiveX].updateToNeighbourChunk(m_chunks[negNZ]);
-					m_chunks[positiveX].initMeshData();
-					m_chunks[posNZ].initMeshData();
-					m_chunks[negNZ].initMeshData();
-					m_chunks[pos].initMeshData();
-					m_chunks[positiveX].setMesh();
-					m_chunks[posNZ].setMesh();
-					m_chunks[negNZ].setMesh();
-					m_chunks[pos].setMesh();
-				}
-			}
-			isInChunk =
-				ray.getEndPoint().x >= negativeZ.x && ray.getEndPoint().x < negativeZ.x + g_chunkSize.x &&
-				ray.getEndPoint().z >= negativeZ.z && ray.getEndPoint().z < negativeZ.z + g_chunkSize.z;
-			if (isInChunk)
-			{
-				if (m_chunks[negativeZ].processRayToRemoveBlock(ray) == RayStatus::HitTheBlock)
-				{
-					glm::vec3 posNZ = { negativeZ.x + g_chunkSize.x, 0.0f, negativeZ.z };
-					glm::vec3 negNZ = { negativeZ.x - g_chunkSize.x, 0.0f, negativeZ.z };
-					m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
-					m_chunks[negativeZ].updateToNeighbourChunk(m_chunks[posNZ]);
-					m_chunks[negativeZ].updateToNeighbourChunk(m_chunks[negNZ]);
-					m_chunks[negativeZ].initMeshData();
-					m_chunks[posNZ].initMeshData();
-					m_chunks[negNZ].initMeshData();
-					m_chunks[pos].initMeshData();
-					m_chunks[negativeZ].setMesh();
-					m_chunks[posNZ].setMesh();
-					m_chunks[negNZ].setMesh();
-					m_chunks[pos].setMesh();
-				}
-			}
+			
 		}
 		}
 	}

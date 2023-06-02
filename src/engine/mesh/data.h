@@ -8,5 +8,7 @@ namespace Engine::Data
 	{
 		glm::vec3 position;
 		glm::vec3 textureCoords;
+		glm::vec3 normal;
+		float brightness;
 	};
 }

@@ -9,9 +9,10 @@ namespace Engine
 	public:
 		Ray(glm::vec3 pos, glm::vec3 direction, float magnitude);
 
-		inline glm::vec3 getDirection() const { return m_direction; }
-		inline glm::vec3 getPosition() const { return m_pos; }
-		inline glm::vec3 getEndPoint() const { return m_endPoint; }
+		inline constexpr glm::vec3 getDirection() const { return m_direction; }
+		inline constexpr glm::vec3 getPosition() const { return m_pos; }
+		inline constexpr glm::vec3 getEndPoint() const { return m_endPoint; }
+		inline constexpr float getLength() const { return m_length; }
 
 		~Ray() = default;
 		Ray(Ray&&) = default;
@@ -25,5 +26,6 @@ namespace Engine
 		glm::vec3 m_pos;
 		glm::vec3 m_direction;
 		glm::vec3 m_endPoint;
+		float m_length;
 	};
 }

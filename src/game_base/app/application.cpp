@@ -63,7 +63,7 @@ void Application::handleEvents(Event& event)
 	}break;
 
 	default:
-		m_player->handleInput(event);
+		m_player->handleInput(event, m_deltaFrame);
 		break;
 	}
 }
@@ -72,6 +72,7 @@ void Application::initShaders()
 {
 	glm::mat4 projection = 
 		glm::perspective(glm::radians(45.0f), m_window->getWidth() / m_window->getHeight(), 1.0f, 200.0f);
+	glm::mat4 model = glm::mat4(1.0f);
 	for (auto& sValue : g_shaderPaths)
 	{
 		auto& sName = sValue.first;				// Get shader name
@@ -83,6 +84,8 @@ void Application::initShaders()
 
 		ResourceManager::getInstance()
 			.getShader(sName).setMat4vf(Uniforms::g_projection, projection);
+		ResourceManager::getInstance()
+			.getShader(sName).setMat4vf(Uniforms::g_model, model);
 		ResourceManager::getInstance()
 			.getShader(sName).setMat4vf(Uniforms::g_view, m_player->getCameraView());
 	}

@@ -122,7 +122,7 @@ void Camera::handleInput(KeyboardEvent event)
 	}
 }
 
-void Camera::handleInput(MouseMoveEvent event)
+void Camera::handleInput(MouseMoveEvent event, float dt)
 {
 	if (m_firstMove)
 	{
@@ -136,9 +136,9 @@ void Camera::handleInput(MouseMoveEvent event)
 	m_lastX = event.x;
 	m_lastY = event.y;
 
-	float sensitivity = 0.1f;
-	xOffset *= sensitivity;
-	yOffset *= sensitivity;
+	float sensitivity = 10.0f;
+	xOffset *= sensitivity * dt;
+	yOffset *= sensitivity * dt;
 
 	m_yaw += xOffset;
 	m_pitch += yOffset;

@@ -133,5 +133,7 @@
     <None Include=".gitignore" />
     <None Include="shaders\base_shader.vert" />
     <None Include="shaders\base_shader.frag" />
+    <None Include="shaders\cube_shader.vert" />
+    <None Include="shaders\cube_shader.frag" />
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ Player::Player(glm::vec3 pos, float width, float height)
 	: m_camera(pos, width, height)
 {}
 
-void Player::handleInput(Event& event)
+void Player::handleInput(Event& event, float dt)
 {
 	switch (event.getType())
 	{
@@ -24,7 +24,7 @@ void Player::handleInput(Event& event)
 	case EventType::MouseMove:
 	{
 		auto& mouseMove = dynamic_cast<MouseMoveEvent&>(event);
-		m_camera.handleInput(mouseMove);
+		m_camera.handleInput(mouseMove, dt);
 	} break;
 
 	case EventType::MouseClick:

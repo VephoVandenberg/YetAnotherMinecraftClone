@@ -37,12 +37,22 @@ void Mesh::init(unsigned int VBOSize, unsigned int IBOSize)
 	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_indicies.size() * sizeof(unsigned int), 
 		m_indicies.data());
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(0));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 
+		sizeof(Vertex), (void*)(0));
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 
 		sizeof(Vertex), (void*)(offsetof(Vertex, textureCoords)));
 	glEnableVertexAttribArray(1);
+	
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
+		sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
+	glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE,
+		sizeof(Vertex), (void*)(offsetof(Vertex, brightness)));
+	glEnableVertexAttribArray(3);
+
 }
 
 void Mesh::draw(Shader& shader, Texture& texture, glm::mat4 cameraView)

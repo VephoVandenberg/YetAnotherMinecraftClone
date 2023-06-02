@@ -15,7 +15,7 @@ namespace GameNamespace
 		Player(glm::vec3 pos, float width, float height);
 
 		void update(float dt);
-		void handleInput(Engine::Event& event);
+		void handleInput(Engine::Event& event, float dt);
 		
 		inline glm::mat4 getCameraView() const { return m_camera.getCameraView(); }
 		inline glm::vec3 getCameraFront() const { return m_camera.getCameraFront(); }

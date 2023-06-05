@@ -4,10 +4,6 @@
 
 #include "window.h"
 
-#if _DEBUG
-#include <imgui.h>
-#endif
-
 constexpr float g_windowWidth = 1200;
 constexpr float g_windowHeight = 800;
 
@@ -41,6 +37,14 @@ void Window::init()
 	}
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+
+#if _DEBUG
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+	ImGui_ImplOpenGL3_Init("#version 400");
+#endif
 
 	glfwSetKeyCallback(
 		m_window,

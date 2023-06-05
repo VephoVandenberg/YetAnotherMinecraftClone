@@ -17,6 +17,13 @@
 
 #include "application.h"
 
+#if _DEBUG
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#endif
+
+
 using namespace Engine;
 using namespace GameNamespace;
 
@@ -37,8 +44,6 @@ Application::Application()
 	initTextures();
 	initTextureArray();
 	initTextureCubes();
-	//initTerrain();
-	//initChunks();
 }
 
 void Application::init()
@@ -48,8 +53,7 @@ void Application::init()
 
 	m_window = std::unique_ptr<Window>(new Window(data));
 	m_player = std::unique_ptr<Player>(
-		new Player(glm::vec3(0.0f, 50.0f, 0.0f),
-			m_window->getWidth(), m_window->getHeight()));
+		new Player(glm::vec3(0.0f, 50.0f, 0.0f), m_window->getWidth(), m_window->getHeight()));
 	m_terrain = std::unique_ptr<Terrain>(new Terrain(g_borderStartMin, g_borderStartMax));
 }
 
@@ -95,8 +99,8 @@ void Application::initTextures()
 {
 	for (auto& tValue : g_texturePaths)
 	{
-		auto& tName = tValue.first;
-		auto& tPath = tValue.second;
+		auto& tName = tValue.first;		// Get texture name
+		auto& tPath = tValue.second;	// Get texture source path
 
 		ResourceManager::getInstance()
 			.setTexture(tName, tPath);
@@ -123,18 +127,36 @@ void Application::initTextureArray()
 
 void Application::run()
 {
+#if _DEBUG
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+#endif
 	while (m_isRunning)
 	{
 		float currentFrame = glfwGetTime();
 		m_deltaFrame = currentFrame - m_previousFrame;
 		m_previousFrame = currentFrame;
-
+#if _DEBUG
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+#endif
 		m_window->clear();
-
-		onUpdate();
 		onDraw();
+		onUpdate();
+
+#if _DEBUG
+		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+		ImGui::SetNextWindowSize(ImVec2(400.0f, 50.0f));
+		ImGui::Begin("Debug");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 
 		m_window->update();
+
 	}
 }
 

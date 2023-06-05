@@ -34,6 +34,5 @@ namespace GameNamespace
 		Engine::Camera m_camera;
 
 		bool m_leftButtonClicked = false;
-		bool m_leftButtonRepeat = false;
 	};
 }

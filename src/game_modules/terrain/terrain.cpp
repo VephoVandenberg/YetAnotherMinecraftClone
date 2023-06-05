@@ -11,7 +11,7 @@
 using namespace GameModules;
 
 constexpr glm::vec3 g_chunkSize = glm::vec3(16.0f, 256.0f, 16.0f);
-constexpr float g_rayMagnitude = 4.0f;
+constexpr float g_rayMagnitude = 2.0f;
 
 std::mutex g_chunk_lock;
 
@@ -124,22 +124,25 @@ void Terrain::update(const GameNamespace::Player& player)
 		{
 			m_chunksToInit.front()->initMesh();
 		}
+
 		if (m_chunksToInit.front())
 		{
 			m_chunksToInit.pop();
+		}
+
+		if (!m_futures.empty())
+		{
+			if (m_futures.front().wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+			{
+				m_futures.pop();
+			}
 		}
 	}
 
 	if (player.getLeftButtonStatus())
 	{
-		glm::vec3 rayPos = {
-			player.getPlayerPosition().x + 0.5f,
-			player.getPlayerPosition().y,
-			player.getPlayerPosition().z + 0.5f
-		};
-
 		Ray ray(
-			rayPos,
+			player.getPlayerPosition() + glm::vec3(0.5f, 0.0f, 0.5f),
 			player.getCameraFront(),
 			g_rayMagnitude);
 
@@ -185,7 +188,7 @@ void Terrain::update(const GameNamespace::Player& player)
 
 		case RayStatus::EndInNeighbour:
 		{
-			
+			// For future updates
 		}
 		}
 	}

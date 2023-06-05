@@ -5,11 +5,7 @@ using namespace GameNamespace;
 /*
 * Agenda
 * Later
-* - Simple ambient Lighting
-* - imGUI(Framerate + any other stuff that I will probablt need)
-* - Mouse control
-* - deletion of the std::async
-* - Entitiy Component System
+* - Entitiy Component System(Do I need that really)
 * - Some debug drawing
 * Super Late
 * - Investigate order of drawing faces
@@ -17,7 +13,9 @@ using namespace GameNamespace;
 * - Investigate the number of meshes that are alocated for chunks
 * - infinite terrain generation maybe there is faster and better way of doing it
 * - More complex terrain generation
+* - Mouse control(That thing doesn't seem to work now)
 * - Make a Cmake project
+* - I hope now std::async works the way it should(If something happens keep track of it)
 */
 
 

@@ -128,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>USE_VECTOR_FOR_BLOCKS;DEBUG_PERLIN;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Working\YetAnotherMinecraftClone\dependencies\imgui;D:\Working\YetAnotherMinecraftClone\dependencies\GLAD\include;D:\Working\YetAnotherMinecraftClone\dependencies\GLFW\include;D:\Working\YetAnotherMinecraftClone\dependencies\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Working\YetAnotherMinecraftClone\dependencies\imgui\backends;D:\Working\YetAnotherMinecraftClone\dependencies\imgui;D:\Working\YetAnotherMinecraftClone\dependencies\GLAD\include;D:\Working\YetAnotherMinecraftClone\dependencies\GLFW\include;D:\Working\YetAnotherMinecraftClone\dependencies\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -159,6 +159,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine\debug_subsystem\Debug.cpp" />
+    <ClCompile Include="dependencies\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="dependencies\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_demo.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_draw.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_tables.cpp" />
+    <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\engine\ray\ray.cpp" />
     <ClCompile Include="src\engine\mesh\mesh.cpp" />
     <ClCompile Include="src\game_modules\block\block.cpp" />
@@ -178,6 +186,9 @@
     <ClCompile Include="src\game_modules\terrain\terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\engine\debug_subsystem\Debug.h" />
+    <ClInclude Include="dependencies\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="dependencies\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\engine\ray\ray.h" />
     <ClInclude Include="src\engine\mesh\data.h" />
     <ClInclude Include="src\engine\mesh\mesh.h" />

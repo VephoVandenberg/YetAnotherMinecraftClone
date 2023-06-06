@@ -2,8 +2,9 @@
 
 namespace Engine
 {
-	class Debug
+	class DebugWindows
 	{
+	public:
+	private:
 	};
 }
-

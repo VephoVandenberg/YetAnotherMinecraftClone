@@ -139,6 +139,8 @@ void Terrain::update(const GameNamespace::Player& player)
 		}
 	}
 
+	// Process player mouse button
+	// Should be changed in the future
 	if (player.getLeftButtonStatus())
 	{
 		Ray ray(
@@ -146,50 +148,52 @@ void Terrain::update(const GameNamespace::Player& player)
 			player.getCameraFront(),
 			g_rayMagnitude);
 
-		glm::vec3 pos = {
-			static_cast<int>((player.getPlayerPosition().x))
-				- static_cast<int>((player.getPlayerPosition().x)) % static_cast<int>(g_chunkSize.x),
-			0.0f,
-			static_cast<int>(std::floor(player.getPlayerPosition().z))
-				- static_cast<int>((player.getPlayerPosition().z)) % static_cast<int>(g_chunkSize.z)
+		auto getChunkPos = [](glm::vec3 traversePos) {
+
+			int x = 
+				traversePos.x >= 0 ? 
+					(static_cast<int>(traversePos.x) - static_cast<int>(traversePos.x) % static_cast<int>(g_chunkSize.x)) :
+					(static_cast<int>(traversePos.x) - (g_chunkSize.x + static_cast<int>(traversePos.x) % static_cast<int>(g_chunkSize.x)));
+			int y = 0.0f;
+			int z = 
+				traversePos.z >= 0 ? 
+					(static_cast<int>(traversePos.z) - static_cast<int>(traversePos.z) % static_cast<int>(g_chunkSize.z)) :
+					(static_cast<int>(traversePos.z) - (g_chunkSize.z + static_cast<int>(traversePos.z) % static_cast<int>(g_chunkSize.z)));
+
+			glm::vec3 pos = {x, y, z};
+
+			return pos;
 		};
 
-		glm::vec3 positiveX = pos;
-		glm::vec3 positiveZ = pos;
-		glm::vec3 negativeX = pos;
-		glm::vec3 negativeZ = pos;
-
-		positiveX.x += g_chunkSize.x;
-		negativeX.x -= g_chunkSize.x;
-		positiveZ.z += g_chunkSize.z;
-		negativeZ.z -= g_chunkSize.z;
-
-		switch (m_chunks[pos].processRayToRemoveBlock(ray))
+		for (float delta = 0.0f; delta < ray.getLength(); delta += 0.05f)
 		{
-		case RayStatus::HitTheBlock:
-		{
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveX]);
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeX]);
+			glm::vec3 traversePos = ray.getPosition() + delta * ray.getDirection() * ray.getLength();
 
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[positiveZ]);
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[negativeZ]);
+			glm::vec3 pos = getChunkPos(traversePos);
 
-			m_chunks[positiveX].initMeshData();
-			m_chunks[negativeX].initMeshData();
-			m_chunks[positiveZ].initMeshData();
-			m_chunks[negativeZ].initMeshData();
-			m_chunks[pos].initMeshData();
-			m_chunks[positiveX].setMesh();
-			m_chunks[negativeX].setMesh();
-			m_chunks[positiveZ].setMesh();
-			m_chunks[negativeZ].setMesh();
-			m_chunks[pos].setMesh();
-		} break;
+			if (m_chunks[pos].processRayToRemoveBlock(traversePos))
+			{
+				glm::vec3 posX = pos + glm::vec3(g_chunkSize.x, 0.0f, 0.0f);
+				glm::vec3 negX = pos - glm::vec3(g_chunkSize.x, 0.0f, 0.0f);
+				glm::vec3 posZ = pos + glm::vec3(0.0f, 0.0f, g_chunkSize.z);
+				glm::vec3 negZ = pos - glm::vec3(0.0f, 0.0f, g_chunkSize.z);
 
-		case RayStatus::EndInNeighbour:
-		{
-			// For future updates
-		}
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posX]);
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[negX]);
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[posZ]);
+				m_chunks[pos].updateToNeighbourChunk(m_chunks[negZ]);
+				m_chunks[posX].initMeshData();
+				m_chunks[negX].initMeshData();
+				m_chunks[posZ].initMeshData();
+				m_chunks[negZ].initMeshData();
+				m_chunks[pos].initMeshData();
+				m_chunks[posX].setMesh();
+				m_chunks[negX].setMesh();
+				m_chunks[posZ].setMesh();
+				m_chunks[negZ].setMesh();
+				m_chunks[pos].setMesh();
+				break;
+			}
 		}
 	}
 }

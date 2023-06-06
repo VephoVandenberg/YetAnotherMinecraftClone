@@ -159,7 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\engine\debug_subsystem\Debug.cpp" />
+    <ClCompile Include="src\engine\debug_subsystem\debug_windows.cpp" />
     <ClCompile Include="dependencies\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="dependencies\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="dependencies\imgui\imgui.cpp" />
@@ -186,7 +186,7 @@
     <ClCompile Include="src\game_modules\terrain\terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\engine\debug_subsystem\Debug.h" />
+    <ClInclude Include="src\engine\debug_subsystem\debug_windows.h" />
     <ClInclude Include="dependencies\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="dependencies\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\engine\ray\ray.h" />

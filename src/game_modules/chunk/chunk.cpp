@@ -275,12 +275,12 @@ void Chunk::setChunkFaces()
 					continue;
 				}
 
-				unsigned int frontBlock = FRONT_BLOCK(x, y, z, m_size);
-				unsigned int backBlock = BACK_BLOCK(x, y, z, m_size);
-				unsigned int topBlock = TOP_BLOCK(x, y, z, m_size);
-				unsigned int bottomBlock = BOTTOM_BLOCK(x, y, z, m_size);
-				unsigned int rightBlock = RIGHT_BLOCK(x, y, z, m_size);
-				unsigned int leftBlock = LEFT_BLOCK(x, y, z, m_size);
+				const unsigned int frontBlock = FRONT_BLOCK(x, y, z, m_size);
+				const unsigned int backBlock = BACK_BLOCK(x, y, z, m_size);
+				const unsigned int topBlock = TOP_BLOCK(x, y, z, m_size);
+				const unsigned int bottomBlock = BOTTOM_BLOCK(x, y, z, m_size);
+				const unsigned int rightBlock = RIGHT_BLOCK(x, y, z, m_size);
+				const unsigned int leftBlock = LEFT_BLOCK(x, y, z, m_size);
 
 				currentBlock.front = checkAir(frontBlock);
 				currentBlock.back = checkAir(backBlock);
@@ -383,51 +383,32 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 	}
 }
 
-RayStatus Chunk::processRayToRemoveBlock(Ray& ray)
+bool Chunk::processRayToRemoveBlock(const glm::vec3 traversePos)
 {
-	glm::vec3 dr = ray.getDirection();
-	
-	bool startsInChunk =
-		m_pos.x < ray.getPosition().x && ray.getPosition().x < m_pos.x + m_size.x &&
-		m_pos.z < ray.getPosition().z && ray.getPosition().z < m_pos.z + m_size.z;
+	const int x = m_pos.x < 0 ? static_cast<int>(traversePos.x) - m_pos.x - 1 : static_cast<int>(traversePos.x) - m_pos.x;
+	const int y = m_pos.y < 0 ? static_cast<int>(traversePos.y) - m_pos.y - 1 : static_cast<int>(traversePos.y) - m_pos.y;
+	const int z = m_pos.z < 0 ? static_cast<int>(traversePos.z) - m_pos.z - 1 : static_cast<int>(traversePos.z) - m_pos.z;
 
-	for (float delta = 0.0f; delta < ray.getLength(); delta += 0.05f)
+	const int index = z * m_size.x * m_size.y + y * m_size.x + x;
+
+	if (m_blocks[index].getType() != BlockType::Air)
 	{
-		int x = static_cast<int>(ray.getPosition().x + delta * dr.x - m_pos.x);
-		int y = static_cast<int>(ray.getPosition().y + delta * dr.y - m_pos.y);
-		int z = static_cast<int>(ray.getPosition().z + delta * dr.z - m_pos.z);
-
-		int index = z * m_size.x * m_size.y + y * m_size.x + x;
-
-		if (!startsInChunk &&
-			(index < 0 || index >= m_blocks.size()))
-		{
-			continue;
-		}
-
-		if (index >= m_blocks.size())
-		{
-			return RayStatus::EndInNeighbour;
-		}
-		if (m_blocks[index].getType() != BlockType::Air)
-		{
-			m_blocks[index] = std::move(Block(glm::vec3(x, y, z), BlockType::Air));			
-			checkSurroundedBlocks(x, y, z);
-			return RayStatus::HitTheBlock;
-		}
+		m_blocks[index] = std::move(Block(m_blocks[index].getPos(), BlockType::Air));
+		checkSurroundedBlocks(x, y, z);
+		return true;
 	}
 
-	return RayStatus::EndInChunk;
+	return false;
 }
 
 void Chunk::checkSurroundedBlocks(int x, int y, int z)
 {
-	unsigned int back = BACK_BLOCK(x, y, z, m_size);
-	unsigned int top = TOP_BLOCK(x, y, z, m_size);
-	unsigned int bottom = BOTTOM_BLOCK(x, y, z, m_size);
-	unsigned int right = RIGHT_BLOCK(x, y, z, m_size);
-	unsigned int left = LEFT_BLOCK(x, y, z, m_size);
-	unsigned int front = FRONT_BLOCK(x, y, z, m_size);
+	const unsigned int back = BACK_BLOCK(x, y, z, m_size);
+	const unsigned int top = TOP_BLOCK(x, y, z, m_size);
+	const unsigned int bottom = BOTTOM_BLOCK(x, y, z, m_size);
+	const unsigned int right = RIGHT_BLOCK(x, y, z, m_size);
+	const unsigned int left = LEFT_BLOCK(x, y, z, m_size);
+	const unsigned int front = FRONT_BLOCK(x, y, z, m_size);
 
 	if (m_blocks.size() > top)
 	{

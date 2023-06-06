@@ -54,7 +54,7 @@ namespace GameModules
 		void draw(Shader& shader, TextureArray& texture, glm::mat4 cameraView);
 		void setChunkFaces();
 		void updateToNeighbourChunk(Chunk& chunk);
-		RayStatus processRayToRemoveBlock(Ray& ray);
+		bool processRayToRemoveBlock(const glm::vec3 traversePos);
 
 		inline glm::vec3 getSize() const { return m_size; }
 		inline bool isMeshInitialized() const { return m_meshInitialized;  }

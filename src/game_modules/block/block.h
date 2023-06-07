@@ -19,6 +19,7 @@ namespace GameModules
 		Air = 0,
 		GrassDirt,
 		Stone,
+		Sand,
 		Dirt
 	};
 

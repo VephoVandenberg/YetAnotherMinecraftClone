@@ -41,6 +41,11 @@ Block::Block(glm::vec3 pos, BlockType type)
 		topT_ind = bottomT_ind = sideT_ind = 3.0f;
 	}break;
 
+	case BlockType::Sand:
+	{
+		topT_ind = bottomT_ind = sideT_ind = 4.0f;
+	}break;
+
 	default:
 	{}break;
 	}

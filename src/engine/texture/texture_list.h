@@ -10,6 +10,7 @@ namespace Engine
 	{
 		const char* g_grass = "grass";
 		const char* g_stone = "stone";
+		const char* g_sand = "sand";
 	}
 
 	const std::map<const char*, const char*> g_texturePaths= {
@@ -21,6 +22,10 @@ namespace Engine
 		"textures/cubes/grass_dirt/dirt.png",
 		"textures/cubes/grass_dirt/grass.png",
 
-		"textures/cubes/stone/stone.png"
+		"textures/cubes/stone/stone.png",
+
+		"textures/cubes/sand/sand.png",
+		
+		"textures/cubes/snow/snow.png"
 	};
 }

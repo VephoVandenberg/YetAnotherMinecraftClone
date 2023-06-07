@@ -178,9 +178,9 @@ void Chunk::initBlocks()
 		for (unsigned int x = 0; x < m_size.x; x++)
 		{
 
-			int octaves = 7;
+			int octaves = 14;
 			float persistance = 0.5f;
-			float frequency = 0.005f;
+			float frequency = 0.001f;
 			float amplitude = 1.0f;
 			float y = 0.0f;
 			float maxValue = 0.0f;  // Used for normalizing result to 0.0 - 1.0
@@ -194,7 +194,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(60 + 10 * octaves * (y/maxValue));
+			heights.push_back(60 + 20 * octaves * (y/maxValue));
 		}
 	}
 
@@ -215,20 +215,24 @@ void Chunk::initBlocks()
 	}
 }
 
+// Still needs some work to be done
 BlockType Chunk::getBlockType(int height, int index)
 {
-	int stone = 30;
-	int grass = height;
+	int stone = 10;
 
 	if (index <= stone)
 	{
 		return BlockType::Stone;
 	}
-	else if (index < grass)
+	else if (height < 15 && index <= height)
+	{
+		return BlockType::Sand;
+	}
+	else if (index < height)
 	{
 		return BlockType::Dirt;
 	}
-	else if (index == grass)
+	else if (index == height)
 	{
 		return BlockType::GrassDirt;
 	}

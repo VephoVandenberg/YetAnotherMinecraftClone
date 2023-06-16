@@ -20,7 +20,8 @@ namespace GameModules
 		GrassDirt,
 		Stone,
 		Sand,
-		Dirt
+		Dirt,
+		Snow
 	};
 
 	using namespace Engine;

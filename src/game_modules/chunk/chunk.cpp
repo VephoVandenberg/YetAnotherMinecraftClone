@@ -46,59 +46,65 @@ static constexpr unsigned char p[512] = {
 	   78, 66, 215, 61, 156, 180,
 };
 
-auto addFront = [](std::vector<unsigned int>& indicies, unsigned int i) {
+void addFront(std::vector<unsigned int>& indicies, unsigned int i) 
+{
 	indicies.push_back(24 * i + 0);
 	indicies.push_back(24 * i + 1);
 	indicies.push_back(24 * i + 2);
 	indicies.push_back(24 * i + 1);
 	indicies.push_back(24 * i + 3);
 	indicies.push_back(24 * i + 2);
-};
+}
 
-auto addBack = [](std::vector<unsigned int>& indicies, unsigned int i) {
+void addBack(std::vector<unsigned int>& indicies, unsigned int i) 
+{
 	indicies.push_back(24 * i + 4);
 	indicies.push_back(24 * i + 6);
 	indicies.push_back(24 * i + 5);
 	indicies.push_back(24 * i + 5);
 	indicies.push_back(24 * i + 6);
 	indicies.push_back(24 * i + 7);
-};
+}
 
-auto addTop = [](std::vector<unsigned int>& indicies, unsigned int i) {
+void addTop(std::vector<unsigned int>& indicies, unsigned int i) 
+{
 	indicies.push_back(24 * i + 8);
 	indicies.push_back(24 * i + 9);
 	indicies.push_back(24 * i + 10);
 	indicies.push_back(24 * i + 9);
 	indicies.push_back(24 * i + 11);
 	indicies.push_back(24 * i + 10);
-};
+}
 
-auto addBottom = [](std::vector<unsigned int>& indicies, unsigned int i) {
+void addBottom(std::vector<unsigned int>& indicies, unsigned int i) 
+{
 	indicies.push_back(24 * i + 12);
 	indicies.push_back(24 * i + 14);
 	indicies.push_back(24 * i + 13);
 	indicies.push_back(24 * i + 13);
 	indicies.push_back(24 * i + 14);
 	indicies.push_back(24 * i + 15);
-};
+}
 
-auto addLeft = [](std::vector<unsigned int>& indicies, unsigned int i) {
+void addLeft(std::vector<unsigned int>& indicies, unsigned int i) 
+{
 	indicies.push_back(24 * i + 16);
 	indicies.push_back(24 * i + 17);
 	indicies.push_back(24 * i + 18);
 	indicies.push_back(24 * i + 17);
 	indicies.push_back(24 * i + 19);
 	indicies.push_back(24 * i + 18);
-};
+}
 
-auto addRight = [](std::vector<unsigned int>& indicies, unsigned int i) {
+void addRight(std::vector<unsigned int>& indicies, unsigned int i) 
+{
 	indicies.push_back(24 * i + 20);
 	indicies.push_back(24 * i + 22);
 	indicies.push_back(24 * i + 21);
 	indicies.push_back(24 * i + 21);
 	indicies.push_back(24 * i + 22);
 	indicies.push_back(24 * i + 23);
-};
+}
 
 Chunk::Chunk(glm::vec3 pos)
 	: m_size(g_chunkSize)
@@ -194,7 +200,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(60 + 20 * octaves * (y/maxValue));
+			heights.push_back(100 + 20 * octaves * (y/maxValue));
 		}
 	}
 
@@ -218,7 +224,11 @@ void Chunk::initBlocks()
 // Still needs some work to be done
 BlockType Chunk::getBlockType(int height, int index)
 {
-	int stone = 10;
+	// Will need future rework
+	constexpr int stone = 10;
+	constexpr int grassAndDirt = 40;
+	constexpr int mountain = 90;
+	constexpr int snowMountain = 130;
 
 	if (index <= stone)
 	{
@@ -228,13 +238,21 @@ BlockType Chunk::getBlockType(int height, int index)
 	{
 		return BlockType::Sand;
 	}
-	else if (index < height)
+	else if (index < grassAndDirt && index < height)
 	{
 		return BlockType::Dirt;
 	}
-	else if (index == height)
+	else if (index == grassAndDirt && index == height)
 	{
 		return BlockType::GrassDirt;
+	}
+	else if (index <= mountain && index < height)
+	{
+		return BlockType::Stone;
+	}
+	else if (index <= snowMountain && index < height)
+	{
+		return BlockType::Snow;
 	}
 	else
 	{

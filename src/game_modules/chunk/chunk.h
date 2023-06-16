@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <thread>
 #include <array>
+#include <bit>
 
 #include <glm/glm.hpp>
 
@@ -25,12 +26,16 @@ namespace GameModules
 	{
 		size_t operator()(const glm::vec3& v) const
 		{
-			return std::hash<int>()(v.x) ^ std::hash<int>()(v.z);
+			size_t h = 0xcf234123f;
+			h ^= std::_Bit_cast<uint32_t>(v.x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			h ^= std::_Bit_cast<uint32_t>(v.y) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			h ^= std::_Bit_cast<uint32_t>(v.z) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			return h;
 		}
 
 		bool operator()(const glm::vec3& a, const glm::vec3& b) const
 		{
-			return a.x == b.x && a.x == b.z;
+			return a.x == b.x && a.y == b.y && a.x == b.z;
 		}
 	};
 

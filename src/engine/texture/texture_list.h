@@ -11,6 +11,7 @@ namespace Engine
 		const char* g_grass = "grass";
 		const char* g_stone = "stone";
 		const char* g_sand = "sand";
+		const char* g_snow = "snow";
 	}
 
 	const std::map<const char*, const char*> g_texturePaths= {

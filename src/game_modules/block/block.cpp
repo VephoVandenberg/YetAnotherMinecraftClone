@@ -46,6 +46,11 @@ Block::Block(glm::vec3 pos, BlockType type)
 		topT_ind = bottomT_ind = sideT_ind = 4.0f;
 	}break;
 
+	case BlockType::Snow:
+	{
+		topT_ind = bottomT_ind = sideT_ind = 5.0f;
+	}break;
+
 	default:
 	{}break;
 	}

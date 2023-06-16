@@ -1,13 +1,12 @@
 #include "src/game_base/app/application.h"
 
-using namespace GameNamespace;
-
 /*
 * Agenda
 * Later
+* - Multithreading makes me sad(Fix it fucker)
 * - Entitiy Component System(Do I need that really?) Just read about it
-* - Some debug drawing
 * - More blocks
+* - Serialisation system
 * - Investigate the number of meshes that are alocated for chunks
 * - Skybox
 * - Player physics
@@ -20,10 +19,9 @@ using namespace GameNamespace;
 * - Maybe we'll got some UI?
 */
 
-
 int main(int argc, char** argv)
 {
-	Application *app = new Application;
+	GameNamespace::Application *app = new GameNamespace::Application;
 	app->run();
 
 	delete app;

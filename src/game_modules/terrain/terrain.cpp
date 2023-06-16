@@ -132,9 +132,9 @@ void Terrain::update(const GameNamespace::Player& player)
 
 		if (!m_futures.empty())
 		{
-			// if (m_futures.front().wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+			if (m_futures.front().wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 			{
-			//	m_futures.pop();
+				m_futures.pop();
 			}
 		}
 	}

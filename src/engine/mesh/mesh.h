@@ -2,7 +2,13 @@
 
 #include <vector>
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
+
+#include "../shader/shader.h"
+#include "../texture/texture.h"
+#include "../texture/texture_cube.h"
+#include "../texture/texture_array.h"
 
 #include "data.h"
 
@@ -12,7 +18,6 @@ namespace Engine
 	{
 		unsigned int VAO;
 		unsigned int VBO;
-		unsigned int IBO;
 	};
 
 
@@ -26,13 +31,12 @@ namespace Engine
 	class Mesh
 	{
 	public:
-		Mesh(std::vector<Vertex> vertices, unsigned int VBOsize, std::vector<unsigned int> indicies, unsigned int IBOsize);
+		Mesh(std::vector<Vertex> vertices);
 
-		void draw(Shader& shader, Texture& texture, glm::mat4 cameraView);
-		void draw(Shader& shader, TextureCube& textureCube, glm::mat4 cameraView);
-		void draw(Shader& shader, TextureArray& textureArray, glm::mat4 cameraView);
-		void updateData(std::vector<Vertex> vertices, std::vector<unsigned int> indicies);
-		void appendData(std::vector<Vertex> vertices, std::vector<unsigned int> indicies);
+		template <typename T>
+		void draw(Shader& shader, T& texture, glm::mat4 cmaeraView);
+
+		void updateData(std::vector<Vertex> vertices);
 
 		Mesh() = default;
 		~Mesh() = default;
@@ -43,11 +47,20 @@ namespace Engine
 		Mesh& operator=(const Mesh&) = delete;
 
 	private:
-		void init(unsigned int VBOSize, unsigned int IBOSize);
+		void init();
 
 		std::vector<Vertex> m_vertices;
-		std::vector<unsigned int> m_indicies;
-
 		Buffer m_buffer;
 	};
+
+	template <typename T>
+	void Mesh::draw(Shader& shader, T& textureObj, glm::mat4 cmaeraView)
+	{
+		glBindVertexArray(m_buffer.VAO);
+		shader.use();
+		shader.setMat4vf("u_view", cmaeraView);
+		textureObj.bind();
+		glBindVertexArray(m_buffer.VAO);
+		glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+	}
 }

@@ -30,12 +30,12 @@ namespace GameModules
 	class Block
 	{
 	public:
-		bool front = false;
-		bool back = false;
-		bool top = false;
-		bool bottom = false;
-		bool right = false;
-		bool left = false;
+		bool front;
+		bool back;
+		bool top;
+		bool bottom;
+		bool right;
+		bool left;
 
 		float topT_ind = 0.0f;
 		float bottomT_ind = 0.0f;

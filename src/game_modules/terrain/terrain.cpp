@@ -59,13 +59,10 @@ void Terrain::draw(const glm::mat4& view)
 	for (auto& chunk : m_chunks)
 	{
 		bool canDraw = chunk.second.isMeshInitialized();
-
-		{
-			chunk.second.draw(
-				ResourceManager::getInstance().getShader(ShaderNames::g_cube_shader),
-				ResourceManager::getInstance().getTextureArray(),
-				view);
-		}
+		chunk.second.draw(
+			ResourceManager::getInstance().getShader(ShaderNames::g_cube_shader),
+			ResourceManager::getInstance().getTextureArray(),
+			view);
 	}
 }
 
@@ -150,17 +147,17 @@ void Terrain::update(const GameNamespace::Player& player)
 
 		auto getChunkPos = [](glm::vec3 traversePos) {
 
-			int x = 
-				traversePos.x >= 0 ? 
-					(static_cast<int>(traversePos.x) - static_cast<int>(traversePos.x) % static_cast<int>(g_chunkSize.x)) :
-					(static_cast<int>(traversePos.x) - (g_chunkSize.x + static_cast<int>(traversePos.x) % static_cast<int>(g_chunkSize.x)));
+			int x =
+				traversePos.x >= 0 ?
+				(static_cast<int>(traversePos.x) - static_cast<int>(traversePos.x) % static_cast<int>(g_chunkSize.x)) :
+				(static_cast<int>(traversePos.x) - (g_chunkSize.x + static_cast<int>(traversePos.x) % static_cast<int>(g_chunkSize.x)));
 			int y = 0.0f;
-			int z = 
-				traversePos.z >= 0 ? 
-					(static_cast<int>(traversePos.z) - static_cast<int>(traversePos.z) % static_cast<int>(g_chunkSize.z)) :
-					(static_cast<int>(traversePos.z) - (g_chunkSize.z + static_cast<int>(traversePos.z) % static_cast<int>(g_chunkSize.z)));
+			int z =
+				traversePos.z >= 0 ?
+				(static_cast<int>(traversePos.z) - static_cast<int>(traversePos.z) % static_cast<int>(g_chunkSize.z)) :
+				(static_cast<int>(traversePos.z) - (g_chunkSize.z + static_cast<int>(traversePos.z) % static_cast<int>(g_chunkSize.z)));
 
-			glm::vec3 pos = {x, y, z};
+			glm::vec3 pos = { x, y, z };
 
 			return pos;
 		};

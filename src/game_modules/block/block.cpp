@@ -17,10 +17,10 @@ Block::Block(glm::vec3 pos, BlockType type)
 	, m_type(type)
 	, front(false)
 	, back(false)
+	, left(false)
+	, right(false)
 	, top(false)
 	, bottom(false)
-	, right(false)
-	, left(false)
 {
 	switch (m_type)
 	{
@@ -31,27 +31,9 @@ Block::Block(glm::vec3 pos, BlockType type)
 		sideT_ind = 0.0f;
 	}break;
 
-	case BlockType::Dirt:
-	{
-		topT_ind = bottomT_ind = sideT_ind = 1.0f;
-	}break;
-
-	case BlockType::Stone:
-	{
-		topT_ind = bottomT_ind = sideT_ind = 3.0f;
-	}break;
-
-	case BlockType::Sand:
-	{
-		topT_ind = bottomT_ind = sideT_ind = 4.0f;
-	}break;
-
-	case BlockType::Snow:
-	{
-		topT_ind = bottomT_ind = sideT_ind = 5.0f;
-	}break;
-
-	default:
-	{}break;
+	case BlockType::Dirt:	{ topT_ind = bottomT_ind = sideT_ind = 1.0f; }	break;
+	case BlockType::Stone:	{ topT_ind = bottomT_ind = sideT_ind = 3.0f; }	break;
+	case BlockType::Sand:	{ topT_ind = bottomT_ind = sideT_ind = 4.0f; }	break;
+	case BlockType::Snow:	{ topT_ind = bottomT_ind = sideT_ind = 5.0f; }	break;
 	}
 }

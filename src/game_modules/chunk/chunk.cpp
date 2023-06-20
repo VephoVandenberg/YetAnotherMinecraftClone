@@ -136,7 +136,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(100 + 20 * octaves * (y/maxValue));
+			heights.push_back(130 + 20 * octaves * (y/maxValue));
 		}
 	}
 
@@ -207,21 +207,21 @@ void Chunk::setChunkFaces()
 				if (m_blocks[iCurrent].getType() == BlockType::Air)
 				{
 					const int iFront = FRONT_BLOCK(x, y, z, m_size);
-					if (z + 1 < m_size.z && 
+					if (z < m_size.z - 1 && 
 						m_blocks[iFront].getType() != BlockType::Air)
 					{
 						m_blocks[iFront].back = true;
 					}
 
 					const int iTop = TOP_BLOCK(x, y, z, m_size);
-					if (y + 1 < m_size.y &&
+					if (y < m_size.y - 1 &&
 						m_blocks[iTop].getType() != BlockType::Air)
 					{
 						m_blocks[iTop].bottom = true;
 					}
 
 					const int iRight = RIGHT_BLOCK(x, y, z, m_size);
-					if (x + 1 < m_size.x &&
+					if (x < m_size.x - 1 &&
 						m_blocks[iRight].getType() != BlockType::Air)
 					{
 						m_blocks[iRight].left = true;
@@ -230,21 +230,21 @@ void Chunk::setChunkFaces()
 				else
 				{
 					const int iFront = FRONT_BLOCK(x, y, z, m_size);
-					if (z + 1 < m_size.z &&
+					if (z < m_size.z - 1 &&
 						m_blocks[iFront].getType() == BlockType::Air)
 					{
 						m_blocks[iCurrent].front = true;
 					}
 
 					const int iTop = TOP_BLOCK(x, y, z, m_size);
-					if (y + 1 < m_size.y &&
+					if (y < m_size.y - 1 &&
 						m_blocks[iTop].getType() == BlockType::Air)
 					{
 						m_blocks[iCurrent].top = true;
 					}
 
 					const int iRight = RIGHT_BLOCK(x, y, z, m_size);
-					if (x + 1 < m_size.x &&
+					if (x < m_size.x - 1 &&
 						m_blocks[iRight].getType() == BlockType::Air)
 					{
 						m_blocks[iCurrent].right = true;
@@ -302,7 +302,7 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 				leftBlock.right = false;
 				rightBlock.left = false;
 			}
-			if (leftBlock.getType() == BlockType::Air && rightBlock.getType() != BlockType::Air)
+			else if (leftBlock.getType() == BlockType::Air && rightBlock.getType() != BlockType::Air)
 			{
 				rightBlock.left = true;
 			}
@@ -333,7 +333,7 @@ void Chunk::traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const 
 				backBlock.front = false;
 				frontBlock.back = false;
 			}
-			if (frontBlock.getType() == BlockType::Air && backBlock.getType() != BlockType::Air)
+			else if (frontBlock.getType() == BlockType::Air && backBlock.getType() != BlockType::Air)
 			{
 				backBlock.front = true;
 			}
@@ -404,7 +404,6 @@ void Chunk::initMeshData()
 	unsigned int IBOData_index = 0;
 
 	m_vertices.clear();
-	m_indicies.clear();
 
 	for (auto& block : m_blocks)
 	{

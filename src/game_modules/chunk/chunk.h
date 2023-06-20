@@ -90,6 +90,5 @@ namespace GameModules
 
 		std::vector<Block> m_blocks;
 		std::vector<Vertex> m_vertices;
-		std::vector<unsigned int> m_indicies;
 	};
 }

@@ -1,4 +1,5 @@
 #include <mutex>
+#include <iostream>
 
 #include "../../game_base/player/player.h"
 
@@ -66,61 +67,11 @@ void Terrain::draw(const glm::mat4& view)
 	}
 }
 
-void Terrain::checkTerrainBorders(const glm::vec3 pos, const glm::vec3 velocity)
-{
-	int signX = (velocity.x > 0) ? 1 : -1;
-	int signZ = (velocity.z > 0) ? 1 : -1;
-	float distanceX =
-		std::abs((m_borderMax.x - m_borderMin.x)) / 2.0f - g_chunkSize.x / 2.0f;
-	float distanceZ =
-		std::abs((m_borderMax.z - m_borderMin.z)) / 2.0f - g_chunkSize.z / 2.0f;
-	float maxX = signX > 0 ? m_borderMax.x : m_borderMin.x - g_chunkSize.x;
-	float minX = signX > 0 ? m_borderMin.x : m_borderMax.x - g_chunkSize.x;
-	float maxZ = signZ > 0 ? m_borderMax.z : m_borderMin.z - g_chunkSize.z;
-	float minZ = signZ > 0 ? m_borderMin.z : m_borderMax.z - g_chunkSize.z;
-	float offsetX = signX * g_chunkSize.x;
-	float offsetZ = signZ * g_chunkSize.z;
-
-	bool exprX = false;
-	bool exprZ = false;
-
-	exprX = std::abs(maxX - pos.x) < distanceX;
-	if (exprX)
-	{
-		m_futures.push(
-			std::async(
-				std::launch::async, &Terrain::updateTerrainOnX,
-				this,
-				maxX, minX, maxZ, minZ, offsetX, offsetZ));
-		m_borderMax.x += offsetX;
-		m_borderMin.x += offsetX;
-	}
-
-	exprZ = std::abs(maxZ - pos.z) < distanceZ;
-	if (exprZ)
-	{
-		m_futures.push(
-			std::async(
-				std::launch::async, &Terrain::updateTerrainOnZ,
-				this,
-				maxX, minX, maxZ, minZ, offsetX, offsetZ));
-		m_borderMax.z += offsetZ;
-		m_borderMin.z += offsetZ;
-	}
-}
-
 void Terrain::update(const GameNamespace::Player& player)
 {
 	if (!m_chunksToInit.empty())
 	{
-		if (m_chunksToInit.front()->isMeshInitialized())
-		{
-			m_chunksToInit.front()->setMesh();
-		}
-		else
-		{
-			m_chunksToInit.front()->initMesh();
-		}
+		m_chunksToInit.front()->initMesh(); // Should be changed
 
 		if (m_chunksToInit.front())
 		{
@@ -195,6 +146,49 @@ void Terrain::update(const GameNamespace::Player& player)
 	}
 }
 
+void Terrain::checkTerrainBorders(const glm::vec3 pos, const glm::vec3 velocity)
+{
+	int signX = (velocity.x > 0) ? 1 : -1;
+	int signZ = (velocity.z > 0) ? 1 : -1;
+	float distanceX =
+		std::abs((m_borderMax.x - m_borderMin.x)) / 2.0f - g_chunkSize.x / 2.0f;
+	float distanceZ =
+		std::abs((m_borderMax.z - m_borderMin.z)) / 2.0f - g_chunkSize.z / 2.0f;
+	float maxX = signX > 0 ? m_borderMax.x : m_borderMin.x - g_chunkSize.x;
+	float minX = signX > 0 ? m_borderMin.x : m_borderMax.x - g_chunkSize.x;
+	float maxZ = signZ > 0 ? m_borderMax.z : m_borderMin.z - g_chunkSize.z;
+	float minZ = signZ > 0 ? m_borderMin.z : m_borderMax.z - g_chunkSize.z;
+	float offsetX = signX * g_chunkSize.x;
+	float offsetZ = signZ * g_chunkSize.z;
+
+	bool exprX = false;
+	bool exprZ = false;
+
+	exprX = std::abs(maxX - pos.x) < distanceX;
+	if (exprX)
+	{
+		m_futures.push(
+			std::async(
+				std::launch::async, &Terrain::updateTerrainOnX,
+				this,
+				maxX, minX, maxZ, minZ, offsetX, offsetZ));
+		m_borderMax.x += offsetX;
+		m_borderMin.x += offsetX;
+	}
+
+	exprZ = std::abs(maxZ - pos.z) < distanceZ;
+	if (exprZ)
+	{
+		m_futures.push(
+			std::async(
+				std::launch::async, &Terrain::updateTerrainOnZ,
+				this,
+				maxX, minX, maxZ, minZ, offsetX, offsetZ));
+		m_borderMax.z += offsetZ;
+		m_borderMin.z += offsetZ;
+	}
+}
+
 void Terrain::updateTerrainOnX(
 	float maxX, float minX,
 	float maxZ, float minZ,
@@ -212,7 +206,7 @@ void Terrain::updateTerrainOnX(
 		m_chunks[pos].setChunkFaces();
 		g_chunk_lock.unlock();
 
-		glm::vec3 posNX = { maxX - offsetX, 0.0f, z };
+		glm::vec3 posNX = { maxX - offsetX , 0.0f, z };
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
 			g_chunk_lock.lock();
@@ -261,7 +255,7 @@ void Terrain::updateTerrainOnZ(
 		if (m_chunks.find(posNX) != m_chunks.end())
 		{
 			g_chunk_lock.lock();
-			m_chunks[pos].updateToNeighbourChunk(m_chunks[posNX]);
+			m_chunks[posNX].updateToNeighbourChunk(m_chunks[pos]);
 			g_chunk_lock.unlock();
 		}
 
@@ -273,6 +267,10 @@ void Terrain::updateTerrainOnZ(
 			m_chunks[posNZ].initMeshData();
 			m_chunksToInit.push(&m_chunks[posNZ]);
 			g_chunk_lock.unlock();
+		}
+		else
+		{
+			std::cout << "Fuckery" << std::endl;
 		}
 
 		g_chunk_lock.lock();

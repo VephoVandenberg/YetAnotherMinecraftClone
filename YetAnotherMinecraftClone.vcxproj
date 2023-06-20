@@ -130,6 +130,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Working\YetAnotherMinecraftClone\dependencies\imgui\backends;D:\Working\YetAnotherMinecraftClone\dependencies\imgui;D:\Working\YetAnotherMinecraftClone\dependencies\GLAD\include;D:\Working\YetAnotherMinecraftClone\dependencies\GLFW\include;D:\Working\YetAnotherMinecraftClone\dependencies\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -73,7 +73,8 @@ namespace GameModules
 		Chunk& operator=(const Chunk&) = delete;	
 
 	private:
-		float perlin(float x, float z);
+		float perlin2D(float x, float y);
+		float perlin3D(float x, float y, float z);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
 		void addVertices(Block& m_block);

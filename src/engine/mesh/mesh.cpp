@@ -49,6 +49,5 @@ void Mesh::updateData(std::vector<Vertex> verticies)
 	glBindVertexArray(m_buffer.VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer.VBO);
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 
-		m_vertices.size() * sizeof(Vertex), m_vertices.data());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size() * sizeof(Vertex), m_vertices.data());
 }

@@ -135,11 +135,11 @@ void Terrain::update(const GameNamespace::Player& player)
 				m_chunks[posZ].initMeshData();
 				m_chunks[negZ].initMeshData();
 				m_chunks[pos].initMeshData();
-				m_chunks[posX].setMesh();
-				m_chunks[negX].setMesh();
-				m_chunks[posZ].setMesh();
-				m_chunks[negZ].setMesh();
-				m_chunks[pos].setMesh();
+				m_chunks[posX].initMesh();
+				m_chunks[negX].initMesh();
+				m_chunks[posZ].initMesh();
+				m_chunks[negZ].initMesh();
+				m_chunks[pos].initMesh();
 				break;
 			}
 		}

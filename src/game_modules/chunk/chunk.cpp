@@ -53,7 +53,7 @@ Chunk::Chunk(glm::vec3 pos)
 	initBlocks();
 }
 
-float Chunk::perlin(float x, float y)
+float Chunk::perlin2D(float x, float y)
 {
 	auto interpolate = [](float a0, float a1, float w) {
 		return (a1 - a0) * w + a0;
@@ -63,20 +63,20 @@ float Chunk::perlin(float x, float y)
 		return ((6 * t - 15) * t + 10) * t * t * t;
 	};
 
-	auto dot_grad = [](int hash, float xf, float yf) {
+	auto dot_grad = [](int hash, float x, float y) {
 		// In 2D case, the gradient may be any of 8 direction vectors pointing to the
 		// edges of a unit-square. The distance vector is the input offset (relative to
 		// the smallest bound).
 		switch (hash & 0x7)
 		{
-		case 0x0: return  xf + yf;
-		case 0x1: return  xf;
-		case 0x2: return  xf - yf;
-		case 0x3: return -yf;
-		case 0x4: return -xf - yf;
-		case 0x5: return -xf;
-		case 0x6: return -xf + yf;
-		case 0x7: return  yf;
+		case 0x0: return  x + y;
+		case 0x1: return  x;
+		case 0x2: return  x - y;
+		case 0x3: return -y;
+		case 0x4: return -x - y;
+		case 0x5: return -x;
+		case 0x6: return -x + y;
+		case 0x7: return  y;
 		default:  return  0.0f;
 		}
 	};
@@ -92,24 +92,106 @@ float Chunk::perlin(float x, float y)
 	const float yf1 = yf0 - 1.0f;
 
 	// Wrap to range 0-255.
-	int const xi = xi0 & 0xFF;
-	int const yi = yi0 & 0xFF;
+	const int xi = xi0 & 0xFF;
+	const int yi = yi0 & 0xFF;
 
 	// Apply the fade function to the location.
 	const float u = fade(xf0);
 	const float v = fade(yf0);
 
 	// Generate hash values for each point of the unit-square.
-	int const h00 = p[p[(xi + 0)] + yi + 0];
-	int const h01 = p[p[(xi + 0)] + yi + 1];
-	int const h10 = p[p[(xi + 1)] + yi + 0];
-	int const h11 = p[p[(xi + 1)] + yi + 1];
+	const int h00 = p[p[(xi + 0)] + yi + 0];
+	const int h01 = p[p[(xi + 0)] + yi + 1];
+	const int h10 = p[p[(xi + 1)] + yi + 0];
+	const int h11 = p[p[(xi + 1)] + yi + 1];
 
 	// Linearly interpolate between dot products of each gradient with its distance to the input location.
 	const float x1 = interpolate(dot_grad(h00, xf0, yf0), dot_grad(h10, xf1, yf0), u);
 	const float x2 = interpolate(dot_grad(h01, xf0, yf1), dot_grad(h11, xf1, yf1), u);
 
 	return (interpolate(x1, x2, v));
+}
+
+float perlin3D(float x, float y, float z)
+{
+	auto lerp = [](float a0, float a1, float w) {
+		return (a1 - a0) * w + a0;
+	};
+
+	auto fade = [](float t) {
+		return ((6 * t - 15) * t + 10) * t * t * t;
+	};
+
+	auto dot_grad = [](int hash, float x, float y, float z) {
+		// In 2D case, the gradient may be any of 8 direction vectors pointing to the
+		// edges of a unit-square. The distance vector is the input offset (relative to
+		// the smallest bound).
+		switch (hash & 0xFF)
+		{
+		case 0x0: return  x + y;
+		case 0x1: return -x + y;
+		case 0x2: return  x - y;
+		case 0x3: return -x - y;
+		case 0x4: return  x + z;
+		case 0x5: return -x + z;
+		case 0x6: return  x - z;
+		case 0x7: return -x - z;
+		case 0x8: return  y + z;
+		case 0x9: return -y + z;
+		case 0xA: return  y - z;
+		case 0xB: return -y - z;
+		case 0xC: return  y + x;
+		case 0xD: return -y + z;
+		case 0xE: return  y - x;
+		case 0xF: return -y - z;
+		default: return 0.0f; // never happens I hope
+		}
+	};
+
+	// Top-left coordinates of the unit-square.
+	const int xi0 = static_cast<int>(std::floor(x));
+	const int yi0 = static_cast<int>(std::floor(y));
+	const int zi0 = static_cast<int>(std::floor(z));
+
+	// Input location in the unit-square.
+	const float xf0 = x - xi0;
+	const float yf0 = y - yi0;
+	const float zf0 = z - zi0;
+	const float xf1 = xf0 - 1.0f;
+	const float yf1 = yf0 - 1.0f;
+	const float zf1 = zf0 - 1.0f;
+
+	// Wrap to range 0-255.
+	const int xi = xi0 & 0xFF;
+	const int yi = yi0 & 0xFF;
+	const int zi = zi0 & 0xFF;
+
+	// Apply the fade function to the location.
+	const float u = fade(xf0);
+	const float v = fade(yf0);
+	const float w = fade(zf0);
+
+	// Generate hash values for each point of the unit-square.
+	const int h000 = p[p[p[xi + 0] + yi + 0] + zi + 0];
+	const int h001 = p[p[p[xi + 0] + yi + 0] + zi + 1];
+	const int h010 = p[p[p[xi + 0] + yi + 1] + zi + 0];
+	const int h011 = p[p[p[xi + 0] + yi + 1] + zi + 1];
+	const int h100 = p[p[p[xi + 1] + yi + 0] + zi + 0];
+	const int h101 = p[p[p[xi + 1] + yi + 0] + zi + 1];
+	const int h110 = p[p[p[xi + 1] + yi + 1] + zi + 0];
+	const int h111 = p[p[p[xi + 1] + yi + 1] + zi + 1];
+
+	float x1, x2, y1, y2;
+	
+	x1 = lerp(dot_grad(h000, xf0, yf0, zf0), dot_grad(h100, xf1, yf0, zf0), u);
+	x2 = lerp(dot_grad(h010, xf0, yf1, zf0), dot_grad(h110, xf1, yf1, zf0), u);
+	y1 = lerp(x1, x2, v);
+	
+	x1 = lerp(dot_grad(h001, xf0, yf0, zf1), dot_grad(h101, xf1, yf0, zf1), u);
+	x2 = lerp(dot_grad(h011, xf0, yf1, zf1), dot_grad(h111, xf1, yf1, zf1), u);
+	y2 = lerp(x1, x2, v);
+
+	return lerp(y1, y2, w);
 }
 
 void Chunk::initBlocks()
@@ -128,7 +210,7 @@ void Chunk::initBlocks()
 			float maxValue = 0.0f;  // Used for normalizing result to 0.0 - 1.0
 			for (int i = 0; i < octaves; i++)
 			{
-				y += (perlin((m_pos.x + x)  * frequency, (m_pos.z + z)  * frequency)) * amplitude;
+				y += (perlin2D((m_pos.x + x)  * frequency, (m_pos.z + z)  * frequency)) * amplitude;
 
 				maxValue += amplitude;
 
@@ -160,18 +242,25 @@ void Chunk::initBlocks()
 // Still needs some work to be done
 BlockType Chunk::getBlockType(int height, int index)
 {
+	constexpr int stoneBase = 50;
+	constexpr int grassMountBase = 120;
+	constexpr int snowBase = 140;
+
+	if ((index <= height && height <= stoneBase) || index < height - 10)
+	{
+		return BlockType::Stone;
+	}
+
 	if (index < height)
 	{
 		return BlockType::Dirt;
 	}
-	else if (index == height)
+
+	if (index == height)
 	{
 		return BlockType::GrassDirt;
 	}
-	else
-	{
-		return BlockType::Air;
-	}
+	return BlockType::Air;
 }
 
 bool Chunk::checkAir(int index)
@@ -372,31 +461,12 @@ void Chunk::checkSurroundedBlocks(int x, int y, int z)
 	const unsigned int left = LEFT_BLOCK(x, y, z, m_size);
 	const unsigned int front = FRONT_BLOCK(x, y, z, m_size);
 
-	if (m_blocks.size() > top)
-	{
-		m_blocks[top].bottom = m_blocks[top].getType() != BlockType::Air ? true : false;
-	}
-	if (m_blocks.size() > bottom)
-	{
-		m_blocks[bottom].top = m_blocks[bottom].getType() != BlockType::Air ? true : false;
-	}
-	if (m_blocks.size() > front)
-	{
-		m_blocks[front].back = m_blocks[front].getType() != BlockType::Air ? true : false;
-	}
-	if (m_blocks.size() > back)
-	{
-		m_blocks[back].front = m_blocks[back].getType() != BlockType::Air ? true : false;
-	}
-	if (m_blocks.size() > left)
-	{
-		m_blocks[left].right= m_blocks[left].getType() != BlockType::Air ? true : false;
-	}
-	if (m_blocks.size() > right)
-	{
-		m_blocks[right].left = m_blocks[right].getType() != BlockType::Air ? true : false;
-	}
-
+	if (m_blocks.size() > top) { m_blocks[top].bottom = true; }
+	if (m_blocks.size() > bottom) { m_blocks[bottom].top = true; }
+	if (m_blocks.size() > front) { m_blocks[front].back = true; }
+	if (m_blocks.size() > back) { m_blocks[back].front = true; }
+	if (m_blocks.size() > left) { m_blocks[left].right= true; }
+	if (m_blocks.size() > right) { m_blocks[right].left = true; }
 }
 
 void Chunk::initMeshData()
@@ -444,11 +514,11 @@ void Chunk::addVertices(Block& block)
 	if (block.bottom)
 	{
 		m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f,  0.5f), {0.0f, 0.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
-		m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f,  0.5f), {1.0f, 0.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
 		m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 1.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
 		m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f,  0.5f), {1.0f, 0.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
+		m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f,  0.5f), {1.0f, 0.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
+		m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 1.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
 		m_vertices.push_back({ block.getPos() + glm::vec3( 0.5f, -0.5f, -0.5f), {1.0f, 1.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
-		m_vertices.push_back({ block.getPos() + glm::vec3(-0.5f, -0.5f, -0.5f), {0.0f, 1.0f, block.bottomT_ind}, {0.0f, -0.5f, 0.0f}, 0.3f });
 	}
 	if (block.right)
 	{

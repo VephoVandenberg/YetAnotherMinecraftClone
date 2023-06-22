@@ -90,6 +90,9 @@
     <ClCompile Include="src\engine\debug_subsystem\debug_windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\game_modules\flora\tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\window\window.h">
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\engine\debug_subsystem\debug_windows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_modules\flora\tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

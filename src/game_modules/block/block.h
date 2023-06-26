@@ -21,7 +21,9 @@ namespace GameModules
 		Stone,
 		Sand,
 		Dirt,
-		Snow
+		Snow,
+		Wood,
+		Leaf
 	};
 
 	using namespace Engine;

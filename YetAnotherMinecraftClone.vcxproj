@@ -184,7 +184,6 @@
     <ClCompile Include="src\game_modules\chunk\chunk.cpp" />
     <ClCompile Include="src\engine\texture\texture_cube.cpp" />
     <ClCompile Include="src\engine\texture\texture_array.cpp" />
-    <ClCompile Include="src\game_modules\flora\tree.cpp" />
     <ClCompile Include="src\game_modules\terrain\terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -210,7 +209,6 @@
     <ClInclude Include="src\game_modules\chunk\chunk.h" />
     <ClInclude Include="src\engine\texture\texture_cube.h" />
     <ClInclude Include="src\engine\texture\texture_array.h" />
-    <ClInclude Include="src\game_modules\flora\tree.h" />
     <ClInclude Include="src\game_modules\terrain\terrain.h" />
   </ItemGroup>
   <ItemGroup>

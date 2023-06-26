@@ -21,7 +21,7 @@ namespace GameModules
 		
 		void checkTerrainBorders(const glm::vec3 pos, const glm::vec3 velocity);
 
-		void update(const GameNamespace::Player& player);
+		void update(GameNamespace::Player& player);
 		void draw(const glm::mat4& view);
 
 		Terrain() = default;

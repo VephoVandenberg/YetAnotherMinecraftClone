@@ -53,7 +53,7 @@ void Application::init()
 
 	m_window = std::unique_ptr<Window>(new Window(data));
 	m_player = std::unique_ptr<Player>(
-		new Player(glm::vec3(0.0f, 50.0f, 0.0f), m_window->getWidth(), m_window->getHeight()));
+		new Player(glm::vec3(0.0f, 140.0f, 0.0f), m_window->getWidth(), m_window->getHeight()));
 	m_terrain = std::unique_ptr<Terrain>(new Terrain(g_borderStartMin, g_borderStartMax));
 }
 

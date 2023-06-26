@@ -196,7 +196,6 @@ float perlin3D(float x, float y, float z)
 
 void Chunk::initBlocks()
 {
-	std::vector<int> heights;
 	for (unsigned int z = 0; z < m_size.z; z++)
 	{
 		for (unsigned int x = 0; x < m_size.x; x++)
@@ -218,7 +217,7 @@ void Chunk::initBlocks()
 				frequency *= 2;
 
 			}
-			heights.push_back(130 + 20 * octaves * (y/maxValue));
+			m_heightMap.push_back(130 + 20 * octaves * (y/maxValue));
 		}
 	}
 
@@ -230,13 +229,15 @@ void Chunk::initBlocks()
 			for (unsigned int x = 0; x < m_size.x; x++)
 			{
 				glm::vec3 pos = { x, y, z };
-				BlockType type = getBlockType(heights[z * m_size.x + x], y);
+				BlockType type = getBlockType(m_heightMap[z * m_size.x + x], y);
 
 				int index = z * m_size.x * m_size.y + y * m_size.x + x;
 				m_blocks.emplace_back(m_pos + pos, type);
 			}
 		}
 	}
+
+	placeTrees();
 }
 
 // Still needs some work to be done
@@ -246,33 +247,24 @@ BlockType Chunk::getBlockType(int height, int index)
 	constexpr int grassMountBase = 120;
 	constexpr int snowBase = 140;
 
-	if ((index <= height && height <= stoneBase) || index < height - 10)
+	if (index <= height)
 	{
-		return BlockType::Stone;
-	}
+		if (height <= stoneBase || index < height - 10)
+		{
+			return BlockType::Stone;
+		}
 
-	if (index < height)
-	{
-		return BlockType::Dirt;
-	}
+		if (index < height)
+		{
+			return BlockType::Dirt;
+		}
 
-	if (index == height)
-	{
-		return BlockType::GrassDirt;
+		if (index == height)
+		{
+			return BlockType::GrassDirt;
+		}
 	}
 	return BlockType::Air;
-}
-
-bool Chunk::checkAir(int index)
-{
-	if (index >= m_blocks.size() || index < 0)
-	{
-		return false;
-	}
-	else
-	{
-		return m_blocks[index].getType() == BlockType::Air;
-	}
 }
 
 #define FRONT_BLOCK(x, y, z, size)	(z + 1) * size.y * size.x + y * size.x + x
@@ -398,6 +390,53 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 			else if (leftBlock.getType() != BlockType::Air && rightBlock.getType() == BlockType::Air)
 			{
 				leftBlock.right = true;
+			}
+		}
+	}
+}
+
+void Chunk::placeTrees()
+{
+	int numberOfTrees = rand() % 3;
+	glm::vec3 treePos;
+
+	for (int iTree = 0; iTree < numberOfTrees; iTree++)
+	{
+		int xPos = rand() % static_cast<int>(m_size.x);
+		int zPos = rand() % static_cast<int>(m_size.z);
+		int yPos = m_heightMap[zPos * m_size.x + xPos];
+		treePos = {
+			m_pos.x + xPos,
+			m_pos.y + yPos + 1,
+			m_pos.z + zPos
+		};
+		// Tree base creation
+		for (int yBlock = 0; yBlock < 5; yBlock++)
+		{
+			m_blocks[zPos * m_size.x * m_size.y + treePos.y * m_size.x + xPos]
+				= std::move(Block(treePos, BlockType::Wood));
+			treePos.y += 1;
+		}
+		
+		// Leaf creation;
+		for (int z = 0; z < 3; z++)
+		{
+			for (int y = 0; y < 3; y++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+					glm::vec3 leafPos = {
+						treePos.x + x - 1,
+						treePos.y + y,
+						treePos.z + z - 1
+					};
+					int iCurr = (zPos + z - 1) * m_size.x * m_size.y + leafPos.y * m_size.x + (xPos + x - 1);
+					if (m_blocks.size() > iCurr)
+					{
+						m_blocks[iCurr] = std::move(Block(leafPos, BlockType::Leaf));
+					}
+					
+				}
 			}
 		}
 	}

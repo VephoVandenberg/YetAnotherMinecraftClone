@@ -77,9 +77,9 @@ namespace GameModules
 		float perlin3D(float x, float y, float z);
 		void traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX);
 		void traverseChunkFaceZ(Chunk& chunk, const unsigned int currentZ, const unsigned int neighbourZ);
+		void placeTrees();
 		void addVertices(Block& m_block);
 		void checkSurroundedBlocks(int Z, int Y, int X);
-		bool checkAir(int index);
 		BlockType getBlockType(int height, int index);
 
 		glm::vec3 m_size;
@@ -91,5 +91,6 @@ namespace GameModules
 
 		std::vector<Block> m_blocks;
 		std::vector<Vertex> m_vertices;
+		std::vector<unsigned int> m_heightMap;
 	};
 }

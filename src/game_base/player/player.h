@@ -16,6 +16,7 @@ namespace GameNamespace
 
 		void update(float dt);
 		void handleInput(Engine::Event& event, float dt);
+		inline void releaseButton() { m_leftButtonClicked = false;  }
 		
 		inline glm::mat4 getCameraView() const { return m_camera.getCameraView(); }
 		inline glm::vec3 getCameraFront() const { return m_camera.getCameraFront(); }
@@ -34,5 +35,6 @@ namespace GameNamespace
 		Engine::Camera m_camera;
 
 		bool m_leftButtonClicked = false;
+		bool m_rightButtonClicked = false;
 	};
 }

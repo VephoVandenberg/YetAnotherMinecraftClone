@@ -67,7 +67,7 @@ void Terrain::draw(const glm::mat4& view)
 	}
 }
 
-void Terrain::update(const GameNamespace::Player& player)
+void Terrain::update(GameNamespace::Player& player)
 {
 	if (!m_chunksToInit.empty())
 	{
@@ -140,6 +140,7 @@ void Terrain::update(const GameNamespace::Player& player)
 				m_chunks[posZ].initMesh();
 				m_chunks[negZ].initMesh();
 				m_chunks[pos].initMesh();
+				player.releaseButton();
 				break;
 			}
 		}
@@ -267,10 +268,6 @@ void Terrain::updateTerrainOnZ(
 			m_chunks[posNZ].initMeshData();
 			m_chunksToInit.push(&m_chunks[posNZ]);
 			g_chunk_lock.unlock();
-		}
-		else
-		{
-			std::cout << "Fuckery" << std::endl;
 		}
 
 		g_chunk_lock.lock();

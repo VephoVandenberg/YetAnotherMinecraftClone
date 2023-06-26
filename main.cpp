@@ -1,8 +1,7 @@
 #include "src/game_base/app/application.h"
 
 /*
-* Agenda
-* Later
+* TO DO
 * - Maybe we should make some trees
 * - More complex terrain generation(Perlin3D)
 * - Entitiy Component System(Do I need that really?) Just read about it
@@ -11,7 +10,7 @@
 * - Skybox
 * - Player physics
 * - Water?
-* Super Late
+* TO DO LATER
 * - The way multithreading works is not perfect could be changed in the future
 * - Mouse control(Do not think about it for now beacuse it doesn't matter at least, now)
 * - Make a Cmake project

@@ -31,9 +31,17 @@ Block::Block(glm::vec3 pos, BlockType type)
 		sideT_ind = 0.0f;
 	}break;
 
+	case BlockType::Wood: 
+	{
+		topT_ind = bottomT_ind = 7.0f;
+		sideT_ind = 6.0f;
+	} break;
+
 	case BlockType::Dirt:	{ topT_ind = bottomT_ind = sideT_ind = 1.0f; }	break;
 	case BlockType::Stone:	{ topT_ind = bottomT_ind = sideT_ind = 3.0f; }	break;
 	case BlockType::Sand:	{ topT_ind = bottomT_ind = sideT_ind = 4.0f; }	break;
 	case BlockType::Snow:	{ topT_ind = bottomT_ind = sideT_ind = 5.0f; }	break;
+	case BlockType::Leaf:	{ topT_ind = bottomT_ind = sideT_ind = 8.0f; }	break;
+
 	}
 }

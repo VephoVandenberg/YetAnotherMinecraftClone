@@ -2,7 +2,6 @@
 
 /*
 * TO DO
-* - Maybe we should make some trees
 * - More complex terrain generation(Perlin3D)
 * - Entitiy Component System(Do I need that really?) Just read about it
 * - Serialisation system

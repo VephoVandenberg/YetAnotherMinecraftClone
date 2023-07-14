@@ -4,6 +4,10 @@
 #include <mutex>
 #include <chrono>
 
+#if _DEBUG
+#include "../../engine/debug_subsystem/debug_windows.h"
+#endif
+
 #include "../../engine/resource_manager/resource_manager.h"
 #include "../../engine/shader/shader.h"
 #include "../../engine/texture/texture.h"
@@ -127,32 +131,20 @@ void Application::initTextureArray()
 
 void Application::run()
 {
-#if _DEBUG
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-#endif
 	while (m_isRunning)
 	{
 		float currentFrame = glfwGetTime();
 		m_deltaFrame = currentFrame - m_previousFrame;
 		m_previousFrame = currentFrame;
 #if _DEBUG
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+		DebugWindows::getInstance().setFramerate();
 #endif
 		m_window->clear();
 		onDraw();
 		onUpdate();
 
 #if _DEBUG
-		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-		ImGui::SetNextWindowSize(ImVec2(400.0f, 50.0f));
-		ImGui::Begin("Debug");
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-		ImGui::End();
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		DebugWindows::getInstance().getFramerate();
 #endif
 
 		m_window->update();

@@ -364,6 +364,59 @@ void Chunk::updateToNeighbourChunk(Chunk& chunk)
 	}
 }
 
+void Chunk::placeTrees()
+{
+	int numberOfTrees = rand() % 2;
+	glm::vec3 treePos;
+
+	for (int iTree = 0; iTree < numberOfTrees; iTree++)
+	{
+		const int xPos = rand() % (static_cast<int>(m_size.x) - 1);
+		const int zPos = rand() % (static_cast<int>(m_size.z) - 1);
+		const int yPos = m_heightMap[zPos * m_size.x + xPos];
+		treePos = {
+			m_pos.x + xPos,
+			m_pos.y + yPos + 1,
+			m_pos.z + zPos
+		};
+
+		if (m_blocks[zPos * m_size.x * m_size.y + yPos * m_size.x + xPos].getType() == BlockType::Stone)
+		{
+			continue;
+		}
+
+		// Tree base creation
+		for (int yBlock = 0; yBlock < 5; yBlock++)
+		{
+			m_blocks[zPos * m_size.x * m_size.y + treePos.y * m_size.x + xPos]
+				= std::move(Block(treePos, BlockType::Wood));
+			treePos.y += 1;
+		}
+
+		// Leaf creation;
+		for (int z = 0; z < 3; z++)
+		{
+			for (int y = 0; y < 3; y++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+					glm::vec3 leafPos = {
+						treePos.x + x - 1,
+						treePos.y + y,
+						treePos.z + z - 1
+					};
+					int iCurr = (zPos + z - 1) * m_size.x * m_size.y + leafPos.y * m_size.x + (xPos + x - 1);
+					if (m_blocks.size() > iCurr)
+					{
+						m_blocks[iCurr] = std::move(Block(leafPos, BlockType::Leaf));
+					}
+
+				}
+			}
+		}
+	}
+}
+
 void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const unsigned int neighbourX)
 {
 	for (unsigned int z = 0; z < m_size.z; z++)
@@ -390,53 +443,6 @@ void Chunk::traverseChunkFaceX(Chunk& chunk, const unsigned int currentX, const 
 			else if (leftBlock.getType() != BlockType::Air && rightBlock.getType() == BlockType::Air)
 			{
 				leftBlock.right = true;
-			}
-		}
-	}
-}
-
-void Chunk::placeTrees()
-{
-	int numberOfTrees = rand() % 3;
-	glm::vec3 treePos;
-
-	for (int iTree = 0; iTree < numberOfTrees; iTree++)
-	{
-		int xPos = rand() % static_cast<int>(m_size.x);
-		int zPos = rand() % static_cast<int>(m_size.z);
-		int yPos = m_heightMap[zPos * m_size.x + xPos];
-		treePos = {
-			m_pos.x + xPos,
-			m_pos.y + yPos + 1,
-			m_pos.z + zPos
-		};
-		// Tree base creation
-		for (int yBlock = 0; yBlock < 5; yBlock++)
-		{
-			m_blocks[zPos * m_size.x * m_size.y + treePos.y * m_size.x + xPos]
-				= std::move(Block(treePos, BlockType::Wood));
-			treePos.y += 1;
-		}
-		
-		// Leaf creation;
-		for (int z = 0; z < 3; z++)
-		{
-			for (int y = 0; y < 3; y++)
-			{
-				for (int x = 0; x < 3; x++)
-				{
-					glm::vec3 leafPos = {
-						treePos.x + x - 1,
-						treePos.y + y,
-						treePos.z + z - 1
-					};
-					int iCurr = (zPos + z - 1) * m_size.x * m_size.y + leafPos.y * m_size.x + (xPos + x - 1);
-					if (m_blocks.size() > iCurr)
-					{
-						m_blocks[iCurr] = std::move(Block(leafPos, BlockType::Leaf));
-					}
-					
-				}
 			}
 		}
 	}

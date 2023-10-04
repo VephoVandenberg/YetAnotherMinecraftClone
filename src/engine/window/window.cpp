@@ -1,113 +1,35 @@
-#include <iostream>
 
-#include "../event/event.h"
+#include <iostream>
 
 #include "window.h"
 
-constexpr float g_windowWidth = 1200;
-constexpr float g_windowHeight = 800;
+constexpr size_t g_width = 1080;
+constexpr size_t g_height = 720;
 
-using namespace Engine;
-
-Window::Window(CallbackData data)
-	: m_width(g_windowWidth)
-	, m_height(g_windowHeight)
-	, m_data(data)
-{
-	init();
-}
-
-void Window::init()
+GLFWwindow* Engine::initWindow()
 {
 	if (!glfwInit())
 	{
-		std::cout << "ERROR::GLFW_FAILED_TO_LOAD" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cout << "Could not init GLFW" << std::endl;
+		return nullptr;
 	}
 
-	m_window = glfwCreateWindow(m_width, m_height, "YetAnotherMinecraftClone", nullptr, nullptr);
-	glfwMakeContextCurrent(m_window);
-	glfwSetWindowUserPointer(m_window, &m_data);
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	GLFWwindow* window =
+		glfwCreateWindow(g_width, g_height, "Another iteration of Minecraft", nullptr, nullptr);
+	glfwMakeContextCurrent(window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "ERROR::GLAD_FAILED_TO_LOAD" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return nullptr;
 	}
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	
+	if (!window)
+	{
+		std::cout << "Failed to initialize GLFW window" << std::endl;
+	}
+	
 
-#if _DEBUG
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-	ImGui_ImplOpenGL3_Init("#version 400");
-#endif
-
-	glfwSetKeyCallback(
-		m_window,
-		[](GLFWwindow* window, int key, int scancode, int action, int mods) {
-			auto* data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
-
-			KeyboardEvent event;
-			event.m_action = action;
-			event.m_key = key;
-
-			data->m_func(event);
-		});
-
-	glfwSetCursorPosCallback(
-		m_window,
-		[](GLFWwindow* window, double xPos, double yPos) {
-			auto* const data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
-
-			MouseMoveEvent event;
-			event.x = xPos;
-			event.y = yPos;
-
-			data->m_func(event);
-		});
-
-	glfwSetMouseButtonCallback(
-		m_window,
-		[](GLFWwindow* window, int button, int action, int mods) {
-			auto* const data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
-
-			MouseClickEvent event;
-			event.m_button = button;
-			event.m_action = action;
-
-			data->m_func(event);
-		});
-
-
-	glfwSetWindowCloseCallback(
-		m_window,
-		[](GLFWwindow* window) {
-			auto* const data = static_cast<const CallbackData* const>(glfwGetWindowUserPointer(window));
-
-			CloseEvent event;
-
-			data->m_func(event);
-		}
-	);
-}
-
-void Window::clear()
-{
-	glClearColor(0.2f, 0.2f, 1.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void Window::update()
-{
-	glfwSwapBuffers(m_window);
-	glfwPollEvents();
-}
-
-Window::~Window()
-{
-	glfwDestroyWindow(m_window);
+	return window;
 }

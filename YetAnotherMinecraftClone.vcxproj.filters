@@ -18,52 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\window\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dependencies\GLAD\src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\shader\shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\resource_manager\resource_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\camera\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\texture\texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\texture\image_loader\stb_image_loader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\mesh\mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game_modules\block\block.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game_modules\chunk\chunk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\texture\texture_cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\texture\texture_array.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game_base\app\application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game_base\player\player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\ray\ray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game_modules\terrain\terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dependencies\imgui\imgui_widgets.cpp">
@@ -87,78 +42,24 @@
     <ClCompile Include="dependencies\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\debug_subsystem\debug_windows.cpp">
+    <ClCompile Include="src\engine\window\window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\app\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\engine\window\window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\shader\shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\resource_manager\resource_manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\camera\camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\shader\shader_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\texture\texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\texture\texture_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\event\event.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\shader\uniform_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\mesh\mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\mesh\data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_modules\block\block.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_modules\chunk\chunk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\texture\texture_cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\texture\texture_cube_list.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\texture\texture_array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_base\app\application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_base\player\player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\ray\ray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_modules\terrain\terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dependencies\imgui\backends\imgui_impl_glfw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\imgui\backends\imgui_impl_opengl3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\debug_subsystem\debug_windows.h">
+    <ClInclude Include="src\engine\window\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\app\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

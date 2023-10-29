@@ -16,7 +16,7 @@
 * - Maybe we'll got some UI?
 */
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
 	GameNamespace::Application *app = new GameNamespace::Application;
 	app->run();
